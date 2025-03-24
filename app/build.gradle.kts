@@ -52,6 +52,8 @@ android {
 }
 
 tasks.register<JacocoReport>("jacocoTestReport") {
+    group = "verification"
+    description = "Generates code coverage report for the test task."
     dependsOn("testDebugUnitTest")
 
     reports {
