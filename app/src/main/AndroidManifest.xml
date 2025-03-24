@@ -16,11 +16,6 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name="at.aau.serg.websocketbrokerdemo.MainActivity2"
-            android:exported="false"
-            android:label="@string/title_activity_main2"
-            android:theme="@style/Theme.MyApplication" />
-        <activity
             android:name="at.aau.serg.websocketbrokerdemo.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
