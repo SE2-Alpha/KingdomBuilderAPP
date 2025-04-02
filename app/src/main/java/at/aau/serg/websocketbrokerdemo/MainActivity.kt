@@ -1,6 +1,7 @@
 package at.aau.serg.websocketbrokerdemo
 
 import MyStomp
+import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import androidx.activity.ComponentActivity
@@ -24,10 +25,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.R
+import kotlin.jvm.java
 
 
 class MainActivity : ComponentActivity(), Callbacks {
@@ -67,6 +70,8 @@ class MainActivity : ComponentActivity(), Callbacks {
     @Composable
     fun ConnectScreen() {
 
+        val context = LocalContext.current
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -100,6 +105,14 @@ class MainActivity : ComponentActivity(), Callbacks {
                     onResponse(responseText.toString())
                 }) {
                     Text(text = "Send Json")
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(onClick = {
+                    val intent = Intent(context, LobbyActivity::class.java)
+                    context.startActivity(intent)
+                }){
+                    Text(text = "Lobby")
                 }
             }
             Text(

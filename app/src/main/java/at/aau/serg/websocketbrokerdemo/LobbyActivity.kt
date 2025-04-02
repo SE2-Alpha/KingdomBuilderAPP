@@ -40,7 +40,7 @@ class LobbyActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-
+            Lobby()
         }
     }
 }
