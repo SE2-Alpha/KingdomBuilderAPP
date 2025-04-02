@@ -5,4 +5,5 @@
     <string name="title_activity_connection_view">ConnectionView</string>
     <string name="title_activity_view">view</string>
     <string name="title_activity_main2">MainActivity2</string>
+    <string name="title_activity_lobby">LobbyActivity</string>
 </resources>

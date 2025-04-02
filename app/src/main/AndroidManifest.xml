@@ -16,12 +16,17 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name="at.aau.serg.websocketbrokerdemo.LobbyActivity"
+            android:exported="false"
+            android:label="@string/title_activity_lobby"
+            android:theme="@style/Theme.MyApplication" />
+        <activity
             android:name="at.aau.serg.websocketbrokerdemo.MainActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.MyApplication"
             android:screenOrientation="landscape"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode">
+            android:theme="@style/Theme.MyApplication">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
