@@ -1,21 +1,13 @@
 package at.aau.serg.websocketbrokerdemo
 
-import android.R.attr.fontStyle
-import android.R.attr.fontWeight
-import android.R.attr.id
-import android.inputmethodservice.Keyboard.Row
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -24,13 +16,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -39,21 +29,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import at.aau.serg.websocketbrokerdemo.ui.theme.MyApplicationTheme
 import com.example.myapplication.R
 
-class LobbyActivity : ComponentActivity() {
+class StartMenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Lobby()
+            StartMenu()
         }
     }
 }
 
 @Composable
-fun Lobby() {
+fun StartMenu() {
 
     Box (
         modifier = Modifier
@@ -61,7 +50,7 @@ fun Lobby() {
     ){
         // Hintergrundbild
         Image(
-            painter = painterResource(id = R.drawable.lobbyactivity),
+            painter = painterResource(id = R.drawable.start_menu_background),
             contentDescription = "Background Image",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
@@ -143,18 +132,10 @@ fun Lobby() {
             }
         }
     }
-
-    /*Image(
-        painter = painterResource(id = R.drawable.lobbyactivity),
-        contentDescription = "Background Image",
-        modifier = Modifier.fillMaxSize(),
-        contentScale = ContentScale.Crop
-    )
-     */
 }
 
 @Preview(showBackground = true)
 @Composable
-fun LobbyPreview() {
-    Lobby()
+fun StartMenuPreview() {
+    StartMenu()
 }

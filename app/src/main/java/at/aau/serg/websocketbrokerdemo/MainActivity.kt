@@ -3,7 +3,6 @@ package at.aau.serg.websocketbrokerdemo
 import MyStomp
 import android.content.Intent
 import android.os.Bundle
-import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -20,11 +19,9 @@ import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,23 +46,7 @@ class MainActivity : ComponentActivity(), Callbacks {
         setContent {
             ConnectScreen()
         }
-
-        /* XML-Ansatz
-        setContentView(R.layout.fragment_fullscreen)
-
-        findViewById<Button>(R.id.connectbtn).setOnClickListener { mystomp.connect() }
-        findViewById<Button>(R.id.hellobtn).setOnClickListener{mystomp.sendHello()}
-        findViewById<Button>(R.id.jsonbtn).setOnClickListener{mystomp.sendJson()}
-        response=findViewById(R.id.response_view)
-         */
     }
-
-    /* XML-Ansatz
-    override fun onResponse(res: String) {
-        response.setText(res)
-    }
-
-     */
 
     @Composable
     fun ConnectScreen() {
@@ -85,34 +66,28 @@ class MainActivity : ComponentActivity(), Callbacks {
             ) {
                 Button(onClick = {
                     mystomp.connect()
-                    responseText = "connected"
-                    onResponse(responseText.toString())
                 }) {
                     Text(text = "Connect")
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = {
                     mystomp.sendHello()
-                    responseText = "hello"
-                    onResponse(responseText.toString())
                 }) {
                     Text(text = "Send Hello")
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = {
                     mystomp.sendJson()
-                    responseText = "json"
-                    onResponse(responseText.toString())
                 }) {
                     Text(text = "Send Json")
                 }
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(onClick = {
-                    val intent = Intent(context, LobbyActivity::class.java)
+                    val intent = Intent(context, StartMenuActivity::class.java)
                     context.startActivity(intent)
                 }){
-                    Text(text = "Lobby")
+                    Text(text = "Start Menu")
                 }
             }
             Text(
@@ -133,7 +108,5 @@ class MainActivity : ComponentActivity(), Callbacks {
     fun ConnectScreenPreview() {
         ConnectScreen()
     }
-
-
 }
 
