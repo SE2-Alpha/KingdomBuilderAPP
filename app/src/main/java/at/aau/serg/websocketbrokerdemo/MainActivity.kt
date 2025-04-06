@@ -32,9 +32,6 @@ import kotlin.jvm.java
 
 class MainActivity : ComponentActivity(), Callbacks {
     lateinit var mystomp:MyStomp
-    /* XML-Ansatz
-    lateinit var  response:TextView
-     */
 
     var responseText by mutableStateOf("Waiting for response...")
 
