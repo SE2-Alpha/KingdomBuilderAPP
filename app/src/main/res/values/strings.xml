@@ -1,8 +1,9 @@
 <resources>
-    <string name="app_name">My Application</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
-    <string name="title_activity_connection_view">ConnectionView</string>
-    <string name="title_activity_view">view</string>
-    <string name="title_activity_main2">MainActivity2</string>
+    <string name="app_name" translatable="false">My Application</string>
+    <string name="dummy_button" translatable="false">Dummy Button</string>
+    <string name="dummy_content" translatable="false">DUMMY\nCONTENT</string>
+    <string name="title_activity_connection_view" translatable="false">ConnectionView</string>
+    <string name="title_activity_view" translatable="false">view</string>
+    <string name="title_activity_main2" translatable="false">MainActivity2</string>
+    <string name="title_activity_lobby" translatable="false">LobbyActivity</string>
 </resources>

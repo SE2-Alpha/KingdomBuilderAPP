@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings">Einstellungen</string>
+    <string name="rules">Spielregeln</string>
+    <string name="lets_go">Los geht\'s!</string>
+</resources>
