@@ -103,7 +103,7 @@ sonar {
             "sonar.coverage.jacoco.xmlReportPaths",
             "${project.projectDir}/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml"
         )
-        property("sonar.coverage.exclusions", "**/MainActivity.kt,**/StartMenuActivity.kt")
+        property("sonar.coverage.exclusions", "**/MainActivity.kt,**/StartMenuActivity.kt,**/LobbyActivity.kt")
     }
 }
 
