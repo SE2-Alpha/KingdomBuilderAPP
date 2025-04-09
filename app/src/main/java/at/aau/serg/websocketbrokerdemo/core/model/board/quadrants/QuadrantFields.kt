@@ -5,7 +5,7 @@ import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainType
 class QuadrantFields(): Quadrant {
     override fun getFieldType(id: Int): TerrainType {
         return when(id){
-            5, 6, 7, 14, 15, 16, 26, 63, 72, 73, 82, 83, 90, 91, 92 -> TerrainType.FOREST
+            5, 6, 7, 14, 15, 16, 26, 72, 73, 82, 83, 90, 91, 92 -> TerrainType.FOREST
             74, 81 -> TerrainType.MOUNTAIN
             8, 9, 18, 19, 41, 42, 50, 51, 60, 61, 62, 70, 71, 80 -> TerrainType.GRASS
             2, 12, 20, 21, 22, 27, 30, 31, 37, 38, 40, 48, 49, 59 -> TerrainType.CANYON
