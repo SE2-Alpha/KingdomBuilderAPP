@@ -45,27 +45,14 @@ class StartMenuActivity : ComponentActivity() {
 
 @Composable
 fun StartMenu() {
+
     val context = LocalContext.current
+
     Box (
         modifier = Modifier
             .fillMaxSize()
     ){
-        // Hintergrundbild
-        Image(
-            painter = painterResource(id = R.drawable.start_menu_background),
-            contentDescription = "Background Image",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
-
-        Image(
-            painter = painterResource(id = R.drawable.titel),
-            contentDescription = "Small Icon",
-            modifier = Modifier
-                .offset(x = 150.dp, y = (-30).dp)
-                .size(230.dp)
-                .align(Alignment.TopStart)
-        )
+        BackgroundWithTitle()
 
 
         Column(
@@ -74,8 +61,11 @@ fun StartMenu() {
         ) {
             Button(
                 onClick = {
-                    val intent = Intent(context, GameActivity::class.java)
-                    context.startActivity(intent) },
+
+                    val intent = Intent(context, LobbyActivity::class.java)
+                    context.startActivity(intent)
+                },
+
                 modifier = Modifier
                     .padding(8.dp)
                     .height(80.dp)
@@ -137,6 +127,30 @@ fun StartMenu() {
         }
     }
 }
+
+@Composable
+fun BackgroundWithTitle() {
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Hintergrundbild
+        Image(
+            painter = painterResource(id = R.drawable.start_menu_background),
+            contentDescription = "Background Image",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
+        // Titelbild
+        Image(
+            painter = painterResource(id = R.drawable.title),
+            contentDescription = "Title",
+            modifier = Modifier
+                .offset(x = 150.dp, y = (-30).dp)
+                .size(230.dp)
+                .align(Alignment.TopStart)
+        )
+    }
+}
+
 
 @Preview(showBackground = true)
 @Composable

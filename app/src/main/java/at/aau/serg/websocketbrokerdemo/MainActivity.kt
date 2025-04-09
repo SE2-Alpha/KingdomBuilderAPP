@@ -16,12 +16,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,7 +55,7 @@ class MainActivity : ComponentActivity(), Callbacks {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(colorResource(id = R.color.light_blue_600))
+                .background(colorResource(id = R.color.beige_lobby_background))
         ){
             Column(
                 modifier = Modifier
@@ -63,19 +65,34 @@ class MainActivity : ComponentActivity(), Callbacks {
             ) {
                 Button(onClick = {
                     mystomp.connect()
-                }) {
+                },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorResource(id = R.color.light_blue_900),
+                        contentColor = Color.White
+                    )
+                ) {
                     Text(text = "Connect")
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = {
                     mystomp.sendHello()
-                }) {
+                },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorResource(id = R.color.light_blue_900),
+                        contentColor = Color.White
+                    )
+                ) {
                     Text(text = "Send Hello")
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = {
                     mystomp.sendJson()
-                }) {
+                },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorResource(id = R.color.light_blue_900),
+                        contentColor = Color.White
+                    )
+                ) {
                     Text(text = "Send Json")
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -83,7 +100,12 @@ class MainActivity : ComponentActivity(), Callbacks {
                 Button(onClick = {
                     val intent = Intent(context, StartMenuActivity::class.java)
                     context.startActivity(intent)
-                }){
+                },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorResource(id = R.color.light_blue_900),
+                        contentColor = Color.White
+                    )
+                ){
                     Text(text = "Start Menu")
                 }
             }
