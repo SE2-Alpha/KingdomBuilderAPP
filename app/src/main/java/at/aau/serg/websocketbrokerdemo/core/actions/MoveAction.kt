@@ -1,5 +1,6 @@
 package at.aau.serg.websocketbrokerdemo.core.actions
 
+import androidx.annotation.VisibleForTesting
 import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainField
 import at.aau.serg.websocketbrokerdemo.core.model.player.Player
 
@@ -16,7 +17,8 @@ class MoveAction(private val player: Player, private val fromField: TerrainField
      *   - Keine Verbindung zum Königreich besteht
      */
     override fun execute(): Boolean {
-        TODO()
+        /*TODO()*/
+        return true
     }
 
     /**
@@ -28,7 +30,8 @@ class MoveAction(private val player: Player, private val fromField: TerrainField
      * @throws IllegalStateException Wenn Zielfeld inzwischen blockiert ist
      */
     override fun undo(): Boolean {
-        TODO()
+        /*TODO()*/
+        return true
     }
 
     /**
@@ -38,7 +41,9 @@ class MoveAction(private val player: Player, private val fromField: TerrainField
      *   - Entfernung ≤ 2 Felder (je nach Spielvariante)
      *   - Geländetyp des Zielfelds erlaubt ist
      */
-    private fun isValidMove(): Boolean {
-        TODO()
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    fun isValidMove(): Boolean {
+        /*TODO()*/
+        return true
     }
 }
