@@ -6,21 +6,29 @@ package at.aau.serg.websocketbrokerdemo.core.model.board
 
 class GameBoard() {
     private val qsize = 100
-    private val gameBoardSize = 400
     /**
      * 2D-Array der Felder [Reihe][Spalte]
      */
+
+    var gameboard = null
     fun buildGameboard(){
         //merge all 4 quadrants into one
-        var i = 0
-        while(i < 4){
+        val quadrant1 = fillQuadrant(1)
+        val quadrant2 = fillQuadrant(2)
+        val quadrant3 = fillQuadrant(3)
+        val quadrant4 = fillQuadrant(4)
 
-            i++
-        }
+        gameboard = quadrant1 + quadrant2 + quadrant3 + quadrant4
     }
     private val fields: Array<TerrainField> = Array(qsize) {
         TODO()
 
+    }
+
+    fun fillQuadrant(val num){
+        when(num){
+            1 -> return
+        }
     }
 
     /**
