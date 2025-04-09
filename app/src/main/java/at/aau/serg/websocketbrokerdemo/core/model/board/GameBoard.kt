@@ -17,6 +17,9 @@ class GameBoard() {
      */
     private lateinit var fields: Array<TerrainField>
 
+    /**
+     * Builds the Gameboard. Implement with numbers later to decide what quadrants to pick
+     */
     fun buildGameboard(){
         //merge all 4 quadrants into one
         val quadrant1 = fillQuadrant(1)
@@ -24,13 +27,17 @@ class GameBoard() {
         val quadrant3 = fillQuadrant(3)
         val quadrant4 = fillQuadrant(4)
 
+        //concat top two and bottom two quadrants together
         val concatTop = concatQuadrantFields(quadrant1, quadrant2)
         val concatBottom = concatQuadrantFields(quadrant3, quadrant4)
-        //gameboard = quadrant1 + quadrant2 + quadrant3 + quadrant4
+
         val concat = concatTop + concatBottom
         fields = Array(400) {id -> TerrainField(concat[id]!!, id) }
     }
 
+    /**
+     * concats top/bottom quadrants together to it work easier in lines
+     */
     fun concatQuadrantFields(quadrant1: Quadrant, quadrant2: Quadrant): Array<TerrainType?> {
         val concat = Array<TerrainType?>(200) {null}
         for(row in 0 .. 9){
@@ -44,6 +51,9 @@ class GameBoard() {
 
     }
 
+    /**
+    * picks the quadrant based on number (1 - 12)
+     */
     fun fillQuadrant(num: Int): Quadrant{
         return when(num){
             1 -> QuadrantTower()

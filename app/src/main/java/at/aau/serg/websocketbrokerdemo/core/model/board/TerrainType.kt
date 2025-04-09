@@ -6,15 +6,15 @@ package at.aau.serg.websocketbrokerdemo.core.model.board
  */
 
 enum class TerrainType( val isBuildable: Boolean = true) {
-    GRASS,  // Grasland
-    CANYON, // Schlucht
-    DESERT, // Wüste
-    FLOWERS,// Blumenfeld
-    FOREST,  // Wald
-    WATER(false),   // Wasser (Verschiebeaktionen möglich)
-    MOUNTAIN(false), // Berg (unpassierbar)
-    SPECIALABILITY(false), //alle Spezialfähigkeiten
-    CITY(false); //alle Städte
+    GRASS,
+    CANYON,
+    DESERT,
+    FLOWERS,
+    FOREST,
+    WATER(false),
+    MOUNTAIN(false),
+    SPECIALABILITY(false), //special abilities
+    CITY(false);
 
     /**
      * For the special ability
