@@ -4,12 +4,23 @@ package at.aau.serg.websocketbrokerdemo.core.model.board
  * Das Hauptspielbrett mit allen Terrainfeldern.
  */
 
-class GameBoard(private val size: Int) {
+class GameBoard() {
+    private val qsize = 100
+    private val gameBoardSize = 400
     /**
      * 2D-Array der Felder [Reihe][Spalte]
      */
-    private val fields: Array<Array<TerrainField>> = Array(size) {
+    fun buildGameboard(){
+        //merge all 4 quadrants into one
+        var i = 0
+        while(i < 4){
+
+            i++
+        }
+    }
+    private val fields: Array<TerrainField> = Array(qsize) {
         TODO()
+
     }
 
     /**
