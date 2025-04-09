@@ -161,8 +161,7 @@ class LobbyActivity : ComponentActivity() {
                     }
                     Button(
                         onClick = {
-                            //GameActivity öffnen --> ändern
-                            val intent = Intent(context, StartMenuActivity::class.java)
+                            val intent = Intent(context, GameActivity::class.java)
                             context.startActivity(intent)
                         },
                         modifier = Modifier
