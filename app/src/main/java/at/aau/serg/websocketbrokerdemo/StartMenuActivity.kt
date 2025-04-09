@@ -1,5 +1,6 @@
 package at.aau.serg.websocketbrokerdemo
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -44,6 +46,8 @@ class StartMenuActivity : ComponentActivity() {
 @Composable
 fun StartMenu() {
 
+    val contextStartMenu = LocalContext.current
+
     Box (
         modifier = Modifier
             .fillMaxSize()
@@ -57,8 +61,8 @@ fun StartMenu() {
         )
 
         Image(
-            painter = painterResource(id = R.drawable.titel),
-            contentDescription = "Small Icon",
+            painter = painterResource(id = R.drawable.title),
+            contentDescription = "Title",
             modifier = Modifier
                 .offset(x = 150.dp, y = (-30).dp)
                 .size(230.dp)
@@ -71,7 +75,10 @@ fun StartMenu() {
                 .align(Alignment.Center)
         ) {
             Button(
-                onClick = { /*TODO*/ },
+                onClick = {
+                    val intent = Intent(contextStartMenu, LobbyActivity::class.java)
+                    contextStartMenu.startActivity(intent)
+                },
                 modifier = Modifier
                     .padding(8.dp)
                     .height(80.dp)
@@ -84,7 +91,7 @@ fun StartMenu() {
                 shape = RoundedCornerShape(20.dp)
             ) {
                 Text(
-                    text = stringResource(id = R.string.lets_go),
+                    text = "Lobby",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -133,6 +140,7 @@ fun StartMenu() {
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
