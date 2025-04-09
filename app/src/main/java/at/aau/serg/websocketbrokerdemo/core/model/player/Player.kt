@@ -10,7 +10,8 @@ class Player(val id: String, val name: String, val color: Int) {
     /**
      * Verbleibende Siedlungen, die platziert werden können
      */
-    private var remainingSettlements: Int = 40
+    var remainingSettlements: Int = 40
+        private set
 
     /**
      * @return True, wenn Bauaktion erfolgreich war

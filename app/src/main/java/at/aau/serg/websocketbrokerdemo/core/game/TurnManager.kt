@@ -10,7 +10,8 @@ class TurnManager(private val players: List<Player>) {
     /**
      * Aktuelle Rundennummer (beginnend bei 1)
      */
-    private var currentRound: Int = 0
+    var currentRound: Int = 0
+        private set
 
     /**
      * Beendet den Zug des aktuellen Spielers:
