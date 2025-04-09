@@ -1,5 +1,7 @@
 package at.aau.serg.websocketbrokerdemo.core.model.board
 
+import androidx.collection.emptyObjectList
+
 /**
  * Das Hauptspielbrett mit allen Terrainfeldern.
  */
@@ -9,7 +11,8 @@ class GameBoard(private val size: Int) {
      * 2D-Array der Felder [Reihe][Spalte]
      */
     private val fields: Array<Array<TerrainField>> = Array(size) {
-        TODO()
+        /*TODO()*/
+        Array(size){ TerrainField(TerrainTypeBuild.GRASS, it, it) }
     }
 
     /**

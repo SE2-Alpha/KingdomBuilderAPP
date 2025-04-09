@@ -10,11 +10,13 @@ class GameManagerTest {
     private lateinit var players: List<Player>
     private lateinit var turnManager: TurnManager
     private lateinit var gameManagerTest: GameManager
+    private lateinit var gameManagerTest2: GameManager
 
     @BeforeEach
     fun setUp() {
         players = mock()
         turnManager = mock()
+        gameManagerTest2 = GameManager(players, turnManager)
         gameManagerTest = mock()
     }
 

@@ -124,6 +124,7 @@ dependencies {
     implementation(libs.androidx.annotation)
     testImplementation(libs.junit)
     testImplementation(libs.junit.jupiter.api)
+    testImplementation(libs.junit.jupiter.params)
     testRuntimeOnly(libs.junit.jupiter.engine)
     testImplementation(libs.mockito.core)
     androidTestImplementation(libs.androidx.junit)
@@ -132,4 +133,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    testImplementation(kotlin("test"))
 }
