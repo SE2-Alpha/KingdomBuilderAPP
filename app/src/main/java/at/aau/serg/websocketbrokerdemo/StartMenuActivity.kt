@@ -52,22 +52,7 @@ fun StartMenu() {
         modifier = Modifier
             .fillMaxSize()
     ){
-        // Hintergrundbild
-        Image(
-            painter = painterResource(id = R.drawable.start_menu_background),
-            contentDescription = "Background Image",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
-
-        Image(
-            painter = painterResource(id = R.drawable.title),
-            contentDescription = "Title",
-            modifier = Modifier
-                .offset(x = 150.dp, y = (-30).dp)
-                .size(230.dp)
-                .align(Alignment.TopStart)
-        )
+        BackgroundWithTitle()
 
 
         Column(
@@ -138,6 +123,29 @@ fun StartMenu() {
                 }
             }
         }
+    }
+}
+
+@Composable
+fun BackgroundWithTitle() {
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Hintergrundbild
+        Image(
+            painter = painterResource(id = R.drawable.start_menu_background),
+            contentDescription = "Background Image",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
+        // Titelbild
+        Image(
+            painter = painterResource(id = R.drawable.title),
+            contentDescription = "Title",
+            modifier = Modifier
+                .offset(x = 150.dp, y = (-30).dp)
+                .size(230.dp)
+                .align(Alignment.TopStart)
+        )
     }
 }
 

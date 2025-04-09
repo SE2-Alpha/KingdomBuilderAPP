@@ -7,6 +7,6 @@
     <string name="title_activity_main2" translatable="false">MainActivity2</string>
     <string name="title_activity_lobby" translatable="false">LobbyActivity</string>
     <string name="start_game">Start Game</string>
-    <string name="join_game">Join Game</string>
-    <string name="create_game">Create Game</string>
+    <string name="join_game">join_game</string>
+    <string name="create_game">create_game</string>
 </resources>

@@ -4,4 +4,6 @@
     <string name="rules">Spielregeln</string>
     <string name="lets_go">Los geht\'s!</string>
     <string name="start_game">Spiel starten!</string>
+    <string name="join_game">Spiel beitreten</string>
+    <string name="create_game">Spiel erstellen</string>
 </resources>

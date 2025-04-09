@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -30,7 +29,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -58,22 +56,8 @@ class LobbyActivity : ComponentActivity() {
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            // Hintergrundbild
-            Image(
-                painter = painterResource(id = R.drawable.start_menu_background),
-                contentDescription = "Background Image",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
 
-            Image(
-                painter = painterResource(id = R.drawable.title),
-                contentDescription = "Titel",
-                modifier = Modifier
-                    .offset(x = 150.dp, y = (-30).dp)
-                    .size(230.dp)
-                    .align(Alignment.TopStart)
-            )
+            BackgroundWithTitle()
 
             Box(
                 modifier = Modifier
@@ -148,7 +132,7 @@ class LobbyActivity : ComponentActivity() {
                                 Spacer(modifier = Modifier.height(20.dp))
 
                                 Button(
-                                    onClick = { /*TODO*/ },
+                                    onClick = {  },
                                     modifier = Modifier
                                         .padding(8.dp)
                                         .height(100.dp)
