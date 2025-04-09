@@ -6,4 +6,5 @@
     <string name="title_activity_view" translatable="false">view</string>
     <string name="title_activity_main2" translatable="false">MainActivity2</string>
     <string name="title_activity_lobby" translatable="false">LobbyActivity</string>
+    <string name="title_activity_game" translatable="false">GameActivity</string>
 </resources>
