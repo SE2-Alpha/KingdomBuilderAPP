@@ -46,7 +46,7 @@ class StartMenuActivity : ComponentActivity() {
 @Composable
 fun StartMenu() {
 
-    val contextStartMenu = LocalContext.current
+    val context = LocalContext.current
 
     Box (
         modifier = Modifier
@@ -76,8 +76,8 @@ fun StartMenu() {
         ) {
             Button(
                 onClick = {
-                    val intent = Intent(contextStartMenu, LobbyActivity::class.java)
-                    contextStartMenu.startActivity(intent)
+                    val intent = Intent(context, LobbyActivity::class.java)
+                    context.startActivity(intent)
                 },
                 modifier = Modifier
                     .padding(8.dp)
@@ -91,7 +91,7 @@ fun StartMenu() {
                 shape = RoundedCornerShape(20.dp)
             ) {
                 Text(
-                    text = "Lobby",
+                    text = stringResource(id = R.string.lets_go),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )

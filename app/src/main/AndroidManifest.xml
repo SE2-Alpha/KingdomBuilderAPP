@@ -19,7 +19,9 @@
             android:name="at.aau.serg.websocketbrokerdemo.LobbyActivity"
             android:exported="false"
             android:label="@string/title_activity_lobby"
-            android:theme="@style/Theme.MyApplication" />
+            android:theme="@style/Theme.MyApplication"
+            android:screenOrientation="landscape"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode" />
         <activity
             android:name="at.aau.serg.websocketbrokerdemo.StartMenuActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
