@@ -24,16 +24,21 @@ class GameBoard() {
         val concatTop = concatQuadrantFields(quadrant1, quadrant2)
         val concatBottom = concatQuadrantFields(quadrant3, quadrant4)
         //gameboard = quadrant1 + quadrant2 + quadrant3 + quadrant4
-
+        val concat = concatTop + concatBottom
+        fields = Array(400) {id -> TerrainField(concat[id]!!, id) }
     }
 
-    fun concatQuadrantFields(quadrant1: Quadrant, quadrant2: Quadrant) {
+    fun concatQuadrantFields(quadrant1: Quadrant, quadrant2: Quadrant): Array<TerrainType?> {
         val concat = Array<TerrainType?>(200) {null}
         for(row in 0 .. 9){
             for(column in 0 .. 9){
                 concat[20 * row + column] = quadrant1.getFieldType(10 * row + column)
+
+                concat[20 * row + column + 10] = quadrant2.getFieldType(10 * row + column)
             }
         }
+        return concat
+
     }
 
     fun fillQuadrant(num: Int): Quadrant{
