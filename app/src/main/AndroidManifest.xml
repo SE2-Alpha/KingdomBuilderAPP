@@ -30,6 +30,13 @@
             android:screenOrientation="landscape"
             android:theme="@style/Theme.MyApplication" />
         <activity
+            android:name="at.aau.serg.websocketbrokerdemo.GameActivity"
+            android:exported="false"
+            android:label="@string/title_activity_game"
+            android:theme="@style/Theme.MyApplication"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
+            android:screenOrientation="landscape"/>
+        <activity
             android:name="at.aau.serg.websocketbrokerdemo.MainActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
             android:exported="true"

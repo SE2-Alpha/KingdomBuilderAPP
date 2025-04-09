@@ -76,9 +76,11 @@ fun StartMenu() {
         ) {
             Button(
                 onClick = {
+
                     val intent = Intent(context, LobbyActivity::class.java)
                     context.startActivity(intent)
                 },
+
                 modifier = Modifier
                     .padding(8.dp)
                     .height(80.dp)
