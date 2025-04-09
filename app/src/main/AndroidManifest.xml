@@ -16,12 +16,19 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name="at.aau.serg.websocketbrokerdemo.StartMenuActivity"
+            android:name="at.aau.serg.websocketbrokerdemo.LobbyActivity"
             android:exported="false"
             android:label="@string/title_activity_lobby"
             android:theme="@style/Theme.MyApplication"
+            android:screenOrientation="landscape"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode" />
+        <activity
+            android:name="at.aau.serg.websocketbrokerdemo.StartMenuActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
-            android:screenOrientation="landscape"/>
+            android:exported="false"
+            android:label="@string/title_activity_lobby"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
         <activity
             android:name="at.aau.serg.websocketbrokerdemo.GameActivity"
             android:exported="false"
