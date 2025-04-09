@@ -1,6 +1,8 @@
 package at.aau.serg.websocketbrokerdemo.core.model.board
 
 import at.aau.serg.websocketbrokerdemo.core.model.board.quadrants.Quadrant
+import at.aau.serg.websocketbrokerdemo.core.model.board.quadrants.QuadrantOasis
+import at.aau.serg.websocketbrokerdemo.core.model.board.quadrants.QuadrantTavern
 import at.aau.serg.websocketbrokerdemo.core.model.board.quadrants.QuadrantTower
 
 /**
@@ -44,6 +46,8 @@ class GameBoard() {
     fun fillQuadrant(num: Int): Quadrant{
         return when(num){
             1 -> QuadrantTower()
+            2 -> QuadrantTavern()
+            3 -> QuadrantOasis()
             else -> throw IllegalArgumentException("Unknown Quadrant: $num")
 
         }
