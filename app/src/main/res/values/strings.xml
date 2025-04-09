@@ -9,5 +9,5 @@
     <string name="start_game">Start Game</string>
     <string name="join_game">Join Game</string>
     <string name="create_game">Create Game</string>
-    <string name="title_activity_game" translatable="false">GameActivity\n</string>
+    <string name="title_activity_game" translatable="false">GameActivity</string>
 </resources>
