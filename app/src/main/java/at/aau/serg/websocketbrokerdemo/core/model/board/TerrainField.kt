@@ -12,6 +12,13 @@ class TerrainField(var type: TerrainType, val x: Int, val y: Int) {
      */
     var builtBy: Player? = null
 
+    var terrainType: TerrainType
+        get() {
+            return terrainType
+        }
+        set(type) {
+            terrainType = (type)
+        }
     /**
      * @return True, wenn das Feld aktuell bebaut werden kann
      */
