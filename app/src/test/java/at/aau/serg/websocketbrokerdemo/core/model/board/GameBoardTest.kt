@@ -24,8 +24,8 @@ class GameBoardTest {
 
 
     @ParameterizedTest
-    @EnumSource(TerrainTypeBuild::class)
-    fun getFieldsByTypeTest(type: TerrainTypeBuild){
+    @EnumSource(TerrainType::class)
+    fun getFieldsByTypeTest(type: TerrainType){
         assertFailsWith<NotImplementedError> {
             gameBoardTest.getFieldsByType(type)
         }
