@@ -83,4 +83,7 @@ class GameBoard() {
     fun areFieldsAdjacent(field1: TerrainField, field2: TerrainField): Boolean {
         TODO()
     }
+    fun getFieldByRowAndCol(row: Int, col: Int): TerrainField {
+        return fields[row*10 + col]
+    }
 }
