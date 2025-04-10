@@ -6,10 +6,11 @@ import at.aau.serg.websocketbrokerdemo.core.model.player.Player
  * Einzelnes Feld auf dem Spielbrett.
  */
 
-class TerrainField(var type: TerrainType, val x: Int, val y: Int) {
+class TerrainField(val type: TerrainType, val id: Int) { //needs quadrant number and ids of neighbours
     /**
      * Referenz auf den Spieler, der hier gebaut hat (null wenn frei)
      */
+
     var builtBy: Player? = null
 
     /**

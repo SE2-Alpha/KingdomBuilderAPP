@@ -17,15 +17,15 @@ class GameBoardTest {
     @BeforeEach
     fun setUp(){
         gameBoardTest2 = mock()
-        gameBoardTest = GameBoard(10)
+        gameBoardTest = GameBoard()
         field1 = mock()
         field2 = mock()
     }
 
 
     @ParameterizedTest
-    @EnumSource(TerrainTypeBuild::class)
-    fun getFieldsByTypeTest(type: TerrainTypeBuild){
+    @EnumSource(TerrainType::class)
+    fun getFieldsByTypeTest(type: TerrainType){
         assertFailsWith<NotImplementedError> {
             gameBoardTest.getFieldsByType(type)
         }
