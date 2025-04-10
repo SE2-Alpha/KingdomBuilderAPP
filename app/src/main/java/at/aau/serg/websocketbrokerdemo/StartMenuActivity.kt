@@ -1,5 +1,6 @@
 package at.aau.serg.websocketbrokerdemo
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -44,26 +46,13 @@ class StartMenuActivity : ComponentActivity() {
 @Composable
 fun StartMenu() {
 
+    val context = LocalContext.current
+
     Box (
         modifier = Modifier
             .fillMaxSize()
     ){
-        // Hintergrundbild
-        Image(
-            painter = painterResource(id = R.drawable.start_menu_background),
-            contentDescription = "Background Image",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
-
-        Image(
-            painter = painterResource(id = R.drawable.titel),
-            contentDescription = "Small Icon",
-            modifier = Modifier
-                .offset(x = 150.dp, y = (-30).dp)
-                .size(230.dp)
-                .align(Alignment.TopStart)
-        )
+        BackgroundWithTitle()
 
 
         Column(
@@ -71,7 +60,12 @@ fun StartMenu() {
                 .align(Alignment.Center)
         ) {
             Button(
-                onClick = { /*TODO*/ },
+                onClick = {
+
+                    val intent = Intent(context, LobbyActivity::class.java)
+                    context.startActivity(intent)
+                },
+
                 modifier = Modifier
                     .padding(8.dp)
                     .height(80.dp)
@@ -133,6 +127,30 @@ fun StartMenu() {
         }
     }
 }
+
+@Composable
+fun BackgroundWithTitle() {
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Hintergrundbild
+        Image(
+            painter = painterResource(id = R.drawable.start_menu_background),
+            contentDescription = "Background Image",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
+        // Titelbild
+        Image(
+            painter = painterResource(id = R.drawable.title),
+            contentDescription = "Title",
+            modifier = Modifier
+                .offset(x = 150.dp, y = (-30).dp)
+                .size(230.dp)
+                .align(Alignment.TopStart)
+        )
+    }
+}
+
 
 @Preview(showBackground = true)
 @Composable
