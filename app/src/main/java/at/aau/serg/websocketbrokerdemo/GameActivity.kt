@@ -1,5 +1,6 @@
 package at.aau.serg.websocketbrokerdemo
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,8 +21,12 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
+import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainField
+import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainType
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -33,7 +38,8 @@ data class Hexagon(
     val col: Int,         // Gesamtspalte im 20x20-Gitter
     val centerX: Float,   // Berechneter Mittelpunkt (x)
     val centerY: Float,   // Berechneter Mittelpunkt (y)
-    val quadrant: String  // Zugehöriges Quartil ("Quadrant 1" bis "Quadrant 4")
+    val quadrant: String, // Zugehöriges Quartil ("Quadrant 1" bis "Quadrant 4")
+    val field: TerrainField
 )
 
 // Bestimmt das Quartil anhand von Zeile und Spalte im 20x20-Gitter
@@ -66,13 +72,21 @@ fun pointInHexagon(x: Float, y: Float, centerX: Float, centerY: Float, side: Flo
     return side * sqrt(3f) / 2 - dx >= dy / 2
 }
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun HexagonBoardScreen() {
+
+    val context = LocalContext.current
     // Zustand: Wenn kein Quartil ausgewählt, ist der Übersichtsmodus aktiv,
     // ansonsten wird in das entsprechende Quartil "gezoomt"
     var selectedQuadrant by remember { mutableStateOf<String?>(null) }
     // Speichert den Markierungsstatus einzelner Felder (Schlüssel: Triple(quadrant, localRow, localCol))
     val markedFields = remember { mutableStateMapOf<Triple<String, Int, Int>, Boolean>() }
+    val gameBoard = remember { GameBoard() }
+    gameBoard.buildGameboard()
+
+
+
 
     // Parameter für Übersichtsmodus (20x20 Felder)
     val overviewRows = 20
@@ -93,7 +107,7 @@ fun HexagonBoardScreen() {
                 val col = index % overviewCols
                 val centerX = overviewSide * sqrt(3f) * (col + if (row % 2 == 1) 0.5f else 0f)
                 val centerY = overviewSide * 1.5f * row + overviewSide
-                Hexagon(row, col, centerX, centerY, getQuadrant(row, col))
+                Hexagon(row, col, centerX, centerY, getQuadrant(row, col), gameBoard.getFieldByRowAndCol(row, col))
             }
         } else {
             // Zoommodus: 10x10-Gitter des ausgewählten Quartils
@@ -113,7 +127,7 @@ fun HexagonBoardScreen() {
                 // Neuberechnung der Positionen, sodass das Quartil zentriert angezeigt wird
                 val centerX = quadrantSide * sqrt(3f) * (localCol + if (localRow % 2 == 1) 0.5f else 0f)
                 val centerY = quadrantSide * 1.5f * localRow + quadrantSide
-                Hexagon(row, col, centerX, centerY, selectedQuadrant!!)
+                Hexagon(row, col, centerX, centerY, selectedQuadrant!!, gameBoard.getFieldByRowAndCol(row, col))
             }
         }
     }
@@ -203,7 +217,8 @@ fun HexagonBoardScreen() {
                         val localRow = hex.row - rowOffset
                         val localCol = hex.col - colOffset
                         val key = Triple(hex.quadrant, localRow, localCol)
-                        val fillColor = if (markedFields[key] == true) Color.Black else Color.White
+                        //val fillColor = if (markedFields[key] == true) Color.Black else Color.White
+                        val fillColor = hex.field.getColor(context) // Hexagon-Farbe
                         // Zuerst Füllung, dann Kontur zeichnen
                         drawPath(path = hexPath, color = fillColor)
                         drawPath(path = hexPath, color = Color.Black, style = Stroke(width = 2f))
@@ -224,14 +239,14 @@ fun HexagonBoardScreen() {
                             )
 
                             drawLine(
-                                color = Color.Red,
+                                color = Color.Black,
                                 start = vLeft1,
                                 end = vLeft2,
                                 strokeWidth = 8f
                             )
                             if(row > 0) {
                                 drawLine(
-                                    color = Color.Red,
+                                    color = Color.Black,
                                     start = vLeft2,
                                     end = oldvLeft1,
                                     strokeWidth = 8f
@@ -257,14 +272,14 @@ fun HexagonBoardScreen() {
                                 hexBottom.centerY + overviewSide * sin(Math.toRadians(270.0)).toFloat()
                             )
                             drawLine(
-                                color = Color.Red,
+                                color = Color.Black,
                                 start = vTop,
                                 end = vBottom,
                                 strokeWidth = 8f
                             )
                             if(col > 0) {
                                 drawLine(
-                                    color = Color.Red,
+                                    color = Color.Black,
                                     start = vBottom,
                                     end = oldvTop,
                                     strokeWidth = 8f
