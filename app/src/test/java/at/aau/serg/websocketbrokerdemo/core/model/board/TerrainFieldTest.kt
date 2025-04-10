@@ -13,22 +13,16 @@ class TerrainFieldTest {
 
     @Test
     fun playerNullTest(){
-        terrainField = TerrainField(TerrainTypeBuild.GRASS,5,5)
+        terrainField = TerrainField(TerrainType.GRASS,5)
         assertNull(terrainField.builtBy)
     }
 
     @ParameterizedTest
-    @EnumSource(TerrainTypeBuild::class)
+    @EnumSource(TerrainType::class)
     fun isBuildableTrueTest(type: TerrainType){
-        terrainField = TerrainField(type,5,5)
+        terrainField = TerrainField(type,5)
         assertTrue(terrainField.isBuildable)
     }
 
-    @ParameterizedTest
-    @EnumSource(TerrainTypeSpecial::class)
-    fun isBuildableFalseTest(type: TerrainType){
-        terrainField = TerrainField(type,5,5)
-        assertFalse(terrainField.isBuildable)
-    }
 
 }
