@@ -13,7 +13,7 @@ class TerrainCardTest {
     @Test
     fun constructorTest(){
         testTerrainType = mock()
-        testCard = TerrainCard("1","Test Card", testTerrainType)
+        testCard = TerrainCard("1","Test Card", TerrainType.GRASS)
         assertEquals("1", testCard.id)
         assertEquals("Test Card", testCard.name)
     }
