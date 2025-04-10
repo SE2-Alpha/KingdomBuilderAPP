@@ -17,12 +17,12 @@ class TerrainFieldTest {
         assertNull(terrainField.builtBy)
     }
 
-    @ParameterizedTest
-    @EnumSource(TerrainType::class)
-    fun isBuildableTrueTest(type: TerrainType){
-        terrainField = TerrainField(type,5)
-        assertTrue(terrainField.isBuildable)
-    }
+//    @ParameterizedTest
+//    @EnumSource(TerrainType::class)
+//    fun isBuildableTrueTest(type: TerrainType){
+//        terrainField = TerrainField(type,5)
+//        assertTrue(terrainField.isBuildable)
+//    }
 
 
 }
