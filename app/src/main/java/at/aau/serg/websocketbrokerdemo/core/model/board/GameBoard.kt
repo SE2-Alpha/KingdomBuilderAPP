@@ -6,6 +6,8 @@ import at.aau.serg.websocketbrokerdemo.core.model.board.quadrants.QuadrantOasis
 import at.aau.serg.websocketbrokerdemo.core.model.board.quadrants.QuadrantTavern
 import at.aau.serg.websocketbrokerdemo.core.model.board.quadrants.QuadrantTower
 
+import androidx.collection.emptyObjectList
+
 /**
  * Das Hauptspielbrett mit allen Terrainfeldern.
  */
