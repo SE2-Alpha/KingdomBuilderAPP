@@ -217,7 +217,6 @@ fun HexagonBoardScreen() {
                         val localRow = hex.row - rowOffset
                         val localCol = hex.col - colOffset
                         val key = Triple(hex.quadrant, localRow, localCol)
-                        //val fillColor = if (markedFields[key] == true) Color.Black else Color.White
                         val fillColor = hex.field.getColor(context) // Hexagon-Farbe
                         // Zuerst Füllung, dann Kontur zeichnen
                         drawPath(path = hexPath, color = fillColor)
