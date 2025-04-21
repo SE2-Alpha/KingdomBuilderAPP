@@ -1,11 +1,15 @@
 package at.aau.serg.websocketbrokerdemo
 
+import MyStomp
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,13 +20,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFrom
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,22 +50,47 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import at.aau.serg.websocketbrokerdemo.core.model.lobby.Room
+import at.aau.serg.websocketbrokerdemo.core.model.lobby.RoomStatus
 import com.example.myapplication.R
+import org.json.JSONArray
 
-class LobbyActivity : ComponentActivity() {
+class LobbyActivity : ComponentActivity(), Callbacks  {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mystomp = MyStomp(this)
+        mystomp.connect() // STOMP-Verbindung starten
         enableEdgeToEdge()
         setContent {
             LobbyScreen()
         }
+        //mystomp.requestRooms()
+    }
+
+    private lateinit var mystomp: MyStomp
+    private var roomList by mutableStateOf<List<Room>>(emptyList())
+
+
+
+    fun onRoomClick(roomId: String) {
+        // Hier kannst du die Logik implementieren, um einem Raum beizutreten
+        // Zum Beispiel: startActivity(Intent(this, GameActivity::class.java))
     }
 
     @Composable
     fun LobbyScreen() {
 
-        val context = LocalContext.current
+        LaunchedEffect(Unit) {
+            mystomp.requestRooms()
+        }
 
+        val context = LocalContext.current
+        //val rooms = listOf(
+        //    Room(id = 1, name = "Room A", size = 4, currentUsers = 2),
+        //    Room(id = 2, name = "Room B", size = 4, currentUsers = 4),
+        //    Room(id = 3, name = "Room C", size = 4, currentUsers = 1),
+        //)
+        val rooms = roomList
         Box (
             modifier = Modifier
                 .fillMaxSize()
@@ -111,14 +150,55 @@ class LobbyActivity : ComponentActivity() {
                                 .align(Alignment.TopCenter)
                                 .padding(top = 20.dp)
                         ) {
-                            Column {
+                            Column (
+                                modifier = Modifier.weight(1f)
+                            ) {
                                 Text(text = stringResource(id = R.string.join_game),
-                                    modifier = Modifier.align(Alignment.CenterHorizontally))
+                                    modifier = Modifier.align(Alignment.CenterHorizontally)
+
+                                )
+                                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                    // Für jeden Raum eine Zeile
+                                    rooms.sortedBy { it.name }.forEach { room ->
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable { onRoomClick(room.id) }
+                                                .padding(vertical = 8.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            // Name + Belegung
+                                            Column(
+                                                modifier = Modifier.weight(1f)
+                                                    .padding(start = 8.dp)
+                                            ) {
+                                                Text(text = room.name)
+                                                Text(
+                                                    text = "${room.currentUsers} / ${room.size} Spieler",
+                                                    color = Color.DarkGray
+                                                )
+                                            }
+                                            // Status-Text
+                                            Button(onClick = {
+                                                mystomp.joinRoom(room.id)
+                                            }) {
+                                                Text(
+                                                    text = if (room.status == RoomStatus.STARTED) "gestartet" else if (room.status == RoomStatus.FINISHED) "beendet" else if (room.status == RoomStatus.WAITING && room.currentUsers < room.size) "Beitreten" else "Voll",
+                                                    color = if (room.status == RoomStatus.WAITING && room.currentUsers < room.size) Color.Green else Color.Red,
+                                                    modifier = Modifier.padding(start = 8.dp)
+                                                )
+                                            }
+                                        }
+                                        //Divider()
+                                    }
+                                }
+
                             }
 
-                            Spacer(modifier = Modifier.width(100.dp))
+                            Spacer(modifier = Modifier.width(100.dp)
+                                .weight(0.1f))
 
-                            Column {
+                            Column(modifier = Modifier.weight(1f)){
                                 Text(
                                     text = stringResource(id = R.string.create_game),
                                     modifier = Modifier.align(Alignment.CenterHorizontally))
@@ -126,13 +206,18 @@ class LobbyActivity : ComponentActivity() {
                                 Spacer(modifier = Modifier.height(20.dp))
 
                                 Button(
-                                    onClick = {  },
+                                    onClick = {
+                                        mystomp.createRoom()
+                                    },
                                     modifier = Modifier
                                         .padding(8.dp)
                                         .height(100.dp)
-                                        .width(100.dp),
+                                        .width(100.dp)
+                                        .align(Alignment.CenterHorizontally),
+
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = Color.Transparent
+
                                     ),
                                     shape = RoundedCornerShape(20.dp),
                                             contentPadding = PaddingValues(0.dp)
@@ -180,4 +265,31 @@ class LobbyActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onResponse(res: String) {
+        try {
+            Log.e("LobbyActivity", "Nachricht vom Server: $res")
+            val roomsJson = JSONArray(res)
+            val updatedRooms = mutableListOf<Room>()
+
+            for (i in 0 until roomsJson.length()) {
+                val obj = roomsJson.getJSONObject(i)
+                updatedRooms.add(
+                    Room(
+                        id = obj.getString("id"),
+                        name = obj.getString("name"),
+                        size = obj.getInt("size"),
+                        currentUsers = obj.getInt("currentUsers"),
+                        status = RoomStatus.valueOf(obj.getString("status")),
+
+                    )
+                )
+            }
+
+            roomList = updatedRooms
+        } catch (e: Exception) {
+            Log.e("LobbyActivity", "Fehler beim Parsen der Räume", e)
+        }
+    }
+
 }

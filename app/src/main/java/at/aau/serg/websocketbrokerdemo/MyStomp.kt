@@ -13,6 +13,7 @@ import org.hildan.krossbow.stomp.sendText
 import org.hildan.krossbow.stomp.subscribeText
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import org.json.JSONObject
+import java.util.UUID
 
 private  val WEBSOCKET_URI = "ws://10.0.2.2:8080/websocket-example-broker";
 class MyStomp(val callbacks: Callbacks) {
@@ -23,10 +24,18 @@ class MyStomp(val callbacks: Callbacks) {
     private lateinit var jsonFlow: Flow<String>
     private lateinit var jsonCollector:Job
 
+    private lateinit var roomsFlow: Flow<String>
+    private lateinit var roomsCollector:Job
+
     private lateinit var client:StompClient
     private lateinit var session: StompSession
 
     private val scope:CoroutineScope=CoroutineScope(Dispatchers.IO)
+
+    // UUID als eindeutige ID
+    val playerId: String = UUID.randomUUID().toString()
+
+
     fun connect() {
 
             client = StompClient(OkHttpWebSocketClient()) // other config can be passed in here
@@ -47,12 +56,21 @@ class MyStomp(val callbacks: Callbacks) {
                     var o=JSONObject(msg)
                     callback(o.get("text").toString())
                 } }
-                callback("connected")
+                //callback("connected")
+
+                roomsFlow = session.subscribeText("/topic/lobby")
+                roomsCollector = scope.launch {
+                    roomsFlow.collect { msg ->
+                        callback(msg)  // JSON-Array als String an Activity schicken
+                    }
+                }
+
             }
 
     }
     private fun callback(msg:String){
         Handler(Looper.getMainLooper()).post{
+            Log.e("tag","message from server: $msg")
             callbacks.onResponse(msg)
         }
     }
@@ -74,6 +92,24 @@ class MyStomp(val callbacks: Callbacks) {
             session.sendText("/app/object",o);
         }
 
+    }
+
+    fun requestRooms() {
+        scope.launch {
+            session.sendText("/app/lobby/get", "")
+        }
+    }
+
+    fun createRoom() {
+        scope.launch {
+            session.sendText("/app/lobby/create", "{\"playerId\":\"$playerId\"}")
+        }
+    }
+
+    fun joinRoom(roomId: String) {
+        scope.launch {
+            session.sendText("/app/lobby/join", "{\"playerId\":\"$playerId\", \"roomId\":\"$roomId\"}")
+        }
     }
 
 }
