@@ -63,15 +63,10 @@ class LobbyActivity : ComponentActivity() {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(40.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(colorResource(id = R.color.lobby_background))
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.lobby_background),
-                    contentDescription = "Background Image light",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(20.dp)),
-                    contentScale = ContentScale.Crop
-                )
+
 
                 //Back Button (top left)
                 Button(
@@ -102,15 +97,14 @@ class LobbyActivity : ComponentActivity() {
                         .align(Alignment.Center)
                         .width(450.dp)
                 ) {
-                    Box(){
-                        Image(
-                            painter = painterResource(id = R.drawable.lobby_background_upper),
-                            contentDescription = "Background Image light",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(20.dp)),
-                            contentScale = ContentScale.Crop
-                        )
+                    Box(
+                        modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)                        // Höhe anpassen
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(colorResource(id = R.color.lobby_background_upper))         // hier Deine Farbe
+                    ){
+
 
                         Row(
                             modifier = Modifier
