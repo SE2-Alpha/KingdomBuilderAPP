@@ -7,10 +7,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.mockito.Mockito.mock
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 class ConcreteBuildAction(player: Player, terrain: TerrainField): BuildAction(player, terrain){
     override fun undo(): Boolean {
-        TODO()
+        return true
     }
 }
 
@@ -29,9 +30,7 @@ class BuildActionTest {
 
     @Test
     fun undoTest(){
-        assertFailsWith<NotImplementedError> {
-            concreteBuildAction.undo()
-        }
+        assertTrue(concreteBuildAction.undo())
     }
 
     @Test

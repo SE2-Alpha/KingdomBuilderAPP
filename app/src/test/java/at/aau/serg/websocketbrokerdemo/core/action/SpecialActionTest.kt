@@ -3,6 +3,7 @@ package at.aau.serg.websocketbrokerdemo.core.action
 import at.aau.serg.websocketbrokerdemo.core.actions.SpecialAction
 import at.aau.serg.websocketbrokerdemo.core.model.cards.LocationTile
 import at.aau.serg.websocketbrokerdemo.core.model.player.Player
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
@@ -10,7 +11,7 @@ import kotlin.test.assertFailsWith
 
 class ConcreteSpecialAction(player: Player,locationTile: LocationTile):SpecialAction(player, locationTile){
     override fun undo(): Boolean {
-        TODO()
+        return true
     }
 
 }
@@ -31,9 +32,7 @@ class SpecialActionTest {
 
     @Test
     fun undoTest(){
-        assertFailsWith<NotImplementedError> {
-            concreteSpecialAction.undo()
-        }
+        assertTrue(concreteSpecialAction.undo())
     }
 
     @Test
