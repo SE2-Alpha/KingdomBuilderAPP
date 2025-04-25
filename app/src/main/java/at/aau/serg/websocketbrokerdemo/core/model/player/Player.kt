@@ -35,5 +35,11 @@ class Player(val id: String, val name: String, val color: Int) {
                 field.isBuildable &&
                 (kingdom.getSettlementCount() == 0)
     }
+    fun addCard(card: Card){
+        handCards.add(card)
+    }
 
+    fun useSpecialAbility(tile: LocationTile): Boolean{
+        return tile.specialAction.execute()
+    }
 }

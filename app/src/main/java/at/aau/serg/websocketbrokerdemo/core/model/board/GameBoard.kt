@@ -86,4 +86,14 @@ class GameBoard() {
     fun getFieldByRowAndCol(row: Int, col: Int): TerrainField {
         return fields[row*10 + col]
     }
+    fun getAdjacentFields(field: TerrainField): List<TerrainField> {
+        val adjacent = mutableListOf<TerrainField>()
+        val position = field.id
+        //Hex-Nachbarschaftslogik
+        val offsets = listOf(-10, -9, 1, 11, 10, 9)
+        offsets.forEach { offset ->
+            fields.getOrNull(position + offset)?.let { adjacent.add(it)}
+        }
+        return adjacent
+    }
 }
