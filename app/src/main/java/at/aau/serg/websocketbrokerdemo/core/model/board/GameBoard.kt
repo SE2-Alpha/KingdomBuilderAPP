@@ -7,6 +7,7 @@ import at.aau.serg.websocketbrokerdemo.core.model.board.quadrants.QuadrantTavern
 import at.aau.serg.websocketbrokerdemo.core.model.board.quadrants.QuadrantTower
 
 import androidx.collection.emptyObjectList
+import at.aau.serg.websocketbrokerdemo.core.model.player.Kingdom
 
 /**
  * Das Hauptspielbrett mit allen Terrainfeldern.
@@ -95,5 +96,10 @@ class GameBoard() {
             fields.getOrNull(position + offset)?.let { adjacent.add(it)}
         }
         return adjacent
+    }
+    fun areFieldAdjacentToKingdom(field: TerrainField, kingdom: Kingdom): Boolean {
+        return kingdom.getAdjacentFields(this).any { adjacent ->
+            areFieldsAdjacent(field,adjacent)
+        }
     }
 }
