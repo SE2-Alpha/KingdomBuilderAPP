@@ -54,8 +54,6 @@ class GameBoardTest {
 
         assertEquals(19,field2.id)
         assertEquals(TerrainType.GRASS,field2.type)
-
-
     }
 
     @Test
@@ -64,8 +62,6 @@ class GameBoardTest {
 
         assertEquals(380,field3.id)
         assertEquals(TerrainType.WATER,field3.type)
-
-
     }
 
     @Test

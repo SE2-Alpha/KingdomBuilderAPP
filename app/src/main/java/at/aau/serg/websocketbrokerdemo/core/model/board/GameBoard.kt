@@ -84,6 +84,6 @@ class GameBoard() {
         TODO()
     }
     fun getFieldByRowAndCol(row: Int, col: Int): TerrainField {
-        return fields[row*10 + col]
+        return fields[row*20 + col]
     }
 }
