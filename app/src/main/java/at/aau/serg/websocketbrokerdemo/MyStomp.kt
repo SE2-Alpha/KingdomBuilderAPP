@@ -26,6 +26,10 @@ class MyStomp(val callbacks: Callbacks) {
     private lateinit var client:StompClient
     private lateinit var session: StompSession
 
+    private lateinit var gameFlow: Flow<String>
+    private lateinit var gameCollector: Job
+
+
     private val scope:CoroutineScope=CoroutineScope(Dispatchers.IO)
     fun connect() {
 
@@ -47,6 +51,16 @@ class MyStomp(val callbacks: Callbacks) {
                     var o=JSONObject(msg)
                     callback(o.get("text").toString())
                 } }
+
+                // Verbindung zum Game-Updates Topic
+                gameFlow = session.subscribeText("/topic/game-updates")
+                gameCollector = scope.launch {
+                    gameFlow.collect { msg ->
+                        callback(msg)
+                    }
+                }
+
+
                 callback("connected")
             }
 
@@ -75,5 +89,51 @@ class MyStomp(val callbacks: Callbacks) {
         }
 
     }
+
+    fun createGame(playerIds: List<String>) {
+        val json = JSONObject()
+        json.put("playerIds", playerIds)
+        val jsonString = json.toString()
+
+        scope.launch {
+            session.sendText("/app/game/create", jsonString)
+        }
+    }
+
+    fun placeHouse(gameId: String, playerId: String) {
+        val json = JSONObject()
+        json.put("gameId", gameId)
+        json.put("playerId", playerId)
+        json.put("actionType", "PLACE_HOUSE") // oder was du brauchst
+        val jsonString = json.toString()
+
+        scope.launch {
+            session.sendText("/app/game/place-house", jsonString)
+        }
+    }
+
+    fun endTurn(gameId: String, playerId: String) {
+        val json = JSONObject()
+        json.put("gameId", gameId)
+        json.put("playerId", playerId)
+        val jsonString = json.toString()
+
+        scope.launch {
+            session.sendText("/app/game/end-turn", jsonString)
+        }
+    }
+
+    fun drawCard(gameId: String, playerId: String) {
+        val json = JSONObject()
+        json.put("gameId", gameId)
+        json.put("playerId", playerId)
+        val jsonString = json.toString()
+
+        scope.launch {
+            session.sendText("/app/game/draw-card", jsonString)
+        }
+    }
+
+
 
 }
