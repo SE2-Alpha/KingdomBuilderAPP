@@ -46,4 +46,11 @@ class Player(val id: String, val name: String, val color: Int) {
     fun validateBuild(field: TerrainField): Boolean{
         return canBuildSettlement(field)
     }
+    fun undoBuildSettlement(field: TerrainField): Boolean{
+        if (field.builtBy != this) return  false
+
+        field.builtBy = null
+        remainingSettlements++
+        return true
+    }
 }

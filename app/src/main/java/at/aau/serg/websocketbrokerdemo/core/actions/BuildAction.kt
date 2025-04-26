@@ -24,6 +24,6 @@ class BuildAction(private val player: Player, private val field: TerrainField) :
     }
 
     override fun undo(): Boolean {
-        TODO("Not yet implemented")
+        TODO()
     }
 }
