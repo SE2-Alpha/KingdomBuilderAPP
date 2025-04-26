@@ -59,9 +59,9 @@ class GameBoard() {
     fun fillQuadrant(num: Int): Quadrant{
         return when(num){
             1 -> QuadrantTower()
-            2 -> QuadrantTavern()
+            2 -> QuadrantFields()
             3 -> QuadrantOasis()
-            4 -> QuadrantFields()
+            4 -> QuadrantTavern()
             else -> throw IllegalArgumentException("Unknown Quadrant: $num")
 
         }
@@ -84,6 +84,6 @@ class GameBoard() {
         TODO()
     }
     fun getFieldByRowAndCol(row: Int, col: Int): TerrainField {
-        return fields[row*10 + col]
+        return fields[row*20 + col]
     }
 }
