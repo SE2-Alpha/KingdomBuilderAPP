@@ -24,6 +24,8 @@ class BuildAction(private val player: Player, private val field: TerrainField) :
     }
 
     override fun undo(): Boolean {
-        TODO()
+        if (!wasExecuted) return false
+        wasExecuted = !player.undoBuildSettlement(field)
+        return !wasExecuted
     }
 }
