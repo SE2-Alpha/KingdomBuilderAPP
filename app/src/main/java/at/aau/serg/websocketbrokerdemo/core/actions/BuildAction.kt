@@ -9,11 +9,21 @@ import at.aau.serg.websocketbrokerdemo.core.model.player.Player
  * @property field Zielort der Bebauung
  */
 
-abstract class BuildAction(private val player: Player, private val field: TerrainField) : Action {
+class BuildAction(private val player: Player, private val field: TerrainField) : Action {
     /**
      * @throws IllegalStateException Wenn Feld nicht bebaubar ist
      */
+
+    private var wasExecuted = false
+
     override fun execute(): Boolean {
-        TODO()
+        if(wasExecuted || !player.validateBuild(field)) return false
+
+        wasExecuted = player.buildSettlement((field))
+        return wasExecuted
+    }
+
+    override fun undo(): Boolean {
+        TODO("Not yet implemented")
     }
 }

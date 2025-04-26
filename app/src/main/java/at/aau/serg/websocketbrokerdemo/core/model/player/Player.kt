@@ -1,5 +1,6 @@
 package at.aau.serg.websocketbrokerdemo.core.model.player
 
+import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
 import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainField
 import at.aau.serg.websocketbrokerdemo.core.model.cards.Card
 import at.aau.serg.websocketbrokerdemo.core.model.cards.LocationTile
@@ -41,5 +42,8 @@ class Player(val id: String, val name: String, val color: Int) {
 
     fun useSpecialAbility(tile: LocationTile): Boolean{
         return tile.specialAction.execute()
+    }
+    fun validateBuild(field: TerrainField): Boolean{
+        return canBuildSettlement(field)
     }
 }
