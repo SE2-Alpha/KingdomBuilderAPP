@@ -5,6 +5,7 @@ import at.aau.serg.websocketbrokerdemo.core.model.board.quadrants.QuadrantFields
 import at.aau.serg.websocketbrokerdemo.core.model.board.quadrants.QuadrantOasis
 import at.aau.serg.websocketbrokerdemo.core.model.board.quadrants.QuadrantTavern
 import at.aau.serg.websocketbrokerdemo.core.model.board.quadrants.QuadrantTower
+import kotlin.math.abs
 
 import androidx.collection.emptyObjectList
 import at.aau.serg.websocketbrokerdemo.core.model.player.Kingdom
@@ -82,7 +83,16 @@ class GameBoard() {
      * @param field2 Zweites Feld
      */
     fun areFieldsAdjacent(field1: TerrainField, field2: TerrainField): Boolean {
-        TODO()
+        val pos1 = field1.id
+        val pos2 = field2.id
+        val row1 = pos1 / 20
+        val row2 = pos2 / 20
+        
+        return when{
+            row1 == row2 -> abs(pos1 - pos2) == 1
+            abs(row1 - row2) == 1 -> abs(pos1 - pos2 - row1 + row2) in 9..11
+            else -> false
+        }
     }
     fun getFieldByRowAndCol(row: Int, col: Int): TerrainField {
         return fields[row*10 + col]
