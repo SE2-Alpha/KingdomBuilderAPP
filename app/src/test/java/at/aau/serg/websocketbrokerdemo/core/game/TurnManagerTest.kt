@@ -5,28 +5,28 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Assertions.*
 import org.mockito.Mockito.*
+import kotlin.test.assertFailsWith
 
 
 class TurnManagerTest {
     private lateinit var players: List<Player>
     private lateinit var turnManagerTest: TurnManager
-    private lateinit var turnManagerTest2: TurnManager
 
     @BeforeEach
     fun setUp() {
         players = mock()
-        turnManagerTest = mock()
-        turnManagerTest2 = TurnManager(players)
+        turnManagerTest = TurnManager(players)
     }
 
     @Test
     fun currentRoundTest(){
-        assertEquals(0, turnManagerTest2.currentRound)
+        assertEquals(0, turnManagerTest.currentRound)
     }
 
     @Test
     fun endTurnTest(){
-        turnManagerTest.endTurn()
-        verify(turnManagerTest).endTurn()
+        assertFailsWith<NotImplementedError> {
+            turnManagerTest.endTurn()
+        }
     }
 }
