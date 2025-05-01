@@ -15,8 +15,9 @@ import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import org.json.JSONObject
 import java.util.UUID
 
-private  val WEBSOCKET_URI = "ws://10.0.2.2:8080/websocket-example-broker";
 class MyStomp(val callbacks: Callbacks) {
+const val WEBSOCKET_URI = "ws://10.0.2.2:8080/ws-kingdombuilder-broker";
+// URL für den Uni-Server: ws://se2-demo.aau.at:53213/ws-kingdombuilder-broker
 
     private lateinit var topicFlow: Flow<String>
     private lateinit var collector:Job
