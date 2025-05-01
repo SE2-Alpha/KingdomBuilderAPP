@@ -25,9 +25,9 @@ class GameBoard() {
     fun buildGameboard(){
         //merge all 4 quadrants into one
         val quadrant1 = fillQuadrant(1)
-        val quadrant2 = fillQuadrant(4)
+        val quadrant2 = fillQuadrant(2)
         val quadrant3 = fillQuadrant(3)
-        val quadrant4 = fillQuadrant(2)
+        val quadrant4 = fillQuadrant(4)
 
         //concat top two and bottom two quadrants together
         val concatTop = concatQuadrantFields(quadrant1, quadrant2)
