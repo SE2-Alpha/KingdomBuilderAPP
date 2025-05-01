@@ -1,6 +1,7 @@
 package at.aau.serg.websocketbrokerdemo
 
 import MyStomp
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -10,6 +11,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -53,13 +55,17 @@ import androidx.compose.ui.unit.sp
 import at.aau.serg.websocketbrokerdemo.core.model.lobby.Room
 import at.aau.serg.websocketbrokerdemo.core.model.lobby.RoomStatus
 import com.example.myapplication.R
+import kotlinx.coroutines.delay
 import org.json.JSONArray
 
-class LobbyActivity : ComponentActivity(), Callbacks  {
+class LobbyActivity : ComponentActivity()  {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mystomp = MyStomp(this)
-        mystomp.connect() // STOMP-Verbindung starten
+        MyStomp.connect {
+            MyStomp.subscribeToTopic("/topic/lobby") { res ->
+                parseRoomList(res)
+            }
+        }
         enableEdgeToEdge()
         setContent {
             LobbyScreen()
@@ -67,21 +73,29 @@ class LobbyActivity : ComponentActivity(), Callbacks  {
         //mystomp.requestRooms()
     }
 
-    private lateinit var mystomp: MyStomp
+    //private lateinit var mystomp: MyStomp
     private var roomList by mutableStateOf<List<Room>>(emptyList())
+    private var joinedRoomId by mutableStateOf<String?>(null)
+    private var playersInRoom by mutableStateOf<List<String>>(emptyList())
+
 
 
 
     fun onRoomClick(roomId: String) {
-        // Hier kannst du die Logik implementieren, um einem Raum beizutreten
-        // Zum Beispiel: startActivity(Intent(this, GameActivity::class.java))
+        MyStomp.joinRoom(roomId)
+        joinedRoomId = roomId
+        // Beispiel: Fülle Test-Spieler
+        playersInRoom = listOf("Spieler1", "Spieler2") // später dynamisch vom Server holen
     }
 
     @Composable
     fun LobbyScreen() {
 
         LaunchedEffect(Unit) {
-            mystomp.requestRooms()
+            while (true) {
+                MyStomp.requestRooms()
+                delay(5000) // alle 5 Sekunden aktualisieren
+            }
         }
 
         val context = LocalContext.current
@@ -90,7 +104,7 @@ class LobbyActivity : ComponentActivity(), Callbacks  {
         //    Room(id = 2, name = "Room B", size = 4, currentUsers = 4),
         //    Room(id = 3, name = "Room C", size = 4, currentUsers = 1),
         //)
-        val rooms = roomList
+        //val rooms = roomList
         Box (
             modifier = Modifier
                 .fillMaxSize()
@@ -131,142 +145,199 @@ class LobbyActivity : ComponentActivity(), Callbacks  {
                     )
                 }
 
-                Column(
+                if (joinedRoomId == null) {
+                    // Bisherige Lobby: Raumliste und "Create Room"-Button
+                    LobbyView(roomList, context, Modifier.align(Alignment.Center))
+                } else {
+                    // Neue Ansicht: Spieler im Raum + Start/Verlassen Buttons
+                    RoomView()
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun LobbyView(rooms: List<Room>, context: Context, modifier: Modifier) {
+        Column(
+            modifier = modifier.width(450.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)                        // Höhe anpassen
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(colorResource(id = R.color.lobby_background_upper))         // hier Deine Farbe
+            ){
+
+
+                Row(
                     modifier = Modifier
-                        .align(Alignment.Center)
-                        .width(450.dp)
+                        .align(Alignment.TopCenter)
+                        .padding(top = 20.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)                        // Höhe anpassen
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(colorResource(id = R.color.lobby_background_upper))         // hier Deine Farbe
-                    ){
+                    Column (
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(text = stringResource(id = R.string.join_game),
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
 
-
-                        Row(
-                            modifier = Modifier
-                                .align(Alignment.TopCenter)
-                                .padding(top = 20.dp)
-                        ) {
-                            Column (
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text(text = stringResource(id = R.string.join_game),
-                                    modifier = Modifier.align(Alignment.CenterHorizontally)
-
-                                )
-                                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                                    // Für jeden Raum eine Zeile
-                                    rooms.sortedBy { it.name }.forEach { room ->
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .clickable { onRoomClick(room.id) }
-                                                .padding(vertical = 8.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            // Name + Belegung
-                                            Column(
-                                                modifier = Modifier.weight(1f)
-                                                    .padding(start = 8.dp)
-                                            ) {
-                                                Text(text = room.name)
-                                                Text(
-                                                    text = "${room.currentUsers} / ${room.size} Spieler",
-                                                    color = Color.DarkGray
-                                                )
-                                            }
-                                            // Status-Text
-                                            Button(onClick = {
-                                                mystomp.joinRoom(room.id)
-                                            }) {
-                                                Text(
-                                                    text = if (room.status == RoomStatus.STARTED) "gestartet" else if (room.status == RoomStatus.FINISHED) "beendet" else if (room.status == RoomStatus.WAITING && room.currentUsers < room.size) "Beitreten" else "Voll",
-                                                    color = if (room.status == RoomStatus.WAITING && room.currentUsers < room.size) Color.Green else Color.Red,
-                                                    modifier = Modifier.padding(start = 8.dp)
-                                                )
-                                            }
-                                        }
-                                        //Divider()
-                                    }
-                                }
-
-                            }
-
-                            Spacer(modifier = Modifier.width(100.dp)
-                                .weight(0.1f))
-
-                            Column(modifier = Modifier.weight(1f)){
-                                Text(
-                                    text = stringResource(id = R.string.create_game),
-                                    modifier = Modifier.align(Alignment.CenterHorizontally))
-
-                                Spacer(modifier = Modifier.height(20.dp))
-
-                                Button(
-                                    onClick = {
-                                        mystomp.createRoom()
-                                    },
+                        )
+                        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                            // Für jeden Raum eine Zeile
+                            rooms.sortedBy { it.name }.forEach { room ->
+                                Row(
                                     modifier = Modifier
-                                        .padding(8.dp)
-                                        .height(100.dp)
-                                        .width(100.dp)
-                                        .align(Alignment.CenterHorizontally),
-
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color.Transparent
-
-                                    ),
-                                    shape = RoundedCornerShape(20.dp),
-                                            contentPadding = PaddingValues(0.dp)
+                                        .fillMaxWidth()
+                                        .clickable { onRoomClick(room.id) }
+                                        .padding(vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .clip(RoundedCornerShape(20.dp))
+                                    // Name + Belegung
+                                    Column(
+                                        modifier = Modifier.weight(1f)
+                                            .padding(start = 8.dp)
                                     ) {
-                                        Image(
-                                            painter = painterResource(id = R.drawable.plus_square_add_game),
-                                            contentDescription = "Add Game",
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier.fillMaxSize()
+                                        Text(text = room.name)
+                                        Text(
+                                            text = "${room.currentUsers} / ${room.size} Spieler",
+                                            color = Color.DarkGray
+                                        )
+                                    }
+                                    // Status-Text
+                                    Button(onClick = {
+                                        onRoomClick(room.id)
+                                    }) {
+                                        Text(
+                                            text = if (room.status == RoomStatus.STARTED) "gestartet" else if (room.status == RoomStatus.FINISHED) "beendet" else if (room.status == RoomStatus.WAITING && room.currentUsers < room.size) "Beitreten" else "Voll",
+                                            color = if (room.status == RoomStatus.WAITING && room.currentUsers < room.size) Color.Green else Color.Red,
+                                            modifier = Modifier.padding(start = 8.dp)
                                         )
                                     }
                                 }
+                                //Divider()
+                            }
+                        }
+
+                    }
+
+                    Spacer(modifier = Modifier.width(100.dp)
+                        .weight(0.1f))
+
+                    Column(modifier = Modifier.weight(1f)){
+                        Text(
+                            text = stringResource(id = R.string.create_game),
+                            modifier = Modifier.align(Alignment.CenterHorizontally))
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        Button(
+                            onClick = {
+                                MyStomp.createRoom()
+                            },
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .height(100.dp)
+                                .width(100.dp)
+                                .align(Alignment.CenterHorizontally),
+
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent
+
+                            ),
+                            shape = RoundedCornerShape(20.dp),
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(RoundedCornerShape(20.dp))
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.plus_square_add_game),
+                                    contentDescription = "Add Game",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
                             }
                         }
                     }
-                    Button(
-                        onClick = {
-                            val intent = Intent(context, GameActivity::class.java)
-                            context.startActivity(intent)
-                        },
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .height(60.dp)
-                            .width(170.dp)
-                            .shadow(8.dp, shape = RoundedCornerShape(20.dp))
-                            .align(Alignment.CenterHorizontally),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = colorResource(id = R.color.button_grey),  //wenn Spiel gestartet werden kann, Farbe ändern
-                            contentColor = Color.Black
-                        ),
-                        shape = RoundedCornerShape(20.dp)
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.start_game),
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                }
+            }
+            Button(
+                onClick = {
+                    val intent = Intent(context, GameActivity::class.java)
+                    context.startActivity(intent)
+                },
+                modifier = Modifier
+                    .padding(8.dp)
+                    .height(60.dp)
+                    .width(170.dp)
+                    .shadow(8.dp, shape = RoundedCornerShape(20.dp))
+                    .align(Alignment.CenterHorizontally),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorResource(id = R.color.button_grey),  //wenn Spiel gestartet werden kann, Farbe ändern
+                    contentColor = Color.Black
+                ),
+                shape = RoundedCornerShape(20.dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.start_game),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+
+    @Composable
+    fun RoomView() {
+        Box (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)                        // Höhe anpassen
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(colorResource(id = R.color.lobby_background_upper))         // hier Deine Farbe
+                ){
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            )
+            {
+                Text("Spieler im Raum:", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(16.dp))
+                playersInRoom.forEach { player ->
+                    Text(player, fontSize = 20.sp)
+                }
+                Spacer(modifier = Modifier.height(32.dp))
+                Row(
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Button(onClick = { leaveRoom() }) {
+                        Text("Verlassen")
+                    }
+                    Button(onClick = { startGame() }) {
+                        Text("Starten")
                     }
                 }
             }
         }
     }
 
-    override fun onResponse(res: String) {
+    private fun leaveRoom() {
+        MyStomp.leaveRoom(joinedRoomId!!)
+        joinedRoomId = null
+        playersInRoom = emptyList()
+    }
+
+    private fun startGame() {
+        MyStomp.startRoom(joinedRoomId!!)
+    }
+
+    private fun parseRoomList(res: String) {
         try {
             Log.e("LobbyActivity", "Nachricht vom Server: $res")
             val roomsJson = JSONArray(res)
@@ -281,7 +352,6 @@ class LobbyActivity : ComponentActivity(), Callbacks  {
                         size = obj.getInt("size"),
                         currentUsers = obj.getInt("currentUsers"),
                         status = RoomStatus.valueOf(obj.getString("status")),
-
                     )
                 )
             }
@@ -291,5 +361,6 @@ class LobbyActivity : ComponentActivity(), Callbacks  {
             Log.e("LobbyActivity", "Fehler beim Parsen der Räume", e)
         }
     }
+
 
 }
