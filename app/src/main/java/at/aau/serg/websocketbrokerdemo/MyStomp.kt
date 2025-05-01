@@ -13,67 +13,94 @@ import org.hildan.krossbow.stomp.sendText
 import org.hildan.krossbow.stomp.subscribeText
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import org.json.JSONObject
+import java.util.UUID
 
-private  val WEBSOCKET_URI = "ws://10.0.2.2:8080/websocket-example-broker";
-class MyStomp(val callbacks: Callbacks) {
+const val WEBSOCKET_URI = "ws://10.0.2.2:8080/ws-kingdombuilder-broker";
+// URL für den Uni-Server: ws://se2-demo.aau.at:53213/ws-kingdombuilder-broker
 
-    private lateinit var topicFlow: Flow<String>
-    private lateinit var collector:Job
-
-    private lateinit var jsonFlow: Flow<String>
-    private lateinit var jsonCollector:Job
-
-    private lateinit var client:StompClient
+object MyStomp {
+    private lateinit var client: StompClient
     private lateinit var session: StompSession
+    private val scope = CoroutineScope(Dispatchers.IO)
+    val playerId: String = UUID.randomUUID().toString()
 
-    private val scope:CoroutineScope=CoroutineScope(Dispatchers.IO)
-    fun connect() {
+    private val topicCallbacks = mutableMapOf<String, MutableList<(String) -> Unit>>()
 
-            client = StompClient(OkHttpWebSocketClient()) // other config can be passed in here
+    fun subscribeToTopic(topic: String, callback: (String) -> Unit) {
+        if (!topicCallbacks.containsKey(topic)) {
+            topicCallbacks[topic] = mutableListOf()
+            // Erstes Mal: STOMP-Subscription starten
             scope.launch {
-                session=client.connect(WEBSOCKET_URI)
-                topicFlow= session.subscribeText("/topic/hello-response")
-                //connect to topic
-                collector=scope.launch { topicFlow.collect{
-                        msg->
-                    //todo logic
-                    callback(msg)
-                } }
-
-                //connect to topic
-                jsonFlow= session.subscribeText("/topic/rcv-object")
-                jsonCollector=scope.launch { jsonFlow.collect{
-                        msg->
-                    var o=JSONObject(msg)
-                    callback(o.get("text").toString())
-                } }
-                callback("connected")
+                val flow = session.subscribeText(topic)
+                launch {
+                    flow.collect { msg ->
+                        Handler(Looper.getMainLooper()).post {
+                            topicCallbacks[topic]?.forEach { it(msg) }
+                        }
+                    }
+                }
             }
-
-    }
-    private fun callback(msg:String){
-        Handler(Looper.getMainLooper()).post{
-            callbacks.onResponse(msg)
         }
+        topicCallbacks[topic]?.add(callback)
     }
-    fun sendHello(){
 
-        scope.launch {
-            Log.e("tag","connecting to topic")
-
-            session.sendText("/app/hello","message from client")
-           }
-    }
-    fun sendJson(){
-        var json=JSONObject();
-        json.put("from","client")
-        json.put("text","from client")
-        var o=json.toString()
-
-        scope.launch {
-            session.sendText("/app/object",o);
+    fun connect(forceReconnect: Boolean = false, onConnected: (() -> Unit)? = null) {
+        if (::session.isInitialized && !forceReconnect) {
+            Handler(Looper.getMainLooper()).post {
+                onConnected?.invoke()
+            }
+            return
         }
 
+        client = StompClient(OkHttpWebSocketClient())
+        scope.launch {
+            session = client.connect(WEBSOCKET_URI)
+            Handler(Looper.getMainLooper()).post {
+                onConnected?.invoke()
+            }
+        }
     }
 
+
+    fun sendHello() {
+        scope.launch {
+            session.sendText("/app/hello", "message from client")
+        }
+    }
+
+    fun send(Subject: String, message: String) {
+        scope.launch {
+            session.sendText(Subject, message)
+        }
+    }
+
+    fun requestRooms() {
+        scope.launch {
+            session.sendText("/app/lobby/get", "")
+        }
+    }
+
+    fun createRoom() {
+        scope.launch {
+            session.sendText("/app/lobby/create", "{\"playerId\":\"$playerId\"}")
+        }
+    }
+
+    fun joinRoom(roomId: String) {
+        scope.launch {
+            session.sendText("/app/lobby/join", "{\"playerId\":\"$playerId\", \"roomId\":\"$roomId\"}")
+        }
+    }
+
+    fun leaveRoom(roomId: String) {
+        scope.launch {
+            session.sendText("/app/lobby/leave", "{\"playerId\":\"$playerId\", \"roomId\":\"$roomId\"}")
+        }
+    }
+
+    fun startRoom(roomId: String) {
+        scope.launch {
+            session.sendText("/app/lobby/start", "{\"playerId\":\"$playerId\", \"roomId\":\"$roomId\"}")
+        }
+    }
 }

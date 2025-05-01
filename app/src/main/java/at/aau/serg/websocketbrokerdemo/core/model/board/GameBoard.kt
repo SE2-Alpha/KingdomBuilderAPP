@@ -25,9 +25,9 @@ class GameBoard() {
     fun buildGameboard(){
         //merge all 4 quadrants into one
         val quadrant1 = fillQuadrant(1)
-        val quadrant2 = fillQuadrant(4)
+        val quadrant2 = fillQuadrant(2)
         val quadrant3 = fillQuadrant(3)
-        val quadrant4 = fillQuadrant(2)
+        val quadrant4 = fillQuadrant(4)
 
         //concat top two and bottom two quadrants together
         val concatTop = concatQuadrantFields(quadrant1, quadrant2)
@@ -59,9 +59,9 @@ class GameBoard() {
     fun fillQuadrant(num: Int): Quadrant{
         return when(num){
             1 -> QuadrantTower()
-            2 -> QuadrantTavern()
+            2 -> QuadrantFields()
             3 -> QuadrantOasis()
-            4 -> QuadrantFields()
+            4 -> QuadrantTavern()
             else -> throw IllegalArgumentException("Unknown Quadrant: $num")
 
         }
