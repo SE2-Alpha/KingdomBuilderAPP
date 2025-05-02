@@ -8,6 +8,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -26,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
 import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainField
-import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainType
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -74,7 +74,13 @@ fun pointInHexagon(x: Float, y: Float, centerX: Float, centerY: Float, side: Flo
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
-fun HexagonBoardScreen() {
+fun HexagonBoardScreen(
+    roomId: String,
+    playerIds: List<String>, // playerIds[0] = oben links, [1] = oben rechts, ...
+    onDrawCard: (String, String) -> Unit,
+    onPlaceHouses: (String, String) -> Unit,
+    onEndTurn: (String, String) -> Unit
+) {
 
     val context = LocalContext.current
     // Zustand: Wenn kein Quartil ausgewählt, ist der Übersichtsmodus aktiv,
@@ -292,14 +298,79 @@ fun HexagonBoardScreen() {
                 }
             }
         }
+        // Spieler 1 – oben links
+        Box(modifier = Modifier.align(Alignment.TopStart)) {
+            ActionButtonsForPlayer(playerIds[0], roomId, onDrawCard, onPlaceHouses, onEndTurn)
+        }
+
+        // Spieler 2 – oben rechts
+        Box(modifier = Modifier.align(Alignment.TopEnd)) {
+            ActionButtonsForPlayer(playerIds[1], roomId, onDrawCard, onPlaceHouses, onEndTurn)
+        }
+
+        // Spieler 3 – unten links
+        Box(modifier = Modifier.align(Alignment.BottomStart)) {
+            ActionButtonsForPlayer(playerIds[2], roomId, onDrawCard, onPlaceHouses, onEndTurn)
+        }
+
+        // Spieler 4 – unten rechts
+        Box(modifier = Modifier.align(Alignment.BottomEnd)) {
+            ActionButtonsForPlayer(playerIds[3], roomId, onDrawCard, onPlaceHouses, onEndTurn)
+        }
     }
 }
+
+@Composable
+fun ActionButtonsForPlayer(
+    playerId: String,
+    gameId: String,
+    onDrawCard: (String, String) -> Unit,
+    onPlaceHouses: (String, String) -> Unit,
+    onEndTurn: (String, String) -> Unit
+) {
+    Column {
+        Button(onClick = { onDrawCard(gameId, playerId) }, modifier = Modifier.padding(4.dp)) {
+            Text("Draw Card")
+        }
+        Button(onClick = { onPlaceHouses(gameId, playerId) }, modifier = Modifier.padding(4.dp)) {
+            Text("Place Houses")
+        }
+        Button(onClick = { onEndTurn(gameId, playerId) }, modifier = Modifier.padding(4.dp)) {
+            Text("End Turn")
+        }
+    }
+}
+
+
+
 
 class GameActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val roomId = intent.getStringExtra("ROOM_ID")
+        val playerIds = intent.getStringArrayListExtra("PLAYER_LIST") ?: arrayListOf()
+
+        val onDrawCard: (String, String) -> Unit = { gameId, playerId ->
+            MyStomp.drawCard(gameId, playerId)
+        }
+
+        val onPlaceHouses: (String, String) -> Unit = { gameId, playerId ->
+            MyStomp.placeHouses(gameId, playerId)
+        }
+
+        val onEndTurn: (String, String) -> Unit = { gameId, playerId ->
+            MyStomp.endTurn(gameId, playerId)
+        }
+
         setContent {
-            HexagonBoardScreen()
+            HexagonBoardScreen(
+                roomId = roomId.toString(),
+                playerIds = playerIds,
+                onDrawCard = onDrawCard,
+                onPlaceHouses = onPlaceHouses,
+                onEndTurn = onEndTurn
+            )
         }
     }
 }

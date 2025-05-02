@@ -319,7 +319,10 @@ class LobbyActivity : ComponentActivity()  {
                     Button(onClick = { leaveRoom() }) {
                         Text("Verlassen")
                     }
-                    Button(onClick = { startGame() }) {
+                    Button(onClick = {
+                        startGame()
+                        startGameActivity()
+                    }) {
                         Text("Starten")
                     }
                 }
@@ -360,6 +363,13 @@ class LobbyActivity : ComponentActivity()  {
         } catch (e: Exception) {
             Log.e("LobbyActivity", "Fehler beim Parsen der Räume", e)
         }
+    }
+
+    private fun startGameActivity() {
+        val intent = Intent(this, GameActivity::class.java)
+        intent.putExtra("ROOM_ID", joinedRoomId)
+        intent.putStringArrayListExtra("PLAYER_LIST", ArrayList(playersInRoom))
+        startActivity(intent)
     }
 
 
