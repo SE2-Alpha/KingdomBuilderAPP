@@ -2,6 +2,7 @@ package at.aau.serg.websocketbrokerdemo
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
@@ -361,6 +362,11 @@ class GameActivity : ComponentActivity() {
 
         val onEndTurn: (String, String) -> Unit = { gameId, playerId ->
             MyStomp.endTurn(gameId, playerId)
+        }
+
+        MyStomp.subscribeToGameUpdates(roomId.toString()) { message ->
+            Log.d("GameActivity", "Game update received: $message")
+
         }
 
         setContent {
