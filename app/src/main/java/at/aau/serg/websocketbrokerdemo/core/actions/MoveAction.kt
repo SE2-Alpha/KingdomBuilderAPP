@@ -17,7 +17,12 @@ class MoveAction(private val player: Player, private val fromField: TerrainField
      *   - Keine Verbindung zum Königreich besteht
      */
     override fun execute(): Boolean {
-        /*TODO()*/
+        if (!isValidMove()) return false
+
+        // Entferne Siedlung vom Ursprungsfeld
+        fromField.builtBy = null
+        player.kingdom.addSettlement(toField)
+        toField.builtBy = player
         return true
     }
 

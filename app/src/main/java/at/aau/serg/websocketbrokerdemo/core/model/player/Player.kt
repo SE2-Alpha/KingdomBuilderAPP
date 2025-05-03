@@ -9,7 +9,7 @@ import at.aau.serg.websocketbrokerdemo.core.model.cards.LocationTile
  * Repräsentiert einen Spieler mit Königreich und Ressourcen.
  */
 
-class Player(val id: String, val name: String, val color: Int) {
+class Player(val id: String, val name: String, val color: Int, private val gameBoard: GameBoard) {
     /**
      * Verbleibende Siedlungen, die platziert werden können
      */
@@ -34,7 +34,7 @@ class Player(val id: String, val name: String, val color: Int) {
     private fun canBuildSettlement(field: TerrainField): Boolean {
         return remainingSettlements > 0 &&
                 field.isBuildable &&
-                (kingdom.getSettlementCount() == 0)
+                (kingdom.getSettlementCount() == 0 || gameBoard.areFieldAdjacentToKingdom(field,kingdom))
     }
     fun addCard(card: Card){
         handCards.add(card)
