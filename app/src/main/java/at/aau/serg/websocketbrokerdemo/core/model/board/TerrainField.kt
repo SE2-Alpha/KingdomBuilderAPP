@@ -25,8 +25,10 @@ class TerrainField(val type: TerrainType, val id: Int) { //needs quadrant number
 
     fun getNeighbours(id: Int): Array<Int>{
         when(id){
-            (40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 320, 340, 360) -> 5
-            (39, 59, 79, 99, 119, 139, 159, 179, 199, 219, 23, 259, 279, 299, 319, 339, 359, 379) -> 5
+            40, 80, 120, 160, 200, 240, 280, 320, 360 -> arrayOf(id - 20, id + 1, id + 20)
+            20, 60, 100, 140, 180, 220, 260, 300, 340 -> arrayOf(id - 20, id - 19, id + 1, id + 20, id + 21)
+            39, 79, 119, 159, 199, 239, 279, 319, 359 -> arrayOf(id - 20, id - 1, id + 20)
+            59, 99, 139, 179, 219, 259, 299, 339, 379 -> arrayOf(id - 21, id - 20, id - 1, id + 19, id + 20)
             id > 20, id < 380 -> 6
             in 1..18 -> arrayOf(id - 1, id + 1, id + 19, id + 20)
             in 381..398 -> arrayOf(id - 1, id + 1, id - 19, id - 20)
