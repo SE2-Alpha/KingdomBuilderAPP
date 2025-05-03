@@ -57,6 +57,9 @@ class GameManager(private val players: List<Player>, private  val turnManager: T
         }
     }
 
+    fun isGameOver(): Boolean{
+        return players.any { it.remainingSettlements == 0 }
+    }
 
     /**
      * @return Aktueller Spielzustand (Brett, Spielerstände, Karten)
