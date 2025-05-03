@@ -28,8 +28,35 @@ class GameManager(private val players: List<Player>, private  val turnManager: T
      * - Setzt Startwerte für Spieler
      */
     fun initializeGame() {
-        TODO()
+        val availableQuadrants = listOf(1, 2, 3, 4)
+        val selectedQuadrants = availableQuadrants.shuffled().take(4)
+
+        gameBoard.buildGameboard(selectedQuadrants)
+
+        //Geländekarten initialisieren (5x jedes Terrain)
+        listOf(
+            TerrainType.GRASS to "Gras",
+            TerrainType.CANYON to "Canyon",
+            TerrainType.DESERT to "Wüste",
+            TerrainType.FLOWERS to "Blume",
+            TerrainType.FOREST to "Wald"
+        ).forEach { (type, name) ->
+            repeat(5) {
+                terrainDeck.add(TerrainCard(type.name, name, type))
+            }
+        }
+        terrainDeck.shuffle()
+
+        //Karten an Spieler verteilen
+        players.forEach { player ->
+            if (terrainDeck.isNotEmpty()) {
+                player.drawCard(terrainDeck.removeAt(0))
+            } else {
+                throw IllegalStateException("Deck ist leer beim Initialisieren!")
+            }
+        }
     }
+
 
     /**
      * @return Aktueller Spielzustand (Brett, Spielerstände, Karten)
