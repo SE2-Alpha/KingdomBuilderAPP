@@ -30,10 +30,10 @@ class TerrainField(val type: TerrainType, val id: Int) { //needs quadrant number
             (id > 20 && id < 380) -> 6
             id > 0 && id < 19 -> 4
             id > 380 && id < 400 -> 4
-            0 -> 2
-            20 -> 3
-            380 -> 3
-            400 -> 2
+            0 -> return arrayOf(1, 21)
+            19 -> return arrayOf(18, 38, 39)
+            380 -> return arrayOf(360, 361, 381)
+            399 -> return arrayOf(379, 398)
 
             else -> {}
         } as Int
