@@ -25,20 +25,21 @@ class TerrainField(val type: TerrainType, val id: Int) { //needs quadrant number
 
     fun getNeighbours(id: Int): Array<Int>{
         when(id){
-            40, 80, 120, 160, 200, 240, 280, 320, 360 -> arrayOf(id - 20, id + 1, id + 20)
-            20, 60, 100, 140, 180, 220, 260, 300, 340 -> arrayOf(id - 20, id - 19, id + 1, id + 20, id + 21)
-            39, 79, 119, 159, 199, 239, 279, 319, 359 -> arrayOf(id - 20, id - 1, id + 20)
-            59, 99, 139, 179, 219, 259, 299, 339, 379 -> arrayOf(id - 21, id - 20, id - 1, id + 19, id + 20)
-            id > 20, id < 380 -> 6
-            in 1..18 -> arrayOf(id - 1, id + 1, id + 19, id + 20)
-            in 381..398 -> arrayOf(id - 1, id + 1, id - 19, id - 20)
+            20, 60, 100, 140, 180, 220, 260, 300, 340 -> return arrayOf(id - 20, id - 19, id + 1, id + 20, id + 21)
+            40, 80, 120, 160, 200, 240, 280, 320, 360 -> return arrayOf(id - 20, id + 1, id + 20)
+            39, 79, 119, 159, 199, 239, 279, 319, 359 -> return arrayOf(id - 20, id - 1, id + 20)
+            59, 99, 139, 179, 219, 259, 299, 339, 379 -> return arrayOf(id - 21, id - 20, id - 1, id + 19, id + 20)
+            in 1..18 -> return arrayOf(id - 1, id + 1, id + 19, id + 20)
+            in 381..398 -> return arrayOf(id - 1, id + 1, id - 19, id - 20)
             0 -> return arrayOf(1, 21)
             19 -> return arrayOf(18, 38, 39)
             380 -> return arrayOf(360, 361, 381)
             399 -> return arrayOf(379, 398)
 
-            else -> {}
-        } as Int
+            in 21..38, 61..78, 101..118, 141..158, 181..198, 221..238, 261..278, 301..318, 341..378 -> return arrayOf(id - 20, id - 19, id - 1, id + 1, id + 20, id + 21)
+            else -> {return arrayOf(id - 21, id - 20, id - 1, id + 1, id + 19, id + 20)}
+        }
+        return arrayOf(-1)
     }
 
     fun getColor(context: Context): Color {
