@@ -15,10 +15,11 @@ import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import org.json.JSONObject
 import java.util.UUID
 
-const val URI_local = "ws://10.0.2.2:8080/ws-kingdombuilder-broker"
+const val URI_local_Physical = "ws://10.0.0.180:8080/ws-kingdombuilder-broker"
+const val URI_local_Emulator = "ws://10.0.2.2:8080/ws-kingdombuilder-broker"
 const val URI_Server = "ws://se2-demo.aau.at:53213/ws-kingdombuilder-broker"
 
-const val WEBSOCKET_URI = URI_local
+const val WEBSOCKET_URI = URI_local_Physical
 
 object MyStomp {
     private lateinit var client: StompClient
