@@ -35,7 +35,9 @@ class MoveAction(private val player: Player, private val fromField: TerrainField
      * @throws IllegalStateException Wenn Zielfeld inzwischen blockiert ist
      */
     override fun undo(): Boolean {
-        /*TODO()*/
+        // Setze Siedlung zurück
+        toField.builtBy = null
+        fromField.builtBy = player
         return true
     }
 
