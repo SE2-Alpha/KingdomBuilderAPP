@@ -1,5 +1,6 @@
 package at.aau.serg.websocketbrokerdemo.core.actions
 
+import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
 import at.aau.serg.websocketbrokerdemo.core.model.cards.LocationTile
 import at.aau.serg.websocketbrokerdemo.core.model.player.Player
 
