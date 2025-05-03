@@ -36,7 +36,7 @@ class TerrainField(val type: TerrainType, val id: Int) { //needs quadrant number
             380 -> return arrayOf(360, 361, 381)
             399 -> return arrayOf(379, 398)
 
-            in 21..38, 61..78, 101..118, 141..158, 181..198, 221..238, 261..278, 301..318, 341..378 -> return arrayOf(id - 20, id - 19, id - 1, id + 1, id + 20, id + 21)
+            in 21..38, in 61..78, in 101..118, in 141..158, in 181..198, in 221..238, in 261..278, in 301..318, in 341..378 -> return arrayOf(id - 20, id - 19, id - 1, id + 1, id + 20, id + 21)
             else -> {return arrayOf(id - 21, id - 20, id - 1, id + 1, id + 19, id + 20)}
         }
         return arrayOf(-1)
