@@ -27,9 +27,9 @@ class TerrainField(val type: TerrainType, val id: Int) { //needs quadrant number
         when(id){
             (40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 320, 340, 360) -> 5
             (39, 59, 79, 99, 119, 139, 159, 179, 199, 219, 23, 259, 279, 299, 319, 339, 359, 379) -> 5
-            (id > 20 && id < 380) -> 6
-            id > 0 && id < 19 -> 4
-            id > 380 && id < 400 -> 4
+            id > 20, id < 380 -> 6
+            in 1..18 -> arrayOf(id - 1, id + 1, id + 19, id + 20)
+            in 381..398 -> arrayOf(id - 1, id + 1, id - 19, id - 20)
             0 -> return arrayOf(1, 21)
             19 -> return arrayOf(18, 38, 39)
             380 -> return arrayOf(360, 361, 381)
