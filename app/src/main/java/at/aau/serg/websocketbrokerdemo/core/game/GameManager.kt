@@ -28,10 +28,7 @@ class GameManager(private val players: List<Player>, private  val turnManager: T
      * - Setzt Startwerte für Spieler
      */
     fun initializeGame() {
-        val availableQuadrants = listOf(1, 2, 3, 4)
-        val selectedQuadrants = availableQuadrants.shuffled().take(4)
-
-        gameBoard.buildGameboard(selectedQuadrants)
+        gameBoard.buildGameboard()
 
         //Geländekarten initialisieren (5x jedes Terrain)
         listOf(

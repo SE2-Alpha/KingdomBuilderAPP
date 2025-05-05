@@ -29,4 +29,5 @@ class KingdomTest {
             kingdom.addSettlement(field)
         }
     }
+
 }

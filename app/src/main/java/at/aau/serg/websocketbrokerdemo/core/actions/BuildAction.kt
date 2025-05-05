@@ -10,7 +10,7 @@ import at.aau.serg.websocketbrokerdemo.core.model.player.Player
  * @property field Zielort der Bebauung
  */
 
-class BuildAction(private val player: Player, private val field: TerrainField, private val gameBoard: GameBoard) : Action {
+open class BuildAction(private val player: Player, private val field: TerrainField, private val gameBoard: GameBoard) : Action {
     /**
      * @throws IllegalStateException Wenn Feld nicht bebaubar ist
      */

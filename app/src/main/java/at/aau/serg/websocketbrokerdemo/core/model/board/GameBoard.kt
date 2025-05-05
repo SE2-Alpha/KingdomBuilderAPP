@@ -24,13 +24,12 @@ class GameBoard() {
     /**
      * Builds the Gameboard. Implement with numbers later to decide what quadrants to pick
      */
-    fun buildGameboard(selectedQuadrants: List<Int>){
-        require(selectedQuadrants.size == 4) {"Es müssen genau 4 Quadranten ausgewählt werden"}
+    fun buildGameboard(){
         //merge all 4 quadrants into one
-        val quadrant1 = fillQuadrant(selectedQuadrants[0])
-        val quadrant2 = fillQuadrant(selectedQuadrants[1])
-        val quadrant3 = fillQuadrant(selectedQuadrants[2])
-        val quadrant4 = fillQuadrant(selectedQuadrants[3])
+        val quadrant1 = fillQuadrant(1)
+        val quadrant2 = fillQuadrant(2)
+        val quadrant3 = fillQuadrant(3)
+        val quadrant4 = fillQuadrant(4)
 
         //concat top two and bottom two quadrants together
         val concatTop = concatQuadrantFields(quadrant1, quadrant2)
