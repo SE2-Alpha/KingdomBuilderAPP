@@ -65,5 +65,22 @@ class GameManager(private val players: List<Player>, private  val turnManager: T
     fun getCurrentGameState(): GameState{
         TODO()
     }
+
+    fun getTerrainDeckSize(): Int {
+        return terrainDeck.size
+    }
+
+    fun getTerrainDeckClear() {
+        terrainDeck.clear()
+    }
+
+    fun drawCardFromDeck(): TerrainCard {
+        if (terrainDeck.isNotEmpty()) {
+            return terrainDeck.removeAt(0)
+        } else {
+            throw IllegalStateException("Deck ist leer!")
+        }
+    }
+
 }
 
