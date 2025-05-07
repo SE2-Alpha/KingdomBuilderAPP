@@ -5,11 +5,15 @@ import androidx.compose.ui.graphics.vector.Group
 import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
 import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainField
 import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainType
+import at.aau.serg.websocketbrokerdemo.core.model.cards.TerrainCard
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
@@ -79,5 +83,14 @@ class PlayerTest {
         player.buildSettlement(validField)
         val disconnectedField = gameBoard.getFieldByRowAndCol(5,5)
         assertFalse(player.validateBuild(disconnectedField))
+    }
+
+    @Test
+    fun `card management works correctly`() {
+        val card = mock(TerrainCard::class.java)
+        player.drawCard(card)
+        assertEquals(card, player.currentCard())
+        assertEquals(card, player.playerCard())
+        assertNull(player.playerCard())
     }
 }
