@@ -23,6 +23,9 @@ class TerrainField(val type: TerrainType, val id: Int) { //needs quadrant number
     val isBuildable: Boolean
         get() = type.isBuildable && builtBy == null
 
+    /**
+     * @return Gibt alle Nachbarn in einem Array zurück. Falls die Id nicht zwischen 0 und 399 liegt, gibt es -1 zurück
+     */
     fun getNeighbours(id: Int): Array<Int>{
         if (id > -1 && id < 400) {
             when (id) {
