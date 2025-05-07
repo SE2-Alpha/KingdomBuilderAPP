@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.EnumSource
+import org.junit.jupiter.params.provider.MethodSource
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.Mockito.mock
 
@@ -44,8 +45,7 @@ class TerrainFieldTest {
     }
 
     @ParameterizedTest
-    @CsvSource("0", "5", "7", "15", "19", "20", "25", "39", "40", "45", "50", "55", "60", "65", "70", "75", "79", "85", "90", "99", "100",
-        "111", "129", "136", "148", "150", "166", "177", "189", "199", "200", "222", "229", "233", "244", "251", "300", "380", "381", "399" ,"455")
+    @MethodSource("fieldnums")
     fun getNeighboursAmountTest(id: Int){
         terrainField = TerrainField(TerrainType.GRASS, id)
         when(id){
@@ -60,7 +60,12 @@ class TerrainFieldTest {
 
             //the other half of the left/right edges has five neighbours
             20, 59, 60, 99, 100, 139, 140, 179, 180, 219, 220, 259, 260, 299, 300, 339, 340, 379 -> assertEquals(5, terrainField.getNeighbours(id).size)
+
         }
 
+    }
+    companion object {
+        @JvmStatic
+        fun fieldnums() = (0..399)
     }
 }
