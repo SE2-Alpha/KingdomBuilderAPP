@@ -74,7 +74,7 @@ class GameBoard() {
      * @param type Gesuchter TerrainType
      */
     fun getFieldsByType(type: TerrainType): List<TerrainField> {
-        TODO()
+        return fields.filter {it.type == type}
     }
 
     /**

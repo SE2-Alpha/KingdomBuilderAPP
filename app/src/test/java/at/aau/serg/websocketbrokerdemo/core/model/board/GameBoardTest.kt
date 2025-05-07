@@ -1,5 +1,6 @@
 package at.aau.serg.websocketbrokerdemo.core.model.board
 
+import junit.framework.TestCase.assertFalse
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.api.BeforeEach
@@ -7,6 +8,7 @@ import org.junit.jupiter.params.provider.EnumSource
 import org.mockito.Mockito.mock
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 
 class GameBoardTest {
@@ -73,5 +75,25 @@ class GameBoardTest {
 
         assertEquals(399,field4.id)
         assertEquals(TerrainType.GRASS,field4.type)
+    }
+
+    @Test
+    fun testAdjacentFields() {
+        val field1 = gameBoardTest.getFieldByRowAndCol(0,0)
+        val field2 = gameBoardTest.getFieldByRowAndCol(0,1)
+        assertTrue(gameBoardTest.areFieldsAdjacent(field1,field2))
+    }
+
+    @Test
+    fun testNonAdjacentFields() {
+        val field1 = gameBoardTest.getFieldByRowAndCol(0,0)
+        val field2 = gameBoardTest.getFieldByRowAndCol(2,2)
+        assertFalse(gameBoardTest.areFieldsAdjacent(field1,field2))
+    }
+
+    @Test
+    fun testGetFieldsByType() {
+        val waterFields = gameBoardTest.getFieldsByType(TerrainType.WATER)
+        assertTrue(waterFields.size > 50)
     }
 }
