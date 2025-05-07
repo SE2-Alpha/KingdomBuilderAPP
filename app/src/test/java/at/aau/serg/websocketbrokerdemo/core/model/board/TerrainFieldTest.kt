@@ -3,12 +3,14 @@ package at.aau.serg.websocketbrokerdemo.core.model.board
 import at.aau.serg.websocketbrokerdemo.core.model.player.Player
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.MethodSource
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.Mockito.mock
+import java.lang.IndexOutOfBoundsException
 
 class TerrainFieldTest {
     private lateinit var terrainField: TerrainField
@@ -48,6 +50,10 @@ class TerrainFieldTest {
     @MethodSource("fieldnums")
     fun getNeighboursAmountTest(id: Int){
         terrainField = TerrainField(TerrainType.GRASS, id)
+        //if id<0 or id>399, the code should return -1
+        if(id < 0 || id > 399){
+            assertEquals(1, terrainField.getNeighbours(id))
+        }
         when(id){
             //only the first and last field should have 2 neighbours
             0, 399 -> assertEquals(2,terrainField.getNeighbours(id).size)
@@ -68,6 +74,6 @@ class TerrainFieldTest {
     }
     companion object {
         @JvmStatic
-        fun fieldnums() = (0..399)
+        fun fieldnums() = (0..400)
     }
 }
