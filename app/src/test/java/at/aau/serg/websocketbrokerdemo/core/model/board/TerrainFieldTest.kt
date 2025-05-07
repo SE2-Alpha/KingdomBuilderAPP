@@ -44,25 +44,23 @@ class TerrainFieldTest {
     }
 
     @ParameterizedTest
-    @CsvSource("0", "5", "7", "15", "19", "20", "25", "39", "40", "45", "50", "55", "60", "65", "70", "75", "79", "85", "90", "99",
+    @CsvSource("0", "5", "7", "15", "19", "20", "25", "39", "40", "45", "50", "55", "60", "65", "70", "75", "79", "85", "90", "99", "100",
         "111", "129", "136", "148", "150", "166", "177", "189", "199", "200", "222", "229", "233", "244", "251", "300", "380", "381", "399" ,"455")
     fun getNeighboursAmountTest(id: Int){
         terrainField = TerrainField(TerrainType.GRASS, id)
-        terrainField.getNeighbours(id)
-        assertEquals(6,terrainField.getNeighbours(id).size)
+        when(id){
+            //only the first and last field should have 2 neighbours
+            0, 399 -> assertEquals(2,terrainField.getNeighbours(id).size)
 
+            //upper right and down left have three, as well as half of all the left/right edges
+            19, 380, 40, 80, 120, 160, 200, 240, 280, 320, 360, 39, 79, 119, 159, 199, 239, 279, 319, 359 -> assertEquals(3, terrainField.getNeighbours(id).size)
 
-    }
-    @ParameterizedTest
-    @CsvSource("0", "19", "380", "399")
-    fun getNeighboursCornersAmountTest(id: Int){
-        terrainField = TerrainField(TerrainType.GRASS, id)
-        if(id == 0 || id == 399){
-            assertEquals(2,terrainField.getNeighbours(id).size)
-        }else {
-            assertEquals(3, terrainField.getNeighbours(id).size)
+            //upper and lower edges have four neighbours (except for the corners)
+            in 1..18,in 381..398 -> assertEquals(4, terrainField.getNeighbours(id).size)
+
+            //the other half of the left/right edges has five neighbours
+            20, 59, 60, 99, 100, 139, 140, 179, 180, 219, 220, 259, 260, 299, 300, 339, 340, 379 -> assertEquals(5, terrainField.getNeighbours(id).size)
         }
-
 
     }
 }
