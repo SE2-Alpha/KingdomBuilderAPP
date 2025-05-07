@@ -200,9 +200,7 @@ fun HexagonBoardScreen() {
                                         val key = Triple(selectedQuadrant!!, localRow, localCol)
                                         val currentlyMarked = markedFields[key] ?: false
                                         markedFields[key] = !currentlyMarked
-
-                                        //hex.field.builtBy = if (!currentlyMarked) TODO() else null
-                                        //println("Feld ${hex.row}, ${hex.col} in ${hex.quadrant} toggled to ${!currentlyMarked}")
+                                        //hex.field.builtBy = if (!currentlyMarked) TODO():Implementation Set field as built by active Player
                                         Log.i("Player Interaction","Field ${hex.row}, ${hex.col} in ${hex.quadrant} toggled to ${!currentlyMarked}")
                                     }
                                     return@detectTapGestures
@@ -240,25 +238,16 @@ fun HexagonBoardScreen() {
                                 val iconSize = 55f
                                 canvas.save()
                                 canvas.translate(hex.centerX-(iconSize/2), hex.centerY-(iconSize/2)) //Hälfte der Größe abziehen
-
+                                val playerColor = Color.Black //TODO():Implementation set Building to Player Color
                                 houseIcon.apply{
                                     draw(
                                         size = Size(iconSize,iconSize),
-                                        colorFilter = ColorFilter.tint(Color.Black)
+                                        colorFilter = ColorFilter.tint(playerColor)
                                     )
                                     canvas.restore()
                                 }
 
                             }
-
-
-                            //topLeft = Offset(hex.centerX, hex.centerY))
-                            /*
-                            Icon(
-                                Icons.Filled.Home,
-                                contentDescription = "Placable Building",
-                                tint = Color.Red)
-                             */
                         }
                     }
                     if (selectedQuadrant == null) {
