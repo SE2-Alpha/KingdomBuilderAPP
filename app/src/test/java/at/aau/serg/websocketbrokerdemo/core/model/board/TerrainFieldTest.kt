@@ -61,6 +61,8 @@ class TerrainFieldTest {
             //the other half of the left/right edges has five neighbours
             20, 59, 60, 99, 100, 139, 140, 179, 180, 219, 220, 259, 260, 299, 300, 339, 340, 379 -> assertEquals(5, terrainField.getNeighbours(id).size)
 
+            //if not in this category, it should have normal 6 neighbours
+            else -> assertEquals(6, terrainField.getNeighbours(id).size)
         }
 
     }
