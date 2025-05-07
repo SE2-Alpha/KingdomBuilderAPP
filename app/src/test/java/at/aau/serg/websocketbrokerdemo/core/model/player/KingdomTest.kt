@@ -1,5 +1,6 @@
 package at.aau.serg.websocketbrokerdemo.core.model.player
 
+import at.aau.serg.websocketbrokerdemo.core.game.TurnManager
 import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
 import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainField
 import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainType
@@ -12,8 +13,15 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class KingdomTest {
-    private val gameBoard = mock(GameBoard::class.java)
-    private val kingdom = Kingdom()
+    private lateinit var gameBoard: GameBoard
+    private lateinit var kingdom: Kingdom
+
+
+    @BeforeEach
+    fun setUp() {
+        gameBoard = mock(GameBoard::class.java)
+        kingdom = Kingdom()
+    }
 
     @Test
     fun testKingdomExpansion(){
