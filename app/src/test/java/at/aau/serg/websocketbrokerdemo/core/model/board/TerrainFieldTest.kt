@@ -53,5 +53,16 @@ class TerrainFieldTest {
 
 
     }
+    @ParameterizedTest
+    @CsvSource("0", "19", "380", "399")
+    fun getNeighboursCornersAmountTest(id: Int){
+        terrainField = TerrainField(TerrainType.GRASS, id)
+        if(id == 0 || id == 399){
+            assertEquals(2,terrainField.getNeighbours(id).size)
+        }else {
+            assertEquals(3, terrainField.getNeighbours(id).size)
+        }
 
+
+    }
 }
