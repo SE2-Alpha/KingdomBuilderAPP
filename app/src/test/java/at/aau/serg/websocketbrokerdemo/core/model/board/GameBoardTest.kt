@@ -58,7 +58,7 @@ class GameBoardTest {
         field2 = gameBoardTest.getFieldByRowAndCol(0,19)//Upper right corner
 
         assertEquals(19,field2.id)
-        assertEquals(TerrainType.GRASS,field2.type)
+        assertEquals(TerrainType.CANYON,field2.type)
     }
 
     @Test
@@ -74,7 +74,7 @@ class GameBoardTest {
         field4 = gameBoardTest.getFieldByRowAndCol(19,19)//Lower right corner
 
         assertEquals(399,field4.id)
-        assertEquals(TerrainType.GRASS,field4.type)
+        assertEquals(TerrainType.WATER,field4.type)
     }
 
     @Test
@@ -96,4 +96,51 @@ class GameBoardTest {
         val waterFields = gameBoardTest.getFieldsByType(TerrainType.WATER)
         assertTrue(waterFields.size > 50)
     }
+
+    @Test
+    fun `adjacent fields cross quadrant boundaries`() {
+        val lastFieldQuadrant1 = gameBoardTest.getFieldByRowAndCol(9, 9)
+
+        val firstFieldQuadrant2 = gameBoardTest.getFieldByRowAndCol(10, 10)
+
+
+        println("Field 1 ID: ${lastFieldQuadrant1.id}, Position: (${lastFieldQuadrant1.id % 20}, ${lastFieldQuadrant1.id / 20})")
+        println("Field 2 ID: ${firstFieldQuadrant2.id}, Position: (${firstFieldQuadrant2.id % 20}, ${firstFieldQuadrant2.id / 20})")
+
+        assertTrue(
+            gameBoardTest.areFieldsAdjacent(lastFieldQuadrant1, firstFieldQuadrant2),
+            "Felder an Quadrant-Grenzen sollten als benachbart gelten"
+        )
+    }
+
+    @Test
+    fun `test specific adjacent positions`() {
+        // Horizontale Nachbarn
+        val field1 = gameBoardTest.getFieldByRowAndCol(5, 5)
+        val field2 = gameBoardTest.getFieldByRowAndCol(5, 6)
+        assertTrue(gameBoardTest.areFieldsAdjacent(field1, field2))
+
+        // Vertikale Nachbarn (versetzt)
+        val field3 = gameBoardTest.getFieldByRowAndCol(5, 5)
+        val field4 = gameBoardTest.getFieldByRowAndCol(6, 5)
+        assertTrue(gameBoardTest.areFieldsAdjacent(field3, field4))
+
+        // Diagonale Nachbarn
+        val field5 = gameBoardTest.getFieldByRowAndCol(5, 5)
+        val field6 = gameBoardTest.getFieldByRowAndCol(6, 6)
+        assertTrue(gameBoardTest.areFieldsAdjacent(field5, field6))
+    }
+
+    @Test
+    fun `field types match quadrant definitions`() {
+        val field = gameBoardTest.getFieldByRowAndCol(0, 0)
+        assertEquals(TerrainType.FOREST, field.type)
+    }
+
+    @Test
+    fun `special ability fields exist`() {
+        val specialFields = gameBoardTest.getFieldsByType(TerrainType.SPECIALABILITY)
+        assertTrue(specialFields.size >= 4) // min. 1 pro Quadrant
+    }
+
 }
