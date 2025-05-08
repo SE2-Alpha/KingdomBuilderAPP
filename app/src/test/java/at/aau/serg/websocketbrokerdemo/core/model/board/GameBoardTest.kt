@@ -7,6 +7,7 @@ import org.junit.jupiter.params.provider.EnumSource
 import org.mockito.Mockito.mock
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 
 class GameBoardTest {
@@ -31,15 +32,17 @@ class GameBoardTest {
         }
     }
 
-//      I don't know how to do this test
-//    @Test
-//    fun areFieldsAdjacentTest(){
-//        field1 = mock()
-//        field2 = mock()
-//        assertFailsWith<NotImplementedError> {
-//            gameBoardTest.areFieldsAdjacent(field1, field2)
-//        }
-//    }
+
+    @Test
+    fun areFieldsAdjacentTrueTest(){
+        field1 = TerrainField(TerrainType.MOUNTAIN,21)
+        field2 = TerrainField(TerrainType.FOREST,42)
+        field3 = TerrainField(TerrainType.FLOWERS,41)
+        field4 = TerrainField(TerrainType.FLOWERS,61)
+
+        assertTrue(gameBoardTest.areFieldsAdjacent(field1,field2))
+        assertTrue(gameBoardTest.areFieldsAdjacent(field3, field4))
+    }
 
 //Test Field Placements using getFieldByRowAndCol() - Upper Left, Upper Right, Lower Left, Lower Right
     @Test
