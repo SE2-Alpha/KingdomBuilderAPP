@@ -78,10 +78,9 @@ fun pointInHexagon(x: Float, y: Float, centerX: Float, centerY: Float, side: Flo
 @Composable
 fun HexagonBoardScreen(
     roomId: String,
-    playerIds: List<String>, // playerIds[0] = oben links, [1] = oben rechts, ...
-    onDrawCard: (String, String) -> Unit,
-    onPlaceHouses: (String, String) -> Unit,
-    onEndTurn: (String, String) -> Unit
+    onDrawCard: (String) -> Unit,
+    onPlaceHouses: (String) -> Unit,
+    onEndTurn: (String) -> Unit
 ) {
 
     val context = LocalContext.current
@@ -302,7 +301,17 @@ fun HexagonBoardScreen(
         }
 
         Box(modifier = Modifier.align(Alignment.BottomStart)) {
-            ActionButtonsForPlayer("1", "1", onDrawCard, onPlaceHouses, onEndTurn)
+            Column {
+                Button(onClick = { onDrawCard(roomId) }, modifier = Modifier.padding(4.dp)) {
+                    Text("Draw Card")
+                }
+                Button(onClick = { onPlaceHouses(roomId) }, modifier = Modifier.padding(4.dp)) {
+                    Text("Place Houses")
+                }
+                Button(onClick = { onEndTurn(roomId) }, modifier = Modifier.padding(4.dp)) {
+                    Text("End Turn")
+                }
+            }
         }
         //ActionButtonsForPlayer(playerid, roomid, onDrawCard, onPlaceHouses, onEndTurn)
 
@@ -338,18 +347,17 @@ class GameActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val roomId = intent.getStringExtra("ROOM_ID")
-        val playerIds = intent.getStringArrayListExtra("PLAYER_LIST") ?: arrayListOf()
 
-        val onDrawCard: (String, String) -> Unit = { gameId, playerId ->
-            MyStomp.drawCard(gameId, playerId)
+        val onDrawCard: (String) -> Unit = { roomId ->
+            MyStomp.drawCard(roomId)
         }
 
-        val onPlaceHouses: (String, String) -> Unit = { gameId, playerId ->
-            MyStomp.placeHouses(gameId, playerId)
+        val onPlaceHouses: (String) -> Unit = {roomId ->
+            MyStomp.placeHouses(roomId)
         }
 
-        val onEndTurn: (String, String) -> Unit = { gameId, playerId ->
-            MyStomp.endTurn(gameId, playerId)
+        val onEndTurn: (String) -> Unit = {roomId ->
+            MyStomp.endTurn(roomId)
         }
 
         MyStomp.subscribeToGameUpdates(roomId.toString()) { message ->
@@ -360,7 +368,6 @@ class GameActivity : ComponentActivity() {
         setContent {
             HexagonBoardScreen(
                 roomId = roomId.toString(),
-                playerIds = playerIds,
                 onDrawCard = onDrawCard,
                 onPlaceHouses = onPlaceHouses,
                 onEndTurn = onEndTurn

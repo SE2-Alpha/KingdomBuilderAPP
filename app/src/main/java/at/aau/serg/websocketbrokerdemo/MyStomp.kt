@@ -15,8 +15,8 @@ import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import org.json.JSONObject
 import java.util.UUID
 
-const val WEBSOCKET_URI = "ws://192.168.137.1:8080/ws-kingdombuilder-broker";
-//const val WEBSOCKET_URI = "ws://10.0.2.2:8080/ws-kingdombuilder-broker";
+//const val WEBSOCKET_URI = "ws://192.168.137.1:8080/ws-kingdombuilder-broker";
+const val WEBSOCKET_URI = "ws://10.0.2.2:8080/ws-kingdombuilder-broker";
 // URL für den Uni-Server: ws://se2-demo.aau.at:53213/ws-kingdombuilder-broker
 
 object MyStomp {
@@ -105,28 +105,22 @@ object MyStomp {
         }
     }
 
-    fun drawCard(gameId: String, playerId: String) {
-        val message = JSONObject().apply {
-            put("roomId", gameId)
-            put("playerId", playerId)
+    fun drawCard(roomId: String) {
+        scope.launch {
+            session.sendText("/app/game/drawCard", "{\"playerId\":\"${MyStomp.playerId}\", \"roomId\":\"$roomId\"}")
         }
-        send("/app/game/drawCard", message.toString())
     }
 
-    fun placeHouses(gameId: String, playerId: String) {
-        val message = JSONObject().apply {
-            put("roomId", gameId)
-            put("playerId", playerId)
+    fun placeHouses(roomId: String) {
+        scope.launch {
+            session.sendText("/app/game/placeHouses", "{\"playerId\":\"${MyStomp.playerId}\", \"roomId\":\"$roomId\"}")
         }
-        send("/app/game/placeHouses", message.toString())
     }
 
-    fun endTurn(gameId: String, playerId: String) {
-        val message = JSONObject().apply {
-            put("roomId", gameId)
-            put("playerId", playerId)
+    fun endTurn(roomId: String) {
+        scope.launch {
+            session.sendText("/app/game/endTurn", "{\"playerId\":\"${MyStomp.playerId}\", \"roomId\":\"$roomId\"}")
         }
-        send("/app/game/endTurn", message.toString())
     }
 
     fun subscribeToGameUpdates(roomId: String, callback: (String) -> Unit) {
