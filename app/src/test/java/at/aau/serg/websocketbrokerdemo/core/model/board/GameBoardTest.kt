@@ -4,9 +4,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.params.provider.EnumSource
-import org.mockito.Mockito.mock
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
+import kotlin.test.assertFalse
 
 
 class GameBoardTest {
@@ -33,12 +34,24 @@ class GameBoardTest {
 
 
     @Test
-    fun areFieldsAdjacentTest(){
-        field1 = mock()
-        field2 = mock()
-        assertFailsWith<NotImplementedError> {
-            gameBoardTest.areFieldsAdjacent(field1, field2)
-        }
+    fun areFieldsAdjacentTrueTest(){
+        field1 = TerrainField(TerrainType.MOUNTAIN,21)
+        field2 = TerrainField(TerrainType.FOREST,42)
+        field3 = TerrainField(TerrainType.FLOWERS,41)
+        field4 = TerrainField(TerrainType.FLOWERS,61)
+
+        assertTrue(gameBoardTest.areFieldsAdjacent(field1,field2))
+        assertTrue(gameBoardTest.areFieldsAdjacent(field3, field4))
+    }
+    @Test
+    fun areFieldsAdjacentFalseTest(){
+        field1 = TerrainField(TerrainType.MOUNTAIN,21)
+        field2 = TerrainField(TerrainType.FLOWERS,40)
+        field3 = TerrainField(TerrainType.FLOWERS,41)
+        field4 = TerrainField(TerrainType.FLOWERS,62)
+
+        assertFalse(gameBoardTest.areFieldsAdjacent(field1,field2))
+        assertFalse(gameBoardTest.areFieldsAdjacent(field3, field4))
     }
 
 //Test Field Placements using getFieldByRowAndCol() - Upper Left, Upper Right, Lower Left, Lower Right
