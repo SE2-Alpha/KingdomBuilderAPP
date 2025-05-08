@@ -32,13 +32,13 @@ import com.example.myapplication.R
 import kotlin.jvm.java
 
 
-class MainActivity : ComponentActivity(), Callbacks {
-    lateinit var mystomp:MyStomp
+class MainActivity : ComponentActivity() {
+    //lateinit var mystomp:MyStomp
 
     var responseText by mutableStateOf("Waiting for response...")
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mystomp=MyStomp(this)
+        //mystomp=MyStomp(this)
 
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -64,7 +64,12 @@ class MainActivity : ComponentActivity(), Callbacks {
                 verticalArrangement = Arrangement.Center
             ) {
                 Button(onClick = {
-                    mystomp.connect()
+                    MyStomp.connect {
+                        // Diese Methode wird erst aufgerufen, wenn `session` gültig ist
+                        MyStomp.subscribeToTopic("/topic/hello-response") { msg ->
+                            responseText = msg
+                        }
+                    }
                 },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = colorResource(id = R.color.light_blue_900),
@@ -75,7 +80,7 @@ class MainActivity : ComponentActivity(), Callbacks {
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = {
-                    mystomp.sendHello()
+                    MyStomp.sendHello()
                 },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = colorResource(id = R.color.light_blue_900),
@@ -86,7 +91,7 @@ class MainActivity : ComponentActivity(), Callbacks {
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = {
-                    mystomp.sendJson()
+                    MyStomp.send("/app/object","{\"type\":\"hello\",\"content\":\"Hello from client!\"}")
                 },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = colorResource(id = R.color.light_blue_900),
@@ -116,10 +121,6 @@ class MainActivity : ComponentActivity(), Callbacks {
                     .align(Alignment.BottomCenter)
             )
         }
-    }
-
-    override fun onResponse(res: String) {
-        responseText=res
     }
 
     @Preview(showBackground = true)

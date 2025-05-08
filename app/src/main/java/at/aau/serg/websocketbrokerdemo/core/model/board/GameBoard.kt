@@ -61,9 +61,9 @@ class GameBoard() {
     fun fillQuadrant(num: Int): Quadrant{
         return when(num){
             1 -> QuadrantTower()
-            2 -> QuadrantTavern()
+            2 -> QuadrantFields()
             3 -> QuadrantOasis()
-            4 -> QuadrantFields()
+            4 -> QuadrantTavern()
             else -> throw IllegalArgumentException("Unknown Quadrant: $num")
 
         }
@@ -83,7 +83,9 @@ class GameBoard() {
      * @param field2 Zweites Feld
      */
     fun areFieldsAdjacent(field1: TerrainField, field2: TerrainField): Boolean {
-    TODO()
+
+        return field1.getNeighbours(field1.id).contains(field2.id)
+
     }
     fun getFieldByRowAndCol(row: Int, col: Int): TerrainField {
         return fields[row*20 + col]
