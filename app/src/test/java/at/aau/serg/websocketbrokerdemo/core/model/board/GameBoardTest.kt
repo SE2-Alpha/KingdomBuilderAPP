@@ -1,6 +1,7 @@
 package at.aau.serg.websocketbrokerdemo.core.model.board
 
 import junit.framework.TestCase.assertFalse
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.api.BeforeEach
@@ -129,6 +130,11 @@ class GameBoardTest {
         val field5 = gameBoardTest.getFieldByRowAndCol(5, 5)
         val field6 = gameBoardTest.getFieldByRowAndCol(6, 6)
         assertTrue(gameBoardTest.areFieldsAdjacent(field5, field6))
+
+        // Nicht Nachbarn
+        val field7 = gameBoardTest.getFieldByRowAndCol(0, 0)
+        val field8 = gameBoardTest.getFieldByRowAndCol(5, 5)
+        assertFalse(gameBoardTest.areFieldsAdjacent(field7, field8))
     }
 
     @Test

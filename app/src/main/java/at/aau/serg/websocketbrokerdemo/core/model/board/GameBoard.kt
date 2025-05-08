@@ -83,28 +83,7 @@ class GameBoard() {
      * @param field2 Zweites Feld
      */
     fun areFieldsAdjacent(field1: TerrainField, field2: TerrainField): Boolean {
-        val pos1 = field1.id
-        val pos2 = field2.id
-
-        // Konvertiere zu 2D-Koordinaten (20x20 Grid)
-        val x1 = pos1 % 20
-        val y1 = pos1 / 20
-        val x2 = pos2 % 20
-        val y2 = pos2 / 20
-
-        // Hexagonale Nachbarschaftslogik
-        return when {
-            // Gleiche Zeile
-            y1 == y2 -> abs(x1 - x2) == 1
-
-            // Zeile darüber oder darunter
-            abs(y1 - y2) == 1 -> {
-                val offset = if (y2 > y1) x1 % 2 else x2 % 2
-                abs(x1 - x2) <= 1 || (abs(x1 - x2) == 1 && offset == 1)
-            }
-
-            else -> false
-        }
+    TODO()
     }
     fun getFieldByRowAndCol(row: Int, col: Int): TerrainField {
         return fields[row*20 + col]
