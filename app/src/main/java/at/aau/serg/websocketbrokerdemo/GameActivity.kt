@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
@@ -299,25 +300,12 @@ fun HexagonBoardScreen(
                 }
             }
         }
-        // Spieler 1 – oben links
-        Box(modifier = Modifier.align(Alignment.TopStart)) {
-            ActionButtonsForPlayer(playerIds[0], roomId, onDrawCard, onPlaceHouses, onEndTurn)
-        }
 
-        // Spieler 2 – oben rechts
-        Box(modifier = Modifier.align(Alignment.TopEnd)) {
-            ActionButtonsForPlayer(playerIds[1], roomId, onDrawCard, onPlaceHouses, onEndTurn)
-        }
-
-        // Spieler 3 – unten links
         Box(modifier = Modifier.align(Alignment.BottomStart)) {
-            ActionButtonsForPlayer(playerIds[2], roomId, onDrawCard, onPlaceHouses, onEndTurn)
+            ActionButtonsForPlayer("1", "1", onDrawCard, onPlaceHouses, onEndTurn)
         }
+        //ActionButtonsForPlayer(playerid, roomid, onDrawCard, onPlaceHouses, onEndTurn)
 
-        // Spieler 4 – unten rechts
-        Box(modifier = Modifier.align(Alignment.BottomEnd)) {
-            ActionButtonsForPlayer(playerIds[3], roomId, onDrawCard, onPlaceHouses, onEndTurn)
-        }
     }
 }
 
@@ -380,3 +368,11 @@ class GameActivity : ComponentActivity() {
         }
     }
 }
+/*
+@Preview(showBackground = true)
+@Composable
+fun HexagonBoardScreenPreview() {
+   HexagonBoardScreen()
+}
+
+ */
