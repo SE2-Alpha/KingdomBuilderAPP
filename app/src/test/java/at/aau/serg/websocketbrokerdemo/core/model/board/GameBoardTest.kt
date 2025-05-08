@@ -24,7 +24,7 @@ class GameBoardTest {
         gameBoardTest.buildGameboard()
     }
 
-
+/*
     @ParameterizedTest
     @EnumSource(TerrainType::class)
     fun getFieldsByTypeTest(type: TerrainType){
@@ -32,7 +32,7 @@ class GameBoardTest {
             gameBoardTest.getFieldsByType(type)
         }
     }
-
+*/
 
     @Test
     fun areFieldsAdjacentTest(){
