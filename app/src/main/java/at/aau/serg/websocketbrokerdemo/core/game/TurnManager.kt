@@ -10,8 +10,12 @@ class TurnManager(private val players: List<Player>) {
     /**
      * Aktuelle Rundennummer (beginnend bei 1)
      */
+    private var currentPlayerIndex = 0
     var currentRound: Int = 0
         private set
+
+    val currentPlayer: Player
+        get() = players[currentPlayerIndex]
 
     /**
      * Beendet den Zug des aktuellen Spielers:
@@ -19,6 +23,11 @@ class TurnManager(private val players: List<Player>) {
      * - Erhöht die Runde, wenn alle dran waren
      */
     fun endTurn() {
-        TODO()
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.size
+        if (currentPlayerIndex == 0) currentRound++
+    }
+
+    fun isGameOver(): Boolean{
+        return players.any { it.remainingSettlements == 0 }
     }
 }
