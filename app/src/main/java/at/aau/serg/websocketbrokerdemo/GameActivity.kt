@@ -313,34 +313,8 @@ fun HexagonBoardScreen(
                 }
             }
         }
-        //ActionButtonsForPlayer(playerid, roomid, onDrawCard, onPlaceHouses, onEndTurn)
-
     }
 }
-
-@Composable
-fun ActionButtonsForPlayer(
-    playerId: String,
-    gameId: String,
-    onDrawCard: (String, String) -> Unit,
-    onPlaceHouses: (String, String) -> Unit,
-    onEndTurn: (String, String) -> Unit
-) {
-    Column {
-        Button(onClick = { onDrawCard(gameId, playerId) }, modifier = Modifier.padding(4.dp)) {
-            Text("Draw Card")
-        }
-        Button(onClick = { onPlaceHouses(gameId, playerId) }, modifier = Modifier.padding(4.dp)) {
-            Text("Place Houses")
-        }
-        Button(onClick = { onEndTurn(gameId, playerId) }, modifier = Modifier.padding(4.dp)) {
-            Text("End Turn")
-        }
-    }
-}
-
-
-
 
 class GameActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -349,21 +323,26 @@ class GameActivity : ComponentActivity() {
         val roomId = intent.getStringExtra("ROOM_ID")
 
         val onDrawCard: (String) -> Unit = { roomId ->
+            Log.d("GameActivity", "Attempting to draw card in room: $roomId")
             MyStomp.drawCard(roomId)
         }
 
-        val onPlaceHouses: (String) -> Unit = {roomId ->
+        val onPlaceHouses: (String) -> Unit = { roomId ->
+            Log.d("GameActivity", "Attempting to place houses in room: $roomId")
             MyStomp.placeHouses(roomId)
         }
 
-        val onEndTurn: (String) -> Unit = {roomId ->
+        val onEndTurn: (String) -> Unit = { roomId ->
+            Log.d("GameActivity", "Attempting to end turn in room: $roomId")
             MyStomp.endTurn(roomId)
         }
 
-        MyStomp.subscribeToGameUpdates(roomId.toString()) { message ->
-            Log.d("GameActivity", "Game update received: $message")
+        roomId?.let { validRoomId ->
+            MyStomp.subscribeToGameUpdates(validRoomId) { message ->
+                Log.d("GameActivity", "Game update received: $message")
+            }
+        } ?: Log.e("GameActivity", "Room ID is null. Cannot subscribe to game updates.")
 
-        }
 
         setContent {
             HexagonBoardScreen(
