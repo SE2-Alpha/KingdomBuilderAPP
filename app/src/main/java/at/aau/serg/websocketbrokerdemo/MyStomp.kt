@@ -15,13 +15,10 @@ import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import org.json.JSONObject
 import java.util.UUID
 
-//const val WEBSOCKET_URI = "ws://192.168.137.1:8080/ws-kingdombuilder-broker";
-const val WEBSOCKET_URI = "ws://10.0.2.2:8080/ws-kingdombuilder-broker";
-// URL für den Uni-Server: ws://se2-demo.aau.at:53213/ws-kingdombuilder-broker
-
+const val URI_Physical = "ws://10.0.0.180:8080/ws-kingdombuilder-broker"
 const val URI_Server = "ws://se2-demo.aau.at:53213/ws-kingdombuilder-broker"
 
-//const val WEBSOCKET_URI = URI_Server
+const val WEBSOCKET_URI = URI_Physical //URI_Server
 
 object MyStomp {
     private lateinit var client: StompClient
@@ -30,27 +27,6 @@ object MyStomp {
     val playerId: String = UUID.randomUUID().toString()
 
     private val topicCallbacks = mutableMapOf<String, MutableList<(String) -> Unit>>()
-
-    /*fun subscribeToTopic(topic: String, callback: (String) -> Unit) {
-        Log.d("MyStomp", "Versuche, Topic zu abonnieren: $topic")
-        if (!topicCallbacks.containsKey(topic)) {
-            topicCallbacks[topic] = mutableListOf()
-            // Erstes Mal: STOMP-Subscription starten
-            scope.launch {
-                val flow = session.subscribeText(topic)
-                launch {
-                    flow.collect { msg ->
-                        Handler(Looper.getMainLooper()).post {
-                            topicCallbacks[topic]?.forEach { it(msg) }
-                        }
-                    }
-                }
-            }
-        }
-        topicCallbacks[topic]?.add(callback)
-    }
-
-     */
 
     fun subscribeToTopic(topic: String, callback: (String) -> Unit) {
         Log.d("MyStomp", "Versuche, Topic zu abonnieren: $topic")
@@ -200,6 +176,10 @@ object MyStomp {
 
     fun subscribeToGameUpdates(roomId: String, callback: (String) -> Unit) {
         subscribeToTopic("/topic/game/$roomId", callback)
+    }
+
+    fun subscribeToOnStartMsg(){
+        //TODO()
     }
 
 }
