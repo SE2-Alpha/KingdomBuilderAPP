@@ -19,6 +19,10 @@ import java.util.UUID
 const val WEBSOCKET_URI = "ws://10.0.2.2:8080/ws-kingdombuilder-broker";
 // URL für den Uni-Server: ws://se2-demo.aau.at:53213/ws-kingdombuilder-broker
 
+const val URI_Server = "ws://se2-demo.aau.at:53213/ws-kingdombuilder-broker"
+
+//const val WEBSOCKET_URI = URI_Server
+
 object MyStomp {
     private lateinit var client: StompClient
     private lateinit var session: StompSession

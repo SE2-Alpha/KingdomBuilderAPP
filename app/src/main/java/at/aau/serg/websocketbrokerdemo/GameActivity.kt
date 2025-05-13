@@ -12,16 +12,22 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -90,6 +96,7 @@ fun HexagonBoardScreen(
     // Speichert den Markierungsstatus einzelner Felder (Schlüssel: Triple(quadrant, localRow, localCol))
     val markedFields = remember { mutableStateMapOf<Triple<String, Int, Int>, Boolean>() }
     val gameBoard = remember { GameBoard() }
+    val houseIcon = rememberVectorPainter(Icons.Rounded.Home)
     gameBoard.buildGameboard()
 
 
@@ -199,7 +206,8 @@ fun HexagonBoardScreen(
                                         val key = Triple(selectedQuadrant!!, localRow, localCol)
                                         val currentlyMarked = markedFields[key] ?: false
                                         markedFields[key] = !currentlyMarked
-                                        println("Feld ${hex.row}, ${hex.col} in ${hex.quadrant} toggled to ${!currentlyMarked}")
+                                        //hex.field.builtBy = if (!currentlyMarked) TODO():Implementation Set field as built by active Player
+                                        Log.i("Player Interaction","Field ${hex.row}, ${hex.col} in ${hex.quadrant} toggled to ${!currentlyMarked}")
                                     }
                                     return@detectTapGestures
                                 }
@@ -207,6 +215,7 @@ fun HexagonBoardScreen(
                         }
                     }
             ) {
+
                 // Zeichnen des Spielfelds mit Translation zum Zentrieren
                 translate(left = offsetX, top = offsetY) {
                     hexagons.forEach { hex ->
@@ -228,6 +237,24 @@ fun HexagonBoardScreen(
                         // Zuerst Füllung, dann Kontur zeichnen
                         drawPath(path = hexPath, color = fillColor)
                         drawPath(path = hexPath, color = Color.Black, style = Stroke(width = 2f))
+                        //Falls Feld besetzt ist, Gebäude Zeichnen
+                        if(markedFields[key] == true){//hex.field.builtBy != null
+                            Log.i("Player Interaction","Building Placed")
+                            drawIntoCanvas {canvas ->
+                                val iconSize = 55f
+                                canvas.save()
+                                canvas.translate(hex.centerX-(iconSize/2), hex.centerY-(iconSize/2)) //Hälfte der Größe abziehen
+                                val playerColor = Color.Black //TODO():Implementation set Building to Player Color
+                                houseIcon.apply{
+                                    draw(
+                                        size = Size(iconSize,iconSize),
+                                        colorFilter = ColorFilter.tint(playerColor)
+                                    )
+                                    canvas.restore()
+                                }
+
+                            }
+                        }
                     }
                     if (selectedQuadrant == null) {
                         var oldvLeft1: Offset = Offset(0f, 0f)
@@ -360,5 +387,6 @@ class GameActivity : ComponentActivity() {
 fun HexagonBoardScreenPreview() {
    HexagonBoardScreen()
 }
+
 
  */
