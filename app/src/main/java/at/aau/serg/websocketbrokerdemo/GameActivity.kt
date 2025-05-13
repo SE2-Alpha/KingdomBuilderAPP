@@ -9,6 +9,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -81,7 +82,12 @@ fun pointInHexagon(x: Float, y: Float, centerX: Float, centerY: Float, side: Flo
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
-fun HexagonBoardScreen() {
+fun HexagonBoardScreen(
+    roomId: String,
+    onDrawCard: (String) -> Unit,
+    onPlaceHouses: (String) -> Unit,
+    onEndTurn: (String) -> Unit
+) {
 
     val context = LocalContext.current
     // Zustand: Wenn kein Quartil ausgewählt, ist der Übersichtsmodus aktiv,
@@ -320,20 +326,68 @@ fun HexagonBoardScreen() {
                 }
             }
         }
+
+        Box(modifier = Modifier.align(Alignment.BottomStart)) {
+            Column {
+                Text(MyStomp.playerId)
+                Button(onClick = { onDrawCard(roomId) }, modifier = Modifier.padding(4.dp)) {
+                    Text("Draw Card")
+                }
+                Button(onClick = { onPlaceHouses(roomId) }, modifier = Modifier.padding(4.dp)) {
+                    Text("Place Houses")
+                }
+                Button(onClick = { onEndTurn(roomId) }, modifier = Modifier.padding(4.dp)) {
+                    Text("End Turn")
+                }
+            }
+        }
     }
 }
 
 class GameActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val roomId = intent.getStringExtra("ROOM_ID")
+
+        val onDrawCard: (String) -> Unit = { roomId ->
+            Log.d("GameActivity", "Attempting to draw card in room: $roomId")
+            MyStomp.drawCard(roomId)
+        }
+
+        val onPlaceHouses: (String) -> Unit = { roomId ->
+            Log.d("GameActivity", "Attempting to place houses in room: $roomId")
+            MyStomp.placeHouses(roomId)
+        }
+
+        val onEndTurn: (String) -> Unit = { roomId ->
+            Log.d("GameActivity", "Attempting to end turn in room: $roomId")
+            MyStomp.endTurn(roomId)
+        }
+
+        roomId?.let { validRoomId ->
+            MyStomp.subscribeToGameUpdates(validRoomId) { message ->
+                Log.d("GameActivity", "Game update received: $message")
+            }
+        } ?: Log.e("GameActivity", "Room ID is null. Cannot subscribe to game updates.")
+
+
         setContent {
-            HexagonBoardScreen()
+            HexagonBoardScreen(
+                roomId = roomId.toString(),
+                onDrawCard = onDrawCard,
+                onPlaceHouses = onPlaceHouses,
+                onEndTurn = onEndTurn
+            )
         }
     }
 }
-
-@Preview
+/*
+@Preview(showBackground = true)
 @Composable
-fun HexagonBoardPreview() {
-    HexagonBoardScreen()
+fun HexagonBoardScreenPreview() {
+   HexagonBoardScreen()
 }
+
+
+ */
