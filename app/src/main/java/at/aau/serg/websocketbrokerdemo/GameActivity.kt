@@ -329,6 +329,7 @@ fun HexagonBoardScreen(
 
         Box(modifier = Modifier.align(Alignment.BottomStart)) {
             Column {
+                Text(MyStomp.playerId)
                 Button(onClick = { onDrawCard(roomId) }, modifier = Modifier.padding(4.dp)) {
                     Text("Draw Card")
                 }
