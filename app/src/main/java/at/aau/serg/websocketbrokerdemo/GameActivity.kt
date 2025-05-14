@@ -210,12 +210,14 @@ fun HexagonBoardScreen(
                                         val key = Triple(selectedQuadrant!!, localRow, localCol)
                                         val currentlyMarked = markedFields[key] == true
                                         //TODO(): Make building of completed turns permanent
-                                        if(!currentlyMarked){
+                                        if(!currentlyMarked && hex.field.isBuildable){
                                             markedFields[key] = true
                                             hex.field.builtBy = Player.localPlayer
+                                            gameBoard.getFieldByRowAndCol(hex.row,hex.col).builtBy = Player.localPlayer
                                         }else{
                                             markedFields[key] = false
                                             hex.field.builtBy = null
+                                            gameBoard.getFieldByRowAndCol(hex.row,hex.col).builtBy = null
                                         }
                                         Log.i("Player Interaction","Field ${hex.row}, ${hex.col} in ${hex.quadrant} toggled to ${!currentlyMarked}")
                                     }
@@ -247,14 +249,15 @@ fun HexagonBoardScreen(
                         // Zuerst Füllung, dann Kontur zeichnen
                         drawPath(path = hexPath, color = fillColor)
                         drawPath(path = hexPath, color = Color.Black, style = Stroke(width = 2f))
-                        //Falls Feld besetzt ist, Gebäude Zeichnen
-                        if(markedFields[key] == true){//hex.field.builtBy != null
-                            Log.i("Player Interaction","Building Placed")
+                        //Falls Feld besetzt, Gebäude Zeichnen
+                        if(markedFields[key] == true){
                             drawIntoCanvas {canvas ->
                                 val iconSize = 55f
+                                val thisField = gameBoard.getFieldByRowAndCol(hex.row,hex.col)
+                                Log.i("GameActivity","Building Placed by ${thisField.builtBy?.name}")
+                                val playerIconColor = Color(thisField.builtBy?.color ?: Color.Black.toArgb())
                                 canvas.save()
                                 canvas.translate(hex.centerX-(iconSize/2), hex.centerY-(iconSize/2)) //Hälfte der Größe abziehen
-                                val playerIconColor = Color(hex.field.builtBy?.color ?: Color.Black.toArgb())
                                 houseIcon.apply {
 
                                     draw(
