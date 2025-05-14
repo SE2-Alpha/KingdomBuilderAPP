@@ -27,14 +27,18 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.core.graphics.toColor
+import androidx.core.graphics.toColorLong
 import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
 import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainField
+import at.aau.serg.websocketbrokerdemo.core.model.player.Player
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -96,7 +100,7 @@ fun HexagonBoardScreen(
     // Speichert den Markierungsstatus einzelner Felder (Schlüssel: Triple(quadrant, localRow, localCol))
     val markedFields = remember { mutableStateMapOf<Triple<String, Int, Int>, Boolean>() }
     val gameBoard = remember { GameBoard() }
-    val houseIcon = rememberVectorPainter(Icons.Rounded.Home)
+    var houseIcon = rememberVectorPainter(Icons.Rounded.Home)
     gameBoard.buildGameboard()
 
 
@@ -204,9 +208,17 @@ fun HexagonBoardScreen(
                                         val localRow = hex.row - rowOffset
                                         val localCol = hex.col - colOffset
                                         val key = Triple(selectedQuadrant!!, localRow, localCol)
-                                        val currentlyMarked = markedFields[key] ?: false
-                                        markedFields[key] = !currentlyMarked
-                                        //hex.field.builtBy = if (!currentlyMarked) TODO():Implementation Set field as built by active Player
+                                        val currentlyMarked = markedFields[key] == true
+                                        //TODO(): Make building of completed turns permanent
+                                        if(!currentlyMarked && hex.field.isBuildable){
+                                            markedFields[key] = true
+                                            hex.field.builtBy = Player.localPlayer
+                                            gameBoard.getFieldByRowAndCol(hex.row,hex.col).builtBy = Player.localPlayer
+                                        }else{
+                                            markedFields[key] = false
+                                            hex.field.builtBy = null
+                                            gameBoard.getFieldByRowAndCol(hex.row,hex.col).builtBy = null
+                                        }
                                         Log.i("Player Interaction","Field ${hex.row}, ${hex.col} in ${hex.quadrant} toggled to ${!currentlyMarked}")
                                     }
                                     return@detectTapGestures
@@ -237,22 +249,23 @@ fun HexagonBoardScreen(
                         // Zuerst Füllung, dann Kontur zeichnen
                         drawPath(path = hexPath, color = fillColor)
                         drawPath(path = hexPath, color = Color.Black, style = Stroke(width = 2f))
-                        //Falls Feld besetzt ist, Gebäude Zeichnen
-                        if(markedFields[key] == true){//hex.field.builtBy != null
-                            Log.i("Player Interaction","Building Placed")
+                        //Falls Feld besetzt, Gebäude Zeichnen
+                        if(markedFields[key] == true){
                             drawIntoCanvas {canvas ->
                                 val iconSize = 55f
+                                val thisField = gameBoard.getFieldByRowAndCol(hex.row,hex.col)
+                                Log.i("GameActivity","Building Placed by ${thisField.builtBy?.name}")
+                                val playerIconColor = Color(thisField.builtBy?.color ?: Color.Black.toArgb())
                                 canvas.save()
                                 canvas.translate(hex.centerX-(iconSize/2), hex.centerY-(iconSize/2)) //Hälfte der Größe abziehen
-                                val playerColor = Color.Black //TODO():Implementation set Building to Player Color
-                                houseIcon.apply{
+                                houseIcon.apply {
+
                                     draw(
                                         size = Size(iconSize,iconSize),
-                                        colorFilter = ColorFilter.tint(playerColor)
+                                        colorFilter = ColorFilter.tint(playerIconColor)
                                     )
-                                    canvas.restore()
                                 }
-
+                                canvas.restore()
                             }
                         }
                     }
