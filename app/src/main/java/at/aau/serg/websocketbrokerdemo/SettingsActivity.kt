@@ -6,11 +6,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,7 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -35,6 +39,12 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import com.example.myapplication.R
 
 class SettingsActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,7 +60,7 @@ class SettingsActivity: ComponentActivity() {
         //To Do: Music and Sound Settings, Change Username, Change UserPicture, Darkmode/lightmode
 
         val context = LocalContext.current
-        val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+        val prefs = context.getSharedPreferences("app_settings", MODE_PRIVATE)
         val MusicVolume = prefs.getInt("music_volume", 100)
         val SoundVolume = prefs.getInt("sound_volume", 100)
         val DarkMode = prefs.getBoolean("dark_mode", false)
@@ -65,19 +75,28 @@ class SettingsActivity: ComponentActivity() {
         Scaffold(
             topBar = {
                 SettingsBar(
+                    onCancel = {
+                        val intent = Intent(context, StartMenuActivity::class.java)
+                        context.startActivity(intent)
+                    },
                     title = "Settings",
                     onSave = {
-                        val intent = Intent(context, MainActivity::class.java)
-                        context.startActivity(intent) },
-                    onCancel = {
-                        val intent = Intent(context, MainActivity::class.java)
-                        context.startActivity(intent)
-                    }
+                        val intent = Intent(context, StartMenuActivity::class.java)
+                        context.startActivity(intent) }
+
                 )
             },
         ) { paddingValues ->
-            Column(modifier = Modifier.padding(paddingValues).padding(16.dp).verticalScroll(scrollState)){
-                Text("Preferences:")
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(colorResource(id = R.color.beige_lobby_background))
+            )
+            Column(modifier = Modifier
+                .padding(paddingValues)
+                .padding(16.dp)
+                .verticalScroll(scrollState)){
+                Text(text = "Preferences:", color = colorResource(id = R.color.light_blue_900), fontSize = 25.sp)
                 Spacer(modifier = Modifier.height(12.dp))
 
                 VolumeSlider("Music Volume", musicVolume){musicVolume = it}
@@ -97,8 +116,7 @@ class SettingsActivity: ComponentActivity() {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ){
-                Text(label)
-                Text("${value.toInt()}")
+                Text(text = label, color = colorResource(id = R.color.light_blue_900), fontSize = 20.sp)
             }
             Slider(
                 value = value,
@@ -117,7 +135,7 @@ class SettingsActivity: ComponentActivity() {
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(title)
+            Text(text = title, color = colorResource(id = R.color.light_blue_900), fontSize = 15.sp)
             Switch(
                 checked = checked,
                 onCheckedChange = onCheckedChange
@@ -131,7 +149,7 @@ class SettingsActivity: ComponentActivity() {
         onCancel: () -> Unit
     ) {
         Surface(
-            color = MaterialTheme.colorScheme.primary,
+            color = colorResource(id = R.color.beige_lobby_background),
             shadowElevation = 4.dp
         ) {
             Row(
@@ -141,26 +159,25 @@ class SettingsActivity: ComponentActivity() {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                IconButton(onClick = onCancel) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Cancel",
+                        tint = colorResource(id = R.color.light_blue_900)
+                    )
+                }
                 Text(
                     text = title,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    style = MaterialTheme.typography.titleLarge
+                    color = colorResource(id = R.color.light_blue_900),
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold
                 )
-                Column {
-                    IconButton(onClick = onSave) {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = "Save",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                    IconButton(onClick = onCancel) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Cancel",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
+                IconButton(onClick = onSave) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = "Save",
+                        tint = colorResource(id = R.color.light_blue_900)
+                    )
                 }
             }
         }
