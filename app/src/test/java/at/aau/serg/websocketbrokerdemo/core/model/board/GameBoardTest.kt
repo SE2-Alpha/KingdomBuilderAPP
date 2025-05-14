@@ -26,16 +26,6 @@ class GameBoardTest {
         gameBoardTest.buildGameboard()
     }
 
-
-    @ParameterizedTest
-    @EnumSource(TerrainType::class)
-    fun getFieldsByTypeTest(type: TerrainType){
-        assertFailsWith<NotImplementedError> {
-            gameBoardTest.getFieldsByType(type)
-        }
-    }
-
-
     @Test
     fun areFieldsAdjacentTrueTest(){
         field1 = TerrainField(TerrainType.MOUNTAIN,21)
@@ -88,7 +78,7 @@ class GameBoardTest {
         field4 = gameBoardTest.getFieldByRowAndCol(19,19)//Lower right corner
 
         assertEquals(399,field4.id)
-        assertEquals(TerrainType.WATER,field4.type)
+        assertEquals(TerrainType.GRASS,field4.type)
     }
 
     @Test

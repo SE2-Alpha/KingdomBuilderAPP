@@ -3,6 +3,7 @@ package at.aau.serg.websocketbrokerdemo
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
@@ -27,14 +28,19 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.core.graphics.toColor
+import androidx.core.graphics.toColorLong
 import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
 import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainField
+import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainType
+import at.aau.serg.websocketbrokerdemo.core.model.player.Player
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -86,7 +92,8 @@ fun HexagonBoardScreen(
     roomId: String,
     onDrawCard: (String) -> Unit,
     onPlaceHouses: (String) -> Unit,
-    onEndTurn: (String) -> Unit
+    onEndTurn: (String) -> Unit,
+    terrainCardType: MutableState<String?>
 ) {
 
     val context = LocalContext.current
@@ -96,9 +103,11 @@ fun HexagonBoardScreen(
     // Speichert den Markierungsstatus einzelner Felder (Schlüssel: Triple(quadrant, localRow, localCol))
     val markedFields = remember { mutableStateMapOf<Triple<String, Int, Int>, Boolean>() }
     val gameBoard = remember { GameBoard() }
-    val houseIcon = rememberVectorPainter(Icons.Rounded.Home)
+    var houseIcon = rememberVectorPainter(Icons.Rounded.Home)
     gameBoard.buildGameboard()
 
+    val playerIsActive by remember { derivedStateOf { MyStomp.playerIsActive } }
+    var drawCardIsClicked by remember { mutableStateOf(false) }
 
 
 
@@ -204,9 +213,17 @@ fun HexagonBoardScreen(
                                         val localRow = hex.row - rowOffset
                                         val localCol = hex.col - colOffset
                                         val key = Triple(selectedQuadrant!!, localRow, localCol)
-                                        val currentlyMarked = markedFields[key] ?: false
-                                        markedFields[key] = !currentlyMarked
-                                        //hex.field.builtBy = if (!currentlyMarked) TODO():Implementation Set field as built by active Player
+                                        val currentlyMarked = markedFields[key] == true
+                                        //TODO(): Make building of completed turns permanent
+                                        if(!currentlyMarked && hex.field.isBuildable){
+                                            markedFields[key] = true
+                                            hex.field.builtBy = Player.localPlayer
+                                            gameBoard.getFieldByRowAndCol(hex.row,hex.col).builtBy = Player.localPlayer
+                                        }else{
+                                            markedFields[key] = false
+                                            hex.field.builtBy = null
+                                            gameBoard.getFieldByRowAndCol(hex.row,hex.col).builtBy = null
+                                        }
                                         Log.i("Player Interaction","Field ${hex.row}, ${hex.col} in ${hex.quadrant} toggled to ${!currentlyMarked}")
                                     }
                                     return@detectTapGestures
@@ -237,22 +254,32 @@ fun HexagonBoardScreen(
                         // Zuerst Füllung, dann Kontur zeichnen
                         drawPath(path = hexPath, color = fillColor)
                         drawPath(path = hexPath, color = Color.Black, style = Stroke(width = 2f))
-                        //Falls Feld besetzt ist, Gebäude Zeichnen
-                        if(markedFields[key] == true){//hex.field.builtBy != null
-                            Log.i("Player Interaction","Building Placed")
-                            drawIntoCanvas {canvas ->
-                                val iconSize = 55f
-                                canvas.save()
-                                canvas.translate(hex.centerX-(iconSize/2), hex.centerY-(iconSize/2)) //Hälfte der Größe abziehen
-                                val playerColor = Color.Black //TODO():Implementation set Building to Player Color
-                                houseIcon.apply{
-                                    draw(
-                                        size = Size(iconSize,iconSize),
-                                        colorFilter = ColorFilter.tint(playerColor)
+                        //Falls Feld besetzt, Gebäude Zeichnen
+                        if(markedFields[key] == true){
+                            if(drawCardIsClicked) {
+                                drawIntoCanvas { canvas ->
+                                    val iconSize = 55f
+                                    val thisField = gameBoard.getFieldByRowAndCol(hex.row, hex.col)
+                                    Log.i(
+                                        "GameActivity",
+                                        "Building Placed by ${thisField.builtBy?.name}"
                                     )
+                                    val playerIconColor =
+                                        Color(thisField.builtBy?.color ?: Color.Black.toArgb())
+                                    canvas.save()
+                                    canvas.translate(
+                                        hex.centerX - (iconSize / 2),
+                                        hex.centerY - (iconSize / 2)
+                                    ) //Hälfte der Größe abziehen
+                                    houseIcon.apply {
+
+                                        draw(
+                                            size = Size(iconSize, iconSize),
+                                            colorFilter = ColorFilter.tint(playerIconColor)
+                                        )
+                                    }
                                     canvas.restore()
                                 }
-
                             }
                         }
                     }
@@ -327,17 +354,62 @@ fun HexagonBoardScreen(
             }
         }
 
-        Box(modifier = Modifier.align(Alignment.BottomStart)) {
+        Box(modifier = Modifier.align(Alignment.BottomEnd)){
             Column {
                 Text(MyStomp.playerId)
-                Button(onClick = { onDrawCard(roomId) }, modifier = Modifier.padding(4.dp)) {
-                    Text("Draw Card")
+
+                Button(
+                    onClick = { MyStomp.setPlayerActive(true) },
+                    modifier = Modifier.padding(4.dp)
+                ) {
+                    Text("Activate Player")
                 }
-                Button(onClick = { onPlaceHouses(roomId) }, modifier = Modifier.padding(4.dp)) {
-                    Text("Place Houses")
+                Button(
+                    onClick = { MyStomp.setPlayerActive(false) },
+                    modifier = Modifier.padding(4.dp)
+                ) {
+                    Text("Deactivate Player")
                 }
-                Button(onClick = { onEndTurn(roomId) }, modifier = Modifier.padding(4.dp)) {
-                    Text("End Turn")
+            }
+
+        }
+
+        if(playerIsActive) {
+            Box(modifier = Modifier.align(Alignment.BottomStart)) {
+                Column(
+                    modifier = Modifier
+                    .padding(start = 16.dp)
+                ){
+                    terrainCardType.value?.let {
+                        Text("Terraintype: $it")
+                    }
+                    Button(
+                        onClick = {
+                            onDrawCard(roomId)
+                            drawCardIsClicked = true
+                                  },
+                        enabled = !drawCardIsClicked,
+                        modifier = Modifier.padding(4.dp)) {
+                        Text("Draw Card")
+                    }
+                    Button(
+                        onClick = { onPlaceHouses(roomId) },
+                        enabled = drawCardIsClicked,
+                        modifier = Modifier.padding(4.dp)
+                    ) {
+                        Text("Place Houses")
+                    }
+                    Button(
+                        onClick = {
+                            onEndTurn(roomId)
+                            drawCardIsClicked = false
+                            MyStomp.setPlayerActive(false)
+                            terrainCardType.value = null
+                                  },
+                        enabled = drawCardIsClicked,
+                        modifier = Modifier.padding(4.dp)) {
+                        Text("End Turn")
+                    }
                 }
             }
         }
@@ -345,6 +417,9 @@ fun HexagonBoardScreen(
 }
 
 class GameActivity : ComponentActivity() {
+
+    private var terrainCardType = mutableStateOf<String?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -366,22 +441,36 @@ class GameActivity : ComponentActivity() {
         }
 
         roomId?.let { validRoomId ->
-            MyStomp.subscribeToGameUpdates(validRoomId) { message ->
-                Log.d("GameActivity", "Game update received: $message")
+            MyStomp.subscribeToGameUpdatesTerrainCard(validRoomId) { message ->
+                Log.d("GameActivity", "Terrain Card: $message")
+
+                val terrainType = when (message.toIntOrNull()) {
+                    0 -> TerrainType.GRASS
+                    1 -> TerrainType.CANYON
+                    2 -> TerrainType.DESERT
+                    3 -> TerrainType.FLOWERS
+                    4 -> TerrainType.FOREST
+                    else -> null
+                }
+
+                terrainCardType.value = terrainType?.toString()
+
             }
         } ?: Log.e("GameActivity", "Room ID is null. Cannot subscribe to game updates.")
 
 
         setContent {
             HexagonBoardScreen(
-                roomId = roomId.toString(),
+                roomId = roomId.orEmpty(),
                 onDrawCard = onDrawCard,
                 onPlaceHouses = onPlaceHouses,
-                onEndTurn = onEndTurn
+                onEndTurn = onEndTurn,
+                terrainCardType = terrainCardType
             )
         }
     }
 }
+
 /*
 @Preview(showBackground = true)
 @Composable

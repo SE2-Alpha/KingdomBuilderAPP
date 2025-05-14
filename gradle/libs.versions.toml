@@ -1,6 +1,7 @@
 [versions]
 agp = "8.9.2"
 annotation = "1.9.1"
+gson = "2.11.0"
 junitJupiterParams = "5.11.4"
 graphicsShapes = "1.0.1"
 kotlin = "2.0.21"
@@ -9,6 +10,7 @@ junit = "4.13.2"
 junitJupiterApi = "5.11.4"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
+kotlinxSerializationJson = "1.6.0"
 krossbowStompCore = "7.0.0"
 krossbowWebsocketBuiltin = "7.0.0"
 krossbowWebsocketOkhttp = "7.0.0"
@@ -21,6 +23,7 @@ mockitoCore = "5.14.2"
 [libraries]
 androidx-graphics-shapes = { module = "androidx.graphics:graphics-shapes", version.ref = "graphicsShapes" }
 androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiterApi" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiterApi" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -39,6 +42,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiterParams" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 krossbow-stomp-core = { module = "org.hildan.krossbow:krossbow-stomp-core", version.ref = "krossbowStompCore" }
 krossbow-websocket-builtin = { module = "org.hildan.krossbow:krossbow-websocket-builtin", version.ref = "krossbowWebsocketBuiltin" }
 krossbow-websocket-okhttp = { module = "org.hildan.krossbow:krossbow-websocket-okhttp", version.ref = "krossbowWebsocketOkhttp" }

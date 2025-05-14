@@ -49,13 +49,6 @@ class BuildActionTest {
     }
 
     @Test
-    fun executeTest(){
-        assertFailsWith<NotImplementedError> {
-            concreteBuildAction.execute()
-        }
-    }
-
-    @Test
     fun `execute fails when no settlements left`() {
         `when`(player.remainingSettlements).thenReturn(0)
         val action = BuildAction(player, validField, gameBoard)
@@ -71,15 +64,28 @@ class BuildActionTest {
     @Test
     fun `undo restores settlement count`() {
         `when`(player.validateBuild(validField)).thenReturn(true)
-        `when`(player.undoBuildSettlement(validField)).thenReturn(true)
+        `when`(player.buildSettlement(validField)).thenAnswer {
+            validField.builtBy = player
 
+            `when`(player.remainingSettlements).thenReturn(4)
+            true
+        }
+
+        `when`(player.undoBuildSettlement(validField)).thenAnswer {
+            validField.builtBy = null
+            `when`(player.remainingSettlements).thenReturn(5)
+            true
+        }
 
         val action = BuildAction(player, validField, gameBoard)
-        action.execute()
-        assertTrue(action.undo())
+        val executed = action.execute()
+        val undone = action.undo()
 
+        assertTrue(executed)
+        assertTrue(undone)
         verify(player).undoBuildSettlement(validField)
     }
+
 
     @Test
     fun `cannot undo non-executed action`() {
