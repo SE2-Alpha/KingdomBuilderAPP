@@ -37,6 +37,20 @@
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
             android:screenOrientation="landscape"/>
         <activity
+            android:name="at.aau.serg.websocketbrokerdemo.SettingsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_settings"
+            android:theme="@style/Theme.MyApplication"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
+            android:screenOrientation="landscape"/>
+        <activity
+            android:name="at.aau.serg.websocketbrokerdemo.RulesActivity"
+            android:exported="false"
+            android:label="@string/title_activity_rules"
+            android:theme="@style/Theme.MyApplication"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
+            android:screenOrientation="landscape"/>
+        <activity
             android:name="at.aau.serg.websocketbrokerdemo.MainActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
             android:exported="true"
@@ -48,7 +62,9 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
+
     </application>
 
 </manifest>

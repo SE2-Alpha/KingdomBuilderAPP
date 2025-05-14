@@ -111,7 +111,9 @@ sonar {
             **/LobbyActivity.kt,
             **/GameActivity.kt,
             **/ui/theme/**,
-            **/MyStomp.kt
+            **/MyStomp.kt,
+            **/SettingsActivity.kt,
+            **/RulesActivity.kt
             """
             )
     }

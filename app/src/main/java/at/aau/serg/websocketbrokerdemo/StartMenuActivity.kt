@@ -15,8 +15,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -93,35 +98,31 @@ fun StartMenu() {
             //für Settings und Regeln Composable functions oder eigene Acitvities??
 
             Column {
-                Button(
-                    onClick = { /*TODO*/ },
+                IconButton(
+                    onClick = {
+                        val intent = Intent(context, SettingsActivity::class.java)
+                        context.startActivity(intent)
+                    },
                     modifier = Modifier
                         .padding(8.dp)
                         .height(40.dp)
                         .width(100.dp)
-                        .shadow(8.dp, shape = RoundedCornerShape(20.dp)),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colorResource(id = R.color.beige_lobby_background),
-                        contentColor = colorResource(id = R.color.light_blue_900)
-                    ),
-                    shape = RoundedCornerShape(20.dp)
+                        .shadow(8.dp, shape = RoundedCornerShape(20.dp))
                 ) {
-                    Text(text = stringResource(id = R.string.settings))
+                    Icon(painter = painterResource(id = R.drawable.settings),contentDescription = "Settings", tint = colorResource(R.color.beige_lobby_background) ,modifier = Modifier.size(40.dp))
                 }
-                Button(
-                    onClick = { /*TODO*/ },
+                IconButton(
+                    onClick = {
+                        val intent = Intent(context, RulesActivity::class.java)
+                        context.startActivity(intent)
+                    },
                     modifier = Modifier
                         .padding(8.dp)
                         .height(40.dp)
                         .width(100.dp)
-                        .shadow(8.dp, shape = RoundedCornerShape(20.dp)),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colorResource(id = R.color.beige_lobby_background),
-                        contentColor = colorResource(id = R.color.light_blue_900)
-                    ),
-                    shape = RoundedCornerShape(20.dp)
+                        .shadow(8.dp, shape = RoundedCornerShape(20.dp))
                 ) {
-                    Text(text = stringResource(id = R.string.rules))
+                    Icon(painter = painterResource(id = R.drawable.rules),contentDescription = "Rules", tint = colorResource(R.color.beige_lobby_background) ,modifier = Modifier.size(40.dp))
                 }
             }
         }
