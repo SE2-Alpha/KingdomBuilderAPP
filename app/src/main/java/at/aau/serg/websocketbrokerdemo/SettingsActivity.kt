@@ -36,7 +36,6 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -49,12 +48,12 @@ class SettingsActivity: ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            SettingsScreen(onSave = {finish()}, onCancel = {finish()})
+            SettingsScreen(onSave = {finish()})
         }
     }
 
     @Composable
-    fun SettingsScreen(onSave: () -> Unit, onCancel: () -> Unit){
+    fun SettingsScreen(onSave: () -> Unit){
 
         val context = LocalContext.current
         val prefs = context.getSharedPreferences("app_settings", MODE_PRIVATE)
@@ -190,7 +189,7 @@ class SettingsActivity: ComponentActivity() {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Cancel",
-                        tint = colorResource(id = R.color.light_blue_900)
+                        tint = colorResource(id = R.color.beige_lobby_background)
                     )
                 }
                 Text(
@@ -203,7 +202,7 @@ class SettingsActivity: ComponentActivity() {
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = "Save",
-                        tint = colorResource(id = R.color.light_blue_900)
+                        tint = colorResource(id = R.color.beige_lobby_background)
                     )
                 }
             }
