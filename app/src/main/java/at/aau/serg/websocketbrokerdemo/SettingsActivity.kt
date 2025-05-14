@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,7 +36,10 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
@@ -164,10 +168,17 @@ class SettingsActivity: ComponentActivity() {
         onSave: () -> Unit,
         onCancel: () -> Unit
     ) {
-        Surface(
-            color = colorResource(id = R.color.beige_lobby_background),
-            shadowElevation = 4.dp
+        val backgroundImage = painterResource(id = R.drawable.start_menu_background)
+        Box(
+            modifier = Modifier.fillMaxWidth().height(72.dp)
         ) {
+            Image(
+               painter = backgroundImage,
+               contentDescription = null,
+               contentScale = ContentScale.Crop,
+                alignment = Alignment.Center,
+               modifier = Modifier.fillMaxSize()
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
