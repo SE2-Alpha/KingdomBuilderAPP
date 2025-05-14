@@ -3,6 +3,7 @@ package at.aau.serg.websocketbrokerdemo
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
@@ -38,6 +39,7 @@ import androidx.core.graphics.toColor
 import androidx.core.graphics.toColorLong
 import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
 import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainField
+import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainType
 import at.aau.serg.websocketbrokerdemo.core.model.player.Player
 import kotlin.math.abs
 import kotlin.math.cos
@@ -90,7 +92,8 @@ fun HexagonBoardScreen(
     roomId: String,
     onDrawCard: (String) -> Unit,
     onPlaceHouses: (String) -> Unit,
-    onEndTurn: (String) -> Unit
+    onEndTurn: (String) -> Unit,
+    terrainCardType: MutableState<String?>
 ) {
 
     val context = LocalContext.current
@@ -103,6 +106,8 @@ fun HexagonBoardScreen(
     var houseIcon = rememberVectorPainter(Icons.Rounded.Home)
     gameBoard.buildGameboard()
 
+    val playerIsActive by remember { derivedStateOf { MyStomp.playerIsActive } }
+    var drawCardIsClicked by remember { mutableStateOf(false) }
 
 
 
@@ -251,21 +256,30 @@ fun HexagonBoardScreen(
                         drawPath(path = hexPath, color = Color.Black, style = Stroke(width = 2f))
                         //Falls Feld besetzt, Gebäude Zeichnen
                         if(markedFields[key] == true){
-                            drawIntoCanvas {canvas ->
-                                val iconSize = 55f
-                                val thisField = gameBoard.getFieldByRowAndCol(hex.row,hex.col)
-                                Log.i("GameActivity","Building Placed by ${thisField.builtBy?.name}")
-                                val playerIconColor = Color(thisField.builtBy?.color ?: Color.Black.toArgb())
-                                canvas.save()
-                                canvas.translate(hex.centerX-(iconSize/2), hex.centerY-(iconSize/2)) //Hälfte der Größe abziehen
-                                houseIcon.apply {
-
-                                    draw(
-                                        size = Size(iconSize,iconSize),
-                                        colorFilter = ColorFilter.tint(playerIconColor)
+                            if(drawCardIsClicked) {
+                                drawIntoCanvas { canvas ->
+                                    val iconSize = 55f
+                                    val thisField = gameBoard.getFieldByRowAndCol(hex.row, hex.col)
+                                    Log.i(
+                                        "GameActivity",
+                                        "Building Placed by ${thisField.builtBy?.name}"
                                     )
+                                    val playerIconColor =
+                                        Color(thisField.builtBy?.color ?: Color.Black.toArgb())
+                                    canvas.save()
+                                    canvas.translate(
+                                        hex.centerX - (iconSize / 2),
+                                        hex.centerY - (iconSize / 2)
+                                    ) //Hälfte der Größe abziehen
+                                    houseIcon.apply {
+
+                                        draw(
+                                            size = Size(iconSize, iconSize),
+                                            colorFilter = ColorFilter.tint(playerIconColor)
+                                        )
+                                    }
+                                    canvas.restore()
                                 }
-                                canvas.restore()
                             }
                         }
                     }
@@ -340,17 +354,62 @@ fun HexagonBoardScreen(
             }
         }
 
-        Box(modifier = Modifier.align(Alignment.BottomStart)) {
+        Box(modifier = Modifier.align(Alignment.BottomEnd)){
             Column {
                 Text(MyStomp.playerId)
-                Button(onClick = { onDrawCard(roomId) }, modifier = Modifier.padding(4.dp)) {
-                    Text("Draw Card")
+
+                Button(
+                    onClick = { MyStomp.setPlayerActive(true) },
+                    modifier = Modifier.padding(4.dp)
+                ) {
+                    Text("Activate Player")
                 }
-                Button(onClick = { onPlaceHouses(roomId) }, modifier = Modifier.padding(4.dp)) {
-                    Text("Place Houses")
+                Button(
+                    onClick = { MyStomp.setPlayerActive(false) },
+                    modifier = Modifier.padding(4.dp)
+                ) {
+                    Text("Deactivate Player")
                 }
-                Button(onClick = { onEndTurn(roomId) }, modifier = Modifier.padding(4.dp)) {
-                    Text("End Turn")
+            }
+
+        }
+
+        if(playerIsActive) {
+            Box(modifier = Modifier.align(Alignment.BottomStart)) {
+                Column(
+                    modifier = Modifier
+                    .padding(start = 16.dp)
+                ){
+                    terrainCardType.value?.let {
+                        Text("Terraintype: $it")
+                    }
+                    Button(
+                        onClick = {
+                            onDrawCard(roomId)
+                            drawCardIsClicked = true
+                                  },
+                        enabled = !drawCardIsClicked,
+                        modifier = Modifier.padding(4.dp)) {
+                        Text("Draw Card")
+                    }
+                    Button(
+                        onClick = { onPlaceHouses(roomId) },
+                        enabled = drawCardIsClicked,
+                        modifier = Modifier.padding(4.dp)
+                    ) {
+                        Text("Place Houses")
+                    }
+                    Button(
+                        onClick = {
+                            onEndTurn(roomId)
+                            drawCardIsClicked = false
+                            MyStomp.setPlayerActive(false)
+                            terrainCardType.value = null
+                                  },
+                        enabled = drawCardIsClicked,
+                        modifier = Modifier.padding(4.dp)) {
+                        Text("End Turn")
+                    }
                 }
             }
         }
@@ -358,6 +417,9 @@ fun HexagonBoardScreen(
 }
 
 class GameActivity : ComponentActivity() {
+
+    private var terrainCardType = mutableStateOf<String?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -379,22 +441,36 @@ class GameActivity : ComponentActivity() {
         }
 
         roomId?.let { validRoomId ->
-            MyStomp.subscribeToGameUpdates(validRoomId) { message ->
-                Log.d("GameActivity", "Game update received: $message")
+            MyStomp.subscribeToGameUpdatesTerrainCard(validRoomId) { message ->
+                Log.d("GameActivity", "Terrain Card: $message")
+
+                val terrainType = when (message.toIntOrNull()) {
+                    0 -> TerrainType.GRASS
+                    1 -> TerrainType.CANYON
+                    2 -> TerrainType.DESERT
+                    3 -> TerrainType.FLOWERS
+                    4 -> TerrainType.FOREST
+                    else -> null
+                }
+
+                terrainCardType.value = terrainType?.toString()
+
             }
         } ?: Log.e("GameActivity", "Room ID is null. Cannot subscribe to game updates.")
 
 
         setContent {
             HexagonBoardScreen(
-                roomId = roomId.toString(),
+                roomId = roomId.orEmpty(),
                 onDrawCard = onDrawCard,
                 onPlaceHouses = onPlaceHouses,
-                onEndTurn = onEndTurn
+                onEndTurn = onEndTurn,
+                terrainCardType = terrainCardType
             )
         }
     }
 }
+
 /*
 @Preview(showBackground = true)
 @Composable

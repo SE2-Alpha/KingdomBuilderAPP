@@ -1,6 +1,9 @@
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import at.aau.serg.websocketbrokerdemo.core.model.lobby.PlayerListDAO
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
@@ -23,6 +26,13 @@ object MyStomp {
     private lateinit var session: StompSession
     private val scope = CoroutineScope(Dispatchers.IO)
     val playerId: String = UUID.randomUUID().toString()
+    var playerIsActive by mutableStateOf(false)
+
+    fun setPlayerActive(isActive: Boolean) {
+        playerIsActive = isActive
+    }
+
+
 
     private val topicCallbacks = mutableMapOf<String, MutableList<(String) -> Unit>>()
 
@@ -30,25 +40,20 @@ object MyStomp {
         Log.d("MyStomp", "Versuche, Topic zu abonnieren: $topic")
         if (!topicCallbacks.containsKey(topic)) {
             topicCallbacks[topic] = mutableListOf()
+            // Erstes Mal: STOMP-Subscription starten
             scope.launch {
-                try {
-                    val flow = session.subscribeText(topic)
-                    launch {
-                        flow.collect { msg ->
-                            Log.d("MyStomp", "Nachricht empfangen am Topic $topic: $msg") // <- HIER
-                            Handler(Looper.getMainLooper()).post {
-                                topicCallbacks[topic]?.forEach { it(msg) }
-                            }
+                val flow = session.subscribeText(topic)
+                launch {
+                    flow.collect { msg ->
+                        Handler(Looper.getMainLooper()).post {
+                            topicCallbacks[topic]?.forEach { it(msg) }
                         }
                     }
-                } catch (e: Exception) {
-                    Log.e("MyStomp", "Fehler bei Subscription am Topic $topic: ${e.message}")
                 }
             }
         }
         topicCallbacks[topic]?.add(callback)
     }
-
 
     fun connect(forceReconnect: Boolean = false, onConnected: (() -> Unit)? = null) {
         if (::session.isInitialized && !forceReconnect) {
@@ -116,7 +121,8 @@ object MyStomp {
         val payload = """
         {
             "gameId": "$gameId",
-            "playerId": "$playerId"
+            "playerId": "$playerId",
+            "playerIsActive": "$playerIsActive"
         }
     """.trimIndent()
 
@@ -172,8 +178,8 @@ object MyStomp {
         }
     }
 
-    fun subscribeToGameUpdates(roomId: String, callback: (String) -> Unit) {
-        subscribeToTopic("/topic/game/$roomId", callback)
+    fun subscribeToGameUpdatesTerrainCard(roomId: String, callback: (String) -> Unit) {
+        subscribeToTopic("/topic/game/card/$roomId", callback)
     }
 
     fun subscribeToStartMsg(roomId:String,callback: (PlayerListDAO) -> Unit){
