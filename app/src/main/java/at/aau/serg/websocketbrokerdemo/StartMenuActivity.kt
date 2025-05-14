@@ -94,7 +94,10 @@ fun StartMenu() {
 
             Column {
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        val intent = Intent(context, SettingsActivity::class.java)
+                        context.startActivity(intent)
+                    },
                     modifier = Modifier
                         .padding(8.dp)
                         .height(40.dp)
