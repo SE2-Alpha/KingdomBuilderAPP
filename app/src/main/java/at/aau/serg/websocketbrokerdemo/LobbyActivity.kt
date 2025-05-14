@@ -50,6 +50,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import at.aau.serg.websocketbrokerdemo.core.model.lobby.Room
@@ -319,7 +320,10 @@ class LobbyActivity : ComponentActivity()  {
                     Button(onClick = { leaveRoom() }) {
                         Text("Verlassen")
                     }
-                    Button(onClick = { startGame() }) {
+                    Button(onClick = {
+                        startGame()
+                        startGameActivity()
+                    }) {
                         Text("Starten")
                     }
                 }
@@ -362,5 +366,11 @@ class LobbyActivity : ComponentActivity()  {
         }
     }
 
+    private fun startGameActivity() {
+        val intent = Intent(this, GameActivity::class.java)
+        intent.putExtra("ROOM_ID", joinedRoomId)
+        intent.putStringArrayListExtra("PLAYER_LIST", ArrayList(playersInRoom))
+        startActivity(intent)
+    }
 
 }

@@ -2,31 +2,39 @@ package at.aau.serg.websocketbrokerdemo
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
 import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainField
-import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainType
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -74,7 +82,12 @@ fun pointInHexagon(x: Float, y: Float, centerX: Float, centerY: Float, side: Flo
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
-fun HexagonBoardScreen() {
+fun HexagonBoardScreen(
+    roomId: String,
+    onDrawCard: (String) -> Unit,
+    onPlaceHouses: (String) -> Unit,
+    onEndTurn: (String) -> Unit
+) {
 
     val context = LocalContext.current
     // Zustand: Wenn kein Quartil ausgewählt, ist der Übersichtsmodus aktiv,
@@ -83,6 +96,7 @@ fun HexagonBoardScreen() {
     // Speichert den Markierungsstatus einzelner Felder (Schlüssel: Triple(quadrant, localRow, localCol))
     val markedFields = remember { mutableStateMapOf<Triple<String, Int, Int>, Boolean>() }
     val gameBoard = remember { GameBoard() }
+    val houseIcon = rememberVectorPainter(Icons.Rounded.Home)
     gameBoard.buildGameboard()
 
 
@@ -192,7 +206,8 @@ fun HexagonBoardScreen() {
                                         val key = Triple(selectedQuadrant!!, localRow, localCol)
                                         val currentlyMarked = markedFields[key] ?: false
                                         markedFields[key] = !currentlyMarked
-                                        println("Feld ${hex.row}, ${hex.col} in ${hex.quadrant} toggled to ${!currentlyMarked}")
+                                        //hex.field.builtBy = if (!currentlyMarked) TODO():Implementation Set field as built by active Player
+                                        Log.i("Player Interaction","Field ${hex.row}, ${hex.col} in ${hex.quadrant} toggled to ${!currentlyMarked}")
                                     }
                                     return@detectTapGestures
                                 }
@@ -200,6 +215,7 @@ fun HexagonBoardScreen() {
                         }
                     }
             ) {
+
                 // Zeichnen des Spielfelds mit Translation zum Zentrieren
                 translate(left = offsetX, top = offsetY) {
                     hexagons.forEach { hex ->
@@ -221,6 +237,24 @@ fun HexagonBoardScreen() {
                         // Zuerst Füllung, dann Kontur zeichnen
                         drawPath(path = hexPath, color = fillColor)
                         drawPath(path = hexPath, color = Color.Black, style = Stroke(width = 2f))
+                        //Falls Feld besetzt ist, Gebäude Zeichnen
+                        if(markedFields[key] == true){//hex.field.builtBy != null
+                            Log.i("Player Interaction","Building Placed")
+                            drawIntoCanvas {canvas ->
+                                val iconSize = 55f
+                                canvas.save()
+                                canvas.translate(hex.centerX-(iconSize/2), hex.centerY-(iconSize/2)) //Hälfte der Größe abziehen
+                                val playerColor = Color.Black //TODO():Implementation set Building to Player Color
+                                houseIcon.apply{
+                                    draw(
+                                        size = Size(iconSize,iconSize),
+                                        colorFilter = ColorFilter.tint(playerColor)
+                                    )
+                                    canvas.restore()
+                                }
+
+                            }
+                        }
                     }
                     if (selectedQuadrant == null) {
                         var oldvLeft1: Offset = Offset(0f, 0f)
@@ -292,14 +326,68 @@ fun HexagonBoardScreen() {
                 }
             }
         }
+
+        Box(modifier = Modifier.align(Alignment.BottomStart)) {
+            Column {
+                Text(MyStomp.playerId)
+                Button(onClick = { onDrawCard(roomId) }, modifier = Modifier.padding(4.dp)) {
+                    Text("Draw Card")
+                }
+                Button(onClick = { onPlaceHouses(roomId) }, modifier = Modifier.padding(4.dp)) {
+                    Text("Place Houses")
+                }
+                Button(onClick = { onEndTurn(roomId) }, modifier = Modifier.padding(4.dp)) {
+                    Text("End Turn")
+                }
+            }
+        }
     }
 }
 
 class GameActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val roomId = intent.getStringExtra("ROOM_ID")
+
+        val onDrawCard: (String) -> Unit = { roomId ->
+            Log.d("GameActivity", "Attempting to draw card in room: $roomId")
+            MyStomp.drawCard(roomId)
+        }
+
+        val onPlaceHouses: (String) -> Unit = { roomId ->
+            Log.d("GameActivity", "Attempting to place houses in room: $roomId")
+            MyStomp.placeHouses(roomId)
+        }
+
+        val onEndTurn: (String) -> Unit = { roomId ->
+            Log.d("GameActivity", "Attempting to end turn in room: $roomId")
+            MyStomp.endTurn(roomId)
+        }
+
+        roomId?.let { validRoomId ->
+            MyStomp.subscribeToGameUpdates(validRoomId) { message ->
+                Log.d("GameActivity", "Game update received: $message")
+            }
+        } ?: Log.e("GameActivity", "Room ID is null. Cannot subscribe to game updates.")
+
+
         setContent {
-            HexagonBoardScreen()
+            HexagonBoardScreen(
+                roomId = roomId.toString(),
+                onDrawCard = onDrawCard,
+                onPlaceHouses = onPlaceHouses,
+                onEndTurn = onEndTurn
+            )
         }
     }
 }
+/*
+@Preview(showBackground = true)
+@Composable
+fun HexagonBoardScreenPreview() {
+   HexagonBoardScreen()
+}
+
+
+ */

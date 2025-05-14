@@ -1,10 +1,11 @@
 package at.aau.serg.websocketbrokerdemo.core.actions
 
 import androidx.annotation.VisibleForTesting
+import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
 import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainField
 import at.aau.serg.websocketbrokerdemo.core.model.player.Player
 
-class MoveAction(private val player: Player, private val fromField: TerrainField, private val toField: TerrainField) : Action{
+class MoveAction(private val player: Player, private val fromField: TerrainField, private val toField: TerrainField, private val gameBoard: GameBoard) : Action{
     /**
      * Führt die Verschiebung durch:
      * 1. Entfernt Siedlung vom Ursprungsfeld
@@ -17,7 +18,12 @@ class MoveAction(private val player: Player, private val fromField: TerrainField
      *   - Keine Verbindung zum Königreich besteht
      */
     override fun execute(): Boolean {
-        /*TODO()*/
+        if (!isValidMove()) return false
+
+        // Entferne Siedlung vom Ursprungsfeld
+        fromField.builtBy = null
+        player.kingdom.addSettlement(toField)
+        toField.builtBy = player
         return true
     }
 
@@ -30,7 +36,9 @@ class MoveAction(private val player: Player, private val fromField: TerrainField
      * @throws IllegalStateException Wenn Zielfeld inzwischen blockiert ist
      */
     override fun undo(): Boolean {
-        /*TODO()*/
+        // Setze Siedlung zurück
+        toField.builtBy = null
+        fromField.builtBy = player
         return true
     }
 
@@ -43,7 +51,9 @@ class MoveAction(private val player: Player, private val fromField: TerrainField
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun isValidMove(): Boolean {
-        /*TODO()*/
+        return fromField.builtBy == player &&
+                toField.isBuildable &&
+                gameBoard.areFieldsAdjacent(fromField, toField)
         return true
     }
 }

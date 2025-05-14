@@ -5,8 +5,10 @@ import at.aau.serg.websocketbrokerdemo.core.model.board.quadrants.QuadrantFields
 import at.aau.serg.websocketbrokerdemo.core.model.board.quadrants.QuadrantOasis
 import at.aau.serg.websocketbrokerdemo.core.model.board.quadrants.QuadrantTavern
 import at.aau.serg.websocketbrokerdemo.core.model.board.quadrants.QuadrantTower
+import kotlin.math.abs
 
 import androidx.collection.emptyObjectList
+import at.aau.serg.websocketbrokerdemo.core.model.player.Kingdom
 
 /**
  * Das Hauptspielbrett mit allen Terrainfeldern.
@@ -72,7 +74,7 @@ class GameBoard() {
      * @param type Gesuchter TerrainType
      */
     fun getFieldsByType(type: TerrainType): List<TerrainField> {
-        TODO()
+        return fields.filter {it.type == type}
     }
 
     /**
@@ -87,5 +89,20 @@ class GameBoard() {
     }
     fun getFieldByRowAndCol(row: Int, col: Int): TerrainField {
         return fields[row*20 + col]
+    }
+    fun getAdjacentFields(field: TerrainField): List<TerrainField> {
+        val adjacent = mutableListOf<TerrainField>()
+        val position = field.id
+        //Hex-Nachbarschaftslogik
+        val offsets = listOf(-10, -9, 1, 11, 10, 9)
+        offsets.forEach { offset ->
+            fields.getOrNull(position + offset)?.let { adjacent.add(it)}
+        }
+        return adjacent
+    }
+    fun areFieldAdjacentToKingdom(field: TerrainField, kingdom: Kingdom): Boolean {
+        return kingdom.getAdjacentFields(this).any { adjacent ->
+            areFieldsAdjacent(field,adjacent)
+        }
     }
 }
