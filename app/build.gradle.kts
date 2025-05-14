@@ -112,7 +112,7 @@ sonar {
             **/GameActivity.kt,
             **/ui/theme/**,
             **/MyStomp.kt,
-            **/SettingsActivity.kt
+            **/SettingsActivity.kt,
             **/RulesActivity.kt
             """
             )
