@@ -10,7 +10,7 @@ import at.aau.serg.websocketbrokerdemo.core.model.cards.TerrainCard
  * Repräsentiert einen Spieler mit Königreich und Ressourcen.
  */
 
-class Player(val id: String, val name: String, val color: Int, private val gameBoard: GameBoard) {
+class Player(val id: String, val name: String, var color: Int, private val gameBoard: GameBoard) {
     /**
      * Verbleibende Siedlungen, die platziert werden können
      */
@@ -62,5 +62,9 @@ class Player(val id: String, val name: String, val color: Int, private val gameB
         field.builtBy = null
         remainingSettlements++
         return true
+    }
+
+    companion object LocalPlayer{
+        lateinit var localPlayer: Player
     }
 }

@@ -5,26 +5,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import at.aau.serg.websocketbrokerdemo.Callbacks
+import at.aau.serg.websocketbrokerdemo.core.model.lobby.PlayerListDAO
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import org.hildan.krossbow.stomp.StompClient
 import org.hildan.krossbow.stomp.StompSession
 import org.hildan.krossbow.stomp.sendText
 import org.hildan.krossbow.stomp.subscribeText
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
-import org.json.JSONObject
 import java.util.UUID
 
-//const val WEBSOCKET_URI = "ws://192.168.137.1:8080/ws-kingdombuilder-broker";
-const val WEBSOCKET_URI = "ws://10.0.2.2:8080/ws-kingdombuilder-broker";
-// URL für den Uni-Server: ws://se2-demo.aau.at:53213/ws-kingdombuilder-broker
-
+const val URI_Physical = "ws://10.0.0.180:8080/ws-kingdombuilder-broker"
 const val URI_Server = "ws://se2-demo.aau.at:53213/ws-kingdombuilder-broker"
 
-//const val WEBSOCKET_URI = URI_Server
+const val WEBSOCKET_URI = URI_Physical //URI_Server
 
 object MyStomp {
     private lateinit var client: StompClient
@@ -187,5 +183,11 @@ object MyStomp {
         subscribeToTopic("/topic/game/card/$roomId", callback)
     }
 
+    fun subscribeToStartMsg(roomId:String,callback: (PlayerListDAO) -> Unit){
+        subscribeToTopic("/topic/room/Init/$roomId"){
+            val parsed = Gson().fromJson(it, PlayerListDAO::class.java)
+            callback(parsed)
+        }
+    }
 
 }
