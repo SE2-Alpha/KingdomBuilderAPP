@@ -35,15 +35,13 @@ object MyStomp {
 
     fun setPlayerActive(isActive: Boolean) {
         playerIsActive = isActive
-        if(isActive){
-        }
     }
 
 
 
     private val topicCallbacks = mutableMapOf<String, MutableList<(String) -> Unit>>()
 
-    /*fun subscribeToTopic(topic: String, callback: (String) -> Unit) {
+    fun subscribeToTopic(topic: String, callback: (String) -> Unit) {
         Log.d("MyStomp", "Versuche, Topic zu abonnieren: $topic")
         if (!topicCallbacks.containsKey(topic)) {
             topicCallbacks[topic] = mutableListOf()
@@ -61,32 +59,6 @@ object MyStomp {
         }
         topicCallbacks[topic]?.add(callback)
     }
-
-     */
-
-    fun subscribeToTopic(topic: String, callback: (String) -> Unit) {
-        Log.d("MyStomp", "Versuche, Topic zu abonnieren: $topic")
-        if (!topicCallbacks.containsKey(topic)) {
-            topicCallbacks[topic] = mutableListOf()
-            scope.launch {
-                try {
-                    val flow = session.subscribeText(topic)
-                    launch {
-                        flow.collect { msg ->
-                            Log.d("MyStomp", "Nachricht empfangen am Topic $topic: $msg") // <- HIER
-                            Handler(Looper.getMainLooper()).post {
-                                topicCallbacks[topic]?.forEach { it(msg) }
-                            }
-                        }
-                    }
-                } catch (e: Exception) {
-                    Log.e("MyStomp", "Fehler bei Subscription am Topic $topic: ${e.message}")
-                }
-            }
-        }
-        topicCallbacks[topic]?.add(callback)
-    }
-
 
     fun connect(forceReconnect: Boolean = false, onConnected: (() -> Unit)? = null) {
         if (::session.isInitialized && !forceReconnect) {
@@ -154,7 +126,8 @@ object MyStomp {
         val payload = """
         {
             "gameId": "$gameId",
-            "playerId": "$playerId"
+            "playerId": "$playerId",
+            "playerIsActive": "$playerIsActive"
         }
     """.trimIndent()
 
@@ -210,8 +183,9 @@ object MyStomp {
         }
     }
 
-    fun subscribeToGameUpdates(roomId: String, callback: (String) -> Unit) {
-        subscribeToTopic("/topic/game/$roomId", callback)
+    fun subscribeToGameUpdatesTerrainCard(roomId: String, callback: (String) -> Unit) {
+        subscribeToTopic("/topic/game/card/$roomId", callback)
     }
+
 
 }

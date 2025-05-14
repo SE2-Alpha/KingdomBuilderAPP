@@ -3,6 +3,7 @@ package at.aau.serg.websocketbrokerdemo
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
@@ -30,11 +31,11 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
 import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainField
+import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainType
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -86,7 +87,8 @@ fun HexagonBoardScreen(
     roomId: String,
     onDrawCard: (String) -> Unit,
     onPlaceHouses: (String) -> Unit,
-    onEndTurn: (String) -> Unit
+    onEndTurn: (String) -> Unit,
+    terrainCardType: MutableState<String?>
 ) {
 
     val context = LocalContext.current
@@ -356,7 +358,13 @@ fun HexagonBoardScreen(
 
         if(playerIsActive) {
             Box(modifier = Modifier.align(Alignment.BottomStart)) {
-                Column {
+                Column(
+                    modifier = Modifier
+                    .padding(start = 16.dp)
+                ){
+                    terrainCardType.value?.let {
+                        Text("Terraintype: $it")
+                    }
                     Button(
                         onClick = {
                             onDrawCard(roomId)
@@ -378,6 +386,7 @@ fun HexagonBoardScreen(
                             onEndTurn(roomId)
                             drawCardIsClicked = false
                             MyStomp.setPlayerActive(false)
+                            terrainCardType.value = null
                                   },
                         enabled = drawCardIsClicked,
                         modifier = Modifier.padding(4.dp)) {
@@ -390,6 +399,9 @@ fun HexagonBoardScreen(
 }
 
 class GameActivity : ComponentActivity() {
+
+    private var terrainCardType = mutableStateOf<String?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -411,22 +423,35 @@ class GameActivity : ComponentActivity() {
         }
 
         roomId?.let { validRoomId ->
-            MyStomp.subscribeToGameUpdates(validRoomId) { message ->
-                Log.d("GameActivity", "Game update received: $message")
+            MyStomp.subscribeToGameUpdatesTerrainCard(validRoomId) { message ->
+                Log.d("GameActivity", "Terrain Card: $message")
+
+                val terrainType = when (message.toIntOrNull()) {
+                    0 -> TerrainType.GRASS
+                    1 -> TerrainType.CANYON
+                    2 -> TerrainType.DESERT
+                    3 -> TerrainType.FLOWERS
+                    4 -> TerrainType.FOREST
+                    else -> null
+                }
+
+                terrainCardType.value = terrainType?.toString()
+
             }
         } ?: Log.e("GameActivity", "Room ID is null. Cannot subscribe to game updates.")
 
-
         setContent {
             HexagonBoardScreen(
-                roomId = roomId.toString(),
+                roomId = roomId.orEmpty(),
                 onDrawCard = onDrawCard,
                 onPlaceHouses = onPlaceHouses,
-                onEndTurn = onEndTurn
+                onEndTurn = onEndTurn,
+                terrainCardType = terrainCardType
             )
         }
     }
 }
+
 /*
 @Preview(showBackground = true)
 @Composable
