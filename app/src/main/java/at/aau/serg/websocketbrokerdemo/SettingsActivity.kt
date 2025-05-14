@@ -1,14 +1,11 @@
 package at.aau.serg.websocketbrokerdemo
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
@@ -39,9 +35,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
@@ -57,17 +51,18 @@ class SettingsActivity: ComponentActivity() {
 
     @Composable
     fun SettingsScreen(onSave: () -> Unit, onCancel: () -> Unit){
-        //To Do: Music and Sound Settings, Change Username, Change UserPicture, Darkmode/lightmode
 
         val context = LocalContext.current
         val prefs = context.getSharedPreferences("app_settings", MODE_PRIVATE)
-        val MusicVolume = prefs.getInt("music_volume", 100)
-        val SoundVolume = prefs.getInt("sound_volume", 100)
-        val DarkMode = prefs.getBoolean("dark_mode", false)
+        val userName = prefs.getString("user_name", "") ?: ""
+        val musicVolume = prefs.getInt("music_volume", 100)
+        val soundVolume = prefs.getInt("sound_volume", 100)
+        val darkMode = prefs.getBoolean("dark_mode", false)
 
-        var musicVolume by remember { mutableStateOf(MusicVolume.toFloat()) }
-        var soundVolume by remember { mutableStateOf(SoundVolume.toFloat()) }
-        var darkModeEnabled by remember { mutableStateOf(DarkMode) }
+        var userNameState by remember {mutableStateOf(userName)}
+        var musicVolumeState by remember { mutableStateOf(musicVolume.toFloat()) }
+        var soundVolumeState by remember { mutableStateOf(soundVolume.toFloat()) }
+        var darkModeEnabled by remember { mutableStateOf(darkMode) }
 
         val scrollState = rememberScrollState()
 
@@ -81,8 +76,14 @@ class SettingsActivity: ComponentActivity() {
                     },
                     title = "Settings",
                     onSave = {
-                        val intent = Intent(context, StartMenuActivity::class.java)
-                        context.startActivity(intent) }
+                        val editor = prefs.edit()
+                        editor.putString("user_name", userNameState)
+                        editor.putInt("music_volume", musicVolumeState.toInt())
+                        editor.putInt("sound_volume", soundVolumeState.toInt())
+                        editor.putBoolean("dark_mode", darkModeEnabled)
+                        editor.apply()
+                        onSave()
+                    }
 
                 )
             },
@@ -96,12 +97,27 @@ class SettingsActivity: ComponentActivity() {
                 .padding(paddingValues)
                 .padding(16.dp)
                 .verticalScroll(scrollState)){
+                Text(
+                    text = "Your Username:",
+                    color = colorResource(id = R.color.light_blue_900),
+                    fontSize = 20.sp
+                )
+                TextField(
+                    value = userNameState,
+                    onValueChange = { userNameState = it },
+                    placeholder = { Text("Enter your name") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    singleLine = true
+                )
+                Spacer(modifier = Modifier.height(12.dp))
                 Text(text = "Preferences:", color = colorResource(id = R.color.light_blue_900), fontSize = 25.sp)
                 Spacer(modifier = Modifier.height(12.dp))
 
-                VolumeSlider("Music Volume", musicVolume){musicVolume = it}
-                VolumeSlider("Sound Volume", soundVolume){soundVolume = it}
-                SettingToggle("Dark Mode", darkModeEnabled){darkModeEnabled = it}
+                VolumeSlider("Music Volume", musicVolumeState){musicVolumeState = it}
+                VolumeSlider("Sound Volume", soundVolumeState){soundVolumeState = it}
+                SettingToggle("Dark Mode (Test Button)", darkModeEnabled){darkModeEnabled = it}
 
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -182,8 +198,4 @@ class SettingsActivity: ComponentActivity() {
             }
         }
     }
-
-
-
-
 }
