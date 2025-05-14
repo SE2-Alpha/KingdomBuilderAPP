@@ -1,6 +1,9 @@
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import at.aau.serg.websocketbrokerdemo.Callbacks
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,6 +31,15 @@ object MyStomp {
     private lateinit var session: StompSession
     private val scope = CoroutineScope(Dispatchers.IO)
     val playerId: String = UUID.randomUUID().toString()
+    var playerIsActive by mutableStateOf(false)
+
+    fun setPlayerActive(isActive: Boolean) {
+        playerIsActive = isActive
+        if(isActive){
+        }
+    }
+
+
 
     private val topicCallbacks = mutableMapOf<String, MutableList<(String) -> Unit>>()
 

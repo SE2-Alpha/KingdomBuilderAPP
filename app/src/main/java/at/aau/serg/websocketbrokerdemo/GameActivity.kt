@@ -99,6 +99,8 @@ fun HexagonBoardScreen(
     val houseIcon = rememberVectorPainter(Icons.Rounded.Home)
     gameBoard.buildGameboard()
 
+    val playerIsActive by remember { derivedStateOf { MyStomp.playerIsActive } }
+    var drawCardIsClicked by remember { mutableStateOf(false) }
 
 
 
@@ -238,23 +240,28 @@ fun HexagonBoardScreen(
                         drawPath(path = hexPath, color = fillColor)
                         drawPath(path = hexPath, color = Color.Black, style = Stroke(width = 2f))
                         //Falls Feld besetzt ist, Gebäude Zeichnen
-                        if(markedFields[key] == true){//hex.field.builtBy != null
-                            Log.i("Player Interaction","Building Placed")
-                            drawIntoCanvas {canvas ->
-                                val iconSize = 55f
-                                canvas.save()
-                                canvas.translate(hex.centerX-(iconSize/2), hex.centerY-(iconSize/2)) //Hälfte der Größe abziehen
-                                val playerColor = Color.Black //TODO():Implementation set Building to Player Color
-                                houseIcon.apply{
-                                    draw(
-                                        size = Size(iconSize,iconSize),
-                                        colorFilter = ColorFilter.tint(playerColor)
-                                    )
-                                    canvas.restore()
+                            if (markedFields[key] == true) {//hex.field.builtBy != null
+                                Log.i("Player Interaction", "Building Placed")
+                                if(drawCardIsClicked) {
+                                    drawIntoCanvas { canvas ->
+                                        val iconSize = 55f
+                                        canvas.save()
+                                        canvas.translate(
+                                            hex.centerX - (iconSize / 2),
+                                            hex.centerY - (iconSize / 2)
+                                        ) //Hälfte der Größe abziehen
+                                        val playerColor =
+                                            Color.Black //TODO():Implementation set Building to Player Color
+                                        houseIcon.apply {
+                                            draw(
+                                                size = Size(iconSize, iconSize),
+                                                colorFilter = ColorFilter.tint(playerColor)
+                                            )
+                                            canvas.restore()
+                                        }
+                                    }
                                 }
-
                             }
-                        }
                     }
                     if (selectedQuadrant == null) {
                         var oldvLeft1: Offset = Offset(0f, 0f)
@@ -327,17 +334,55 @@ fun HexagonBoardScreen(
             }
         }
 
-        Box(modifier = Modifier.align(Alignment.BottomStart)) {
+        Box(modifier = Modifier.align(Alignment.BottomEnd)){
             Column {
                 Text(MyStomp.playerId)
-                Button(onClick = { onDrawCard(roomId) }, modifier = Modifier.padding(4.dp)) {
-                    Text("Draw Card")
+
+                Button(
+                    onClick = { MyStomp.setPlayerActive(true) },
+                    modifier = Modifier.padding(4.dp)
+                ) {
+                    Text("Activate Player")
                 }
-                Button(onClick = { onPlaceHouses(roomId) }, modifier = Modifier.padding(4.dp)) {
-                    Text("Place Houses")
+                Button(
+                    onClick = { MyStomp.setPlayerActive(false) },
+                    modifier = Modifier.padding(4.dp)
+                ) {
+                    Text("Deactivate Player")
                 }
-                Button(onClick = { onEndTurn(roomId) }, modifier = Modifier.padding(4.dp)) {
-                    Text("End Turn")
+            }
+
+        }
+
+        if(playerIsActive) {
+            Box(modifier = Modifier.align(Alignment.BottomStart)) {
+                Column {
+                    Button(
+                        onClick = {
+                            onDrawCard(roomId)
+                            drawCardIsClicked = true
+                                  },
+                        enabled = !drawCardIsClicked,
+                        modifier = Modifier.padding(4.dp)) {
+                        Text("Draw Card")
+                    }
+                    Button(
+                        onClick = { onPlaceHouses(roomId) },
+                        enabled = drawCardIsClicked,
+                        modifier = Modifier.padding(4.dp)
+                    ) {
+                        Text("Place Houses")
+                    }
+                    Button(
+                        onClick = {
+                            onEndTurn(roomId)
+                            drawCardIsClicked = false
+                            MyStomp.setPlayerActive(false)
+                                  },
+                        enabled = drawCardIsClicked,
+                        modifier = Modifier.padding(4.dp)) {
+                        Text("End Turn")
+                    }
                 }
             }
         }
