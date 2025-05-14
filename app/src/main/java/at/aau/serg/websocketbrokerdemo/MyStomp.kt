@@ -3,6 +3,7 @@ import android.os.Looper
 import android.util.Log
 import at.aau.serg.websocketbrokerdemo.Callbacks
 import at.aau.serg.websocketbrokerdemo.core.model.lobby.PlayerListDao
+import at.aau.serg.websocketbrokerdemo.core.model.player.Player
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -180,9 +181,9 @@ object MyStomp {
         subscribeToTopic("/topic/game/$roomId", callback)
     }
 
-    fun subscribeToOnStartMsg(roomId:String,callback: (PlayerListDao) -> Unit){
-        subscribeToTopic("/topic/room/Init/$roomId"){msg ->
-            val parsed = Gson().fromJson(msg, PlayerListDao::class.java)
+    fun subscribeToStartMsg(roomId:String,callback: (PlayerListDao) -> Unit){
+        subscribeToTopic("/topic/room/Init/$roomId"){
+            val parsed = Gson().fromJson(it, PlayerListDao::class.java)
             callback(parsed)
         }
     }
