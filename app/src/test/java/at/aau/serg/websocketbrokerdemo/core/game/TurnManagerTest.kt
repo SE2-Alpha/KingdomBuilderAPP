@@ -32,10 +32,15 @@ class TurnManagerTest {
     }
 
     @Test
-    fun endTurnTest(){
-        assertFailsWith<NotImplementedError> {
-            turnManager.endTurn()
-        }
+    fun `endTurn should loop back to first player after last`(){
+        assertEquals(player1, turnManager.currentPlayer)
+
+        turnManager.endTurn()
+        assertEquals(player2, turnManager.currentPlayer)
+
+        turnManager.endTurn()
+        assertEquals(player1, turnManager.currentPlayer)
+        assertEquals(1, turnManager.currentRound)
     }
 
     @Test

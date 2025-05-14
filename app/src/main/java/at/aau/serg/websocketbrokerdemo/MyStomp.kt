@@ -1,37 +1,42 @@
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import at.aau.serg.websocketbrokerdemo.Callbacks
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import at.aau.serg.websocketbrokerdemo.core.model.lobby.PlayerListDAO
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import org.hildan.krossbow.stomp.StompClient
 import org.hildan.krossbow.stomp.StompSession
 import org.hildan.krossbow.stomp.sendText
 import org.hildan.krossbow.stomp.subscribeText
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
-import org.json.JSONObject
 import java.util.UUID
 
-//const val WEBSOCKET_URI = "ws://192.168.137.1:8080/ws-kingdombuilder-broker";
-const val WEBSOCKET_URI = "ws://10.0.2.2:8080/ws-kingdombuilder-broker";
-// URL für den Uni-Server: ws://se2-demo.aau.at:53213/ws-kingdombuilder-broker
-
+const val URI_Physical = "ws://10.0.0.180:8080/ws-kingdombuilder-broker"
 const val URI_Server = "ws://se2-demo.aau.at:53213/ws-kingdombuilder-broker"
 
-//const val WEBSOCKET_URI = URI_Server
+const val WEBSOCKET_URI = URI_Physical //URI_Server
 
 object MyStomp {
     private lateinit var client: StompClient
     private lateinit var session: StompSession
     private val scope = CoroutineScope(Dispatchers.IO)
     val playerId: String = UUID.randomUUID().toString()
+    var playerIsActive by mutableStateOf(false)
+
+    fun setPlayerActive(isActive: Boolean) {
+        playerIsActive = isActive
+    }
+
+
 
     private val topicCallbacks = mutableMapOf<String, MutableList<(String) -> Unit>>()
 
-    /*fun subscribeToTopic(topic: String, callback: (String) -> Unit) {
+    fun subscribeToTopic(topic: String, callback: (String) -> Unit) {
         Log.d("MyStomp", "Versuche, Topic zu abonnieren: $topic")
         if (!topicCallbacks.containsKey(topic)) {
             topicCallbacks[topic] = mutableListOf()
@@ -49,32 +54,6 @@ object MyStomp {
         }
         topicCallbacks[topic]?.add(callback)
     }
-
-     */
-
-    fun subscribeToTopic(topic: String, callback: (String) -> Unit) {
-        Log.d("MyStomp", "Versuche, Topic zu abonnieren: $topic")
-        if (!topicCallbacks.containsKey(topic)) {
-            topicCallbacks[topic] = mutableListOf()
-            scope.launch {
-                try {
-                    val flow = session.subscribeText(topic)
-                    launch {
-                        flow.collect { msg ->
-                            Log.d("MyStomp", "Nachricht empfangen am Topic $topic: $msg") // <- HIER
-                            Handler(Looper.getMainLooper()).post {
-                                topicCallbacks[topic]?.forEach { it(msg) }
-                            }
-                        }
-                    }
-                } catch (e: Exception) {
-                    Log.e("MyStomp", "Fehler bei Subscription am Topic $topic: ${e.message}")
-                }
-            }
-        }
-        topicCallbacks[topic]?.add(callback)
-    }
-
 
     fun connect(forceReconnect: Boolean = false, onConnected: (() -> Unit)? = null) {
         if (::session.isInitialized && !forceReconnect) {
@@ -142,7 +121,8 @@ object MyStomp {
         val payload = """
         {
             "gameId": "$gameId",
-            "playerId": "$playerId"
+            "playerId": "$playerId",
+            "playerIsActive": "$playerIsActive"
         }
     """.trimIndent()
 
@@ -198,8 +178,15 @@ object MyStomp {
         }
     }
 
-    fun subscribeToGameUpdates(roomId: String, callback: (String) -> Unit) {
-        subscribeToTopic("/topic/game/$roomId", callback)
+    fun subscribeToGameUpdatesTerrainCard(roomId: String, callback: (String) -> Unit) {
+        subscribeToTopic("/topic/game/card/$roomId", callback)
+    }
+
+    fun subscribeToStartMsg(roomId:String,callback: (PlayerListDAO) -> Unit){
+        subscribeToTopic("/topic/room/Init/$roomId"){
+            val parsed = Gson().fromJson(it, PlayerListDAO::class.java)
+            callback(parsed)
+        }
     }
 
 }
