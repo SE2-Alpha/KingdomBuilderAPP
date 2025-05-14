@@ -1,21 +1,16 @@
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import at.aau.serg.websocketbrokerdemo.Callbacks
-import at.aau.serg.websocketbrokerdemo.core.model.lobby.PlayerListDao
-import at.aau.serg.websocketbrokerdemo.core.model.player.Player
+import at.aau.serg.websocketbrokerdemo.core.model.lobby.PlayerListDAO
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import org.hildan.krossbow.stomp.StompClient
 import org.hildan.krossbow.stomp.StompSession
 import org.hildan.krossbow.stomp.sendText
 import org.hildan.krossbow.stomp.subscribeText
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
-import org.json.JSONObject
 import java.util.UUID
 
 const val URI_Physical = "ws://10.0.0.180:8080/ws-kingdombuilder-broker"
@@ -181,9 +176,9 @@ object MyStomp {
         subscribeToTopic("/topic/game/$roomId", callback)
     }
 
-    fun subscribeToStartMsg(roomId:String,callback: (PlayerListDao) -> Unit){
+    fun subscribeToStartMsg(roomId:String,callback: (PlayerListDAO) -> Unit){
         subscribeToTopic("/topic/room/Init/$roomId"){
-            val parsed = Gson().fromJson(it, PlayerListDao::class.java)
+            val parsed = Gson().fromJson(it, PlayerListDAO::class.java)
             callback(parsed)
         }
     }
