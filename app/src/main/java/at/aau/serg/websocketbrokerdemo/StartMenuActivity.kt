@@ -112,7 +112,10 @@ fun StartMenu() {
                     Icon(painter = painterResource(id = R.drawable.settings),contentDescription = "Settings", tint = colorResource(R.color.beige_lobby_background) ,modifier = Modifier.size(40.dp))
                 }
                 IconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        val intent = Intent(context, RulesActivity::class.java)
+                        context.startActivity(intent)
+                    },
                     modifier = Modifier
                         .padding(8.dp)
                         .height(40.dp)

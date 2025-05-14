@@ -113,6 +113,7 @@ sonar {
             **/ui/theme/**,
             **/MyStomp.kt,
             **/SettingsActivity.kt
+            **/RulesActivity.kt
             """
             )
     }
