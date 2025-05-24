@@ -51,6 +51,7 @@ import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
 import at.aau.serg.websocketbrokerdemo.core.model.lobby.Room
 import at.aau.serg.websocketbrokerdemo.core.model.lobby.RoomStatus
 import at.aau.serg.websocketbrokerdemo.core.model.player.Player
+import at.aau.serg.websocketbrokerdemo.core.model.player.PlayerDAO
 import com.example.myapplication.R
 import kotlinx.coroutines.delay
 import org.json.JSONArray
@@ -58,8 +59,9 @@ import org.json.JSONArray
 class LobbyActivity : ComponentActivity()  {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        MyStomp.connect {
+        MyStomp.connect(context = this) {
             MyStomp.subscribeToTopic("/topic/lobby") { res ->
+                System.out.println("lobby: "+res);
                 parseRoomList(res)
             }
         }
@@ -73,16 +75,11 @@ class LobbyActivity : ComponentActivity()  {
     //private lateinit var mystomp: MyStomp
     private var roomList by mutableStateOf<List<Room>>(emptyList())
     private var joinedRoomId by mutableStateOf<String?>(null)
-    private var playersInRoom by mutableStateOf<List<String>>(emptyList())
-
-
-
 
     fun onRoomClick(roomId: String) {
         MyStomp.joinRoom(roomId)
-        joinedRoomId = roomId
+        //joinedRoomId = roomId
         // Beispiel: Fülle Test-Spieler
-        playersInRoom = listOf("Spieler1", "Spieler2") // später dynamisch vom Server holen
         MyStomp.subscribeToStartMsg(joinedRoomId?: "0") { msg ->
             msg.players.forEach { player ->
                 if (player.id == Player.localPlayer.id) Player.localPlayer.color = player.color
@@ -297,7 +294,6 @@ class LobbyActivity : ComponentActivity()  {
         Box (
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)                        // Höhe anpassen
                     .clip(RoundedCornerShape(20.dp))
                     .background(colorResource(id = R.color.lobby_background_upper))         // hier Deine Farbe
                 ){
@@ -308,10 +304,12 @@ class LobbyActivity : ComponentActivity()  {
                 horizontalAlignment = Alignment.CenterHorizontally
             )
             {
-                Text("Spieler im Raum:", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                val room = roomList.find { it.id == joinedRoomId }
+                Text("Spieler im Raum: "+ room?.name, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(16.dp))
-                playersInRoom.forEach { player ->
-                    Text(player, fontSize = 20.sp)
+
+                room?.players?.forEach { player ->
+                    Text(player.name, fontSize = 20.sp)
                 }
                 Spacer(modifier = Modifier.height(32.dp))
                 Row(
@@ -335,7 +333,6 @@ class LobbyActivity : ComponentActivity()  {
     private fun leaveRoom() {
         MyStomp.leaveRoom(joinedRoomId!!)
         joinedRoomId = null
-        playersInRoom = emptyList()
     }
 
     private fun startGame() {
@@ -353,6 +350,28 @@ class LobbyActivity : ComponentActivity()  {
 
             for (i in 0 until roomsJson.length()) {
                 val obj = roomsJson.getJSONObject(i)
+
+                val playersJson = obj.getJSONArray("players")
+                val players = mutableListOf<PlayerDAO>() // PlayerData ist ein Hilfsmodell, siehe unten
+
+                for (j in 0 until playersJson.length()) {
+                    val playerObj = playersJson.getJSONObject(j)
+                    players.add(
+                        PlayerDAO(
+                            id = playerObj.getString("id"),
+                            name = (if (!playerObj.isNull("name")) playerObj.getString("name") else null).toString(),
+                            color = playerObj.getInt("color"),
+                            remainingSettlements = playerObj.getInt("remainingSettlements"),
+                            score = playerObj.getInt("score")
+                        )
+                    )
+                    if( joinedRoomId == null && MyStomp.playerId == playerObj.getString("id"))
+                    {
+                        joinedRoomId = obj.getString("id")
+                        onRoomClick(joinedRoomId.toString())
+                    }
+                }
+
                 updatedRooms.add(
                     Room(
                         id = obj.getString("id"),
@@ -360,8 +379,10 @@ class LobbyActivity : ComponentActivity()  {
                         size = obj.getInt("size"),
                         currentUsers = obj.getInt("currentUsers"),
                         status = RoomStatus.valueOf(obj.getString("status")),
+                        players = players // Neue Zeile für die Liste der Spieler
                     )
                 )
+
             }
 
             roomList = updatedRooms
@@ -373,7 +394,7 @@ class LobbyActivity : ComponentActivity()  {
     private fun startGameActivity() {
         val intent = Intent(this, GameActivity::class.java)
         intent.putExtra("ROOM_ID", joinedRoomId)
-        intent.putStringArrayListExtra("PLAYER_LIST", ArrayList(playersInRoom))
+        //intent.putStringArrayListExtra("PLAYER_LIST", ArrayList(playersInRoom))
         startActivity(intent)
     }
 
