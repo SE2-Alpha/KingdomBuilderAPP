@@ -47,6 +47,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
 import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
 import at.aau.serg.websocketbrokerdemo.core.model.lobby.Room
 import at.aau.serg.websocketbrokerdemo.core.model.lobby.RoomStatus
@@ -321,7 +322,7 @@ class LobbyActivity : ComponentActivity()  {
                     }
                     Button(onClick = {
                         startGame()
-                        startGameActivity()
+                        //startGameActivity()
                     }) {
                         Text("Starten")
                     }
@@ -337,8 +338,11 @@ class LobbyActivity : ComponentActivity()  {
 
     private fun startGame() {
         //Create Local Player, color is set trough start message
-        //TODO(): Custom Player name, static obj Gameboard or local Variable
-        Player.localPlayer = Player(MyStomp.playerId, "LocalPlayer", 0, GameBoard())
+        getRoomById(joinedRoomId.toString())?.players?.forEach { player ->
+            if (player.id == MyStomp.playerId) {
+                Player.localPlayer = Player(player.id, player.name, player.color, GameBoard())
+            }
+        }
         MyStomp.startRoom(joinedRoomId!!)
     }
 
@@ -365,10 +369,16 @@ class LobbyActivity : ComponentActivity()  {
                             score = playerObj.getInt("score")
                         )
                     )
-                    if( joinedRoomId == null && MyStomp.playerId == playerObj.getString("id"))
+                    if(MyStomp.playerId == playerObj.getString("id") && isActivityReallyActive())
                     {
                         joinedRoomId = obj.getString("id")
-                        onRoomClick(joinedRoomId.toString())
+                        if(RoomStatus.valueOf(obj.getString("status")) == RoomStatus.STARTED) {
+                            Log.e("LobbyActivity", "Raum ist bereits gestartet, starte GameActivity")
+                            startGameActivity()
+                        } else {
+                            onRoomClick(joinedRoomId.toString())
+                        }
+
                     }
                 }
 
@@ -396,6 +406,14 @@ class LobbyActivity : ComponentActivity()  {
         intent.putExtra("ROOM_ID", joinedRoomId)
         //intent.putStringArrayListExtra("PLAYER_LIST", ArrayList(playersInRoom))
         startActivity(intent)
+    }
+
+    fun getRoomById(id: String): Room? {
+        return roomList.find { it.id == id }
+    }
+
+    fun isActivityReallyActive(): Boolean {
+        return lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
     }
 
 }

@@ -1,5 +1,7 @@
 package at.aau.serg.websocketbrokerdemo
 
+import androidx.activity.viewModels
+import MyStomp
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
@@ -40,7 +42,12 @@ import androidx.core.graphics.toColorLong
 import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
 import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainField
 import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainType
+import at.aau.serg.websocketbrokerdemo.core.model.game.GameViewModel
+import at.aau.serg.websocketbrokerdemo.core.model.lobby.Room
+import at.aau.serg.websocketbrokerdemo.core.model.lobby.RoomStatus
 import at.aau.serg.websocketbrokerdemo.core.model.player.Player
+import at.aau.serg.websocketbrokerdemo.core.model.player.PlayerDAO
+import org.json.JSONObject
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -93,7 +100,9 @@ fun HexagonBoardScreen(
     onDrawCard: (String) -> Unit,
     onPlaceHouses: (String) -> Unit,
     onEndTurn: (String) -> Unit,
-    terrainCardType: MutableState<String?>
+    terrainCardType: String?,
+    gameBoard: GameBoard,
+    players: List<PlayerDAO>
 ) {
 
     val context = LocalContext.current
@@ -102,9 +111,9 @@ fun HexagonBoardScreen(
     var selectedQuadrant by remember { mutableStateOf<String?>(null) }
     // Speichert den Markierungsstatus einzelner Felder (Schlüssel: Triple(quadrant, localRow, localCol))
     val markedFields = remember { mutableStateMapOf<Triple<String, Int, Int>, Boolean>() }
-    val gameBoard = remember { GameBoard() }
+    //val gameBoard = remember { GameBoard() }
     var houseIcon = rememberVectorPainter(Icons.Rounded.Home)
-    gameBoard.buildGameboard()
+    //gameBoard.buildGameboard()
 
     val playerIsActive by remember { derivedStateOf { MyStomp.playerIsActive } }
     var drawCardIsClicked by remember { mutableStateOf(false) }
@@ -213,17 +222,19 @@ fun HexagonBoardScreen(
                                         val localRow = hex.row - rowOffset
                                         val localCol = hex.col - colOffset
                                         val key = Triple(selectedQuadrant!!, localRow, localCol)
-                                        val currentlyMarked = markedFields[key] == true
+                                        val currentlyMarked = gameBoard.getFieldByRowAndCol(hex.row, hex.col).builtBy != null
                                         //TODO(): Make building of completed turns permanent
                                         if(!currentlyMarked && hex.field.isBuildable){
                                             markedFields[key] = true
-                                            hex.field.builtBy = Player.localPlayer
-                                            gameBoard.getFieldByRowAndCol(hex.row,hex.col).builtBy = Player.localPlayer
+                                            //hex.field.builtBy = Player.localPlayer
+                                            //gameBoard.getFieldByRowAndCol(hex.row,hex.col).builtBy = Player.localPlayer
+                                            MyStomp.placeHouses(roomId,hex.row,hex.col)
                                         }else{
                                             markedFields[key] = false
-                                            hex.field.builtBy = null
-                                            gameBoard.getFieldByRowAndCol(hex.row,hex.col).builtBy = null
+                                            //hex.field.builtBy = null
+                                            //gameBoard.getFieldByRowAndCol(hex.row,hex.col).builtBy = null
                                         }
+
                                         Log.i("Player Interaction","Field ${hex.row}, ${hex.col} in ${hex.quadrant} toggled to ${!currentlyMarked}")
                                     }
                                     return@detectTapGestures
@@ -255,8 +266,9 @@ fun HexagonBoardScreen(
                         drawPath(path = hexPath, color = fillColor)
                         drawPath(path = hexPath, color = Color.Black, style = Stroke(width = 2f))
                         //Falls Feld besetzt, Gebäude Zeichnen
-                        if(markedFields[key] == true){
-                            if(drawCardIsClicked) {
+                        if(gameBoard.getFieldByRowAndCol(hex.row,hex.col).builtBy != null) {
+                            System.out.println("Draw field with building at ${hex.row}, ${hex.col} in ${hex.quadrant}")
+                            //if(drawCardIsClicked) {
                                 drawIntoCanvas { canvas ->
                                     val iconSize = 55f
                                     val thisField = gameBoard.getFieldByRowAndCol(hex.row, hex.col)
@@ -280,7 +292,7 @@ fun HexagonBoardScreen(
                                     }
                                     canvas.restore()
                                 }
-                            }
+                            //}
                         }
                     }
                     if (selectedQuadrant == null) {
@@ -356,7 +368,7 @@ fun HexagonBoardScreen(
 
         Box(modifier = Modifier.align(Alignment.BottomEnd)){
             Column {
-                Text(MyStomp.playerId)
+                Text(MyStomp.userName)
 
                 Button(
                     onClick = { MyStomp.setPlayerActive(true) },
@@ -380,7 +392,7 @@ fun HexagonBoardScreen(
                     modifier = Modifier
                     .padding(start = 16.dp)
                 ){
-                    terrainCardType.value?.let {
+                    terrainCardType?.let {
                         Text("Terraintype: $it")
                     }
                     Button(
@@ -404,7 +416,8 @@ fun HexagonBoardScreen(
                             onEndTurn(roomId)
                             drawCardIsClicked = false
                             MyStomp.setPlayerActive(false)
-                            terrainCardType.value = null
+                            //terrainCardType = null //TODO
+
                                   },
                         enabled = drawCardIsClicked,
                         modifier = Modifier.padding(4.dp)) {
@@ -414,50 +427,105 @@ fun HexagonBoardScreen(
             }
         }
     }
+    roomId?.let { validRoomId ->
+        MyStomp.subscribeToGameUpdates(validRoomId) { message ->
+            val obj = org.json.JSONObject(message)
+            val gameManager = obj.getJSONObject("gameManager")
+
+            val playersJson = obj.getJSONArray("players")
+            var players1 = mutableListOf<PlayerDAO>() // PlayerData ist ein Hilfsmodell, siehe unten
+            for (j in 0 until playersJson.length()) {
+                val playerObj = playersJson.getJSONObject(j)
+                players1.add(
+                    PlayerDAO(
+                        id = playerObj.getString("id"),
+                        name = (if (!playerObj.isNull("name")) playerObj.getString("name") else null).toString(),
+                        color = playerObj.getInt("color"),
+                        remainingSettlements = playerObj.getInt("remainingSettlements"),
+                        score = playerObj.getInt("score")
+                    )
+                )
+            }
+
+
+            val gameBoardJSON = gameManager.getJSONObject("gameBoard")
+            val boardFields = gameBoardJSON.getJSONArray("fields")
+
+            gameBoard.updateGameBoardFromJson(boardFields,players)
+
+            hexagons.first().field.ownerSinceRound++
+        }
+    }
+}
+
+private fun GameViewModel.getLocalPlayer() {
+    TODO("Not yet implemented")
 }
 
 class GameActivity : ComponentActivity() {
 
-    private var terrainCardType = mutableStateOf<String?>(null)
+    private val viewModel: GameViewModel by viewModels()
+    private var activePlayer: PlayerDAO? = null
+    private var players: List<PlayerDAO> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        viewModel.buildGameBoard()
+
         val roomId = intent.getStringExtra("ROOM_ID")
 
         val onDrawCard: (String) -> Unit = { roomId ->
-            Log.d("GameActivity", "Attempting to draw card in room: $roomId")
             MyStomp.drawCard(roomId)
         }
-
         val onPlaceHouses: (String) -> Unit = { roomId ->
-            Log.d("GameActivity", "Attempting to place houses in room: $roomId")
             MyStomp.placeHouses(roomId)
         }
-
         val onEndTurn: (String) -> Unit = { roomId ->
-            Log.d("GameActivity", "Attempting to end turn in room: $roomId")
             MyStomp.endTurn(roomId)
         }
 
         roomId?.let { validRoomId ->
             MyStomp.subscribeToGameUpdatesTerrainCard(validRoomId) { message ->
-                Log.d("GameActivity", "Terrain Card: $message")
-
-                val terrainType = when (message.toIntOrNull()) {
-                    0 -> TerrainType.GRASS
-                    1 -> TerrainType.CANYON
-                    2 -> TerrainType.DESERT
-                    3 -> TerrainType.FLOWERS
-                    4 -> TerrainType.FOREST
-                    else -> null
+                runOnUiThread { // wichtig!
+                    viewModel.updateTerrainCardType(message)
                 }
-
-                terrainCardType.value = terrainType?.toString()
-
             }
-        } ?: Log.e("GameActivity", "Room ID is null. Cannot subscribe to game updates.")
+        }
 
+        roomId?.let { validRoomId ->
+            MyStomp.subscribeToGameUpdates(validRoomId) { message ->
+                val obj = org.json.JSONObject(message)
+                val gameManager = obj.getJSONObject("gameManager")
+
+
+                val playersJson = obj.getJSONArray("players")
+                var players1 = mutableListOf<PlayerDAO>() // PlayerData ist ein Hilfsmodell, siehe unten
+                for (j in 0 until playersJson.length()) {
+                    val playerObj = playersJson.getJSONObject(j)
+                    players1.add(
+                        PlayerDAO(
+                            id = playerObj.getString("id"),
+                            name = (if (!playerObj.isNull("name")) playerObj.getString("name") else null).toString(),
+                            color = playerObj.getInt("color"),
+                            remainingSettlements = playerObj.getInt("remainingSettlements"),
+                            score = playerObj.getInt("score")
+                        )
+                    )
+                }
+                players = players1
+
+                activePlayer =
+                    players.firstOrNull { it.id == gameManager.getJSONObject("activePlayer").getString("id") }
+
+
+                //val gameBoardJSON = gameManager.getJSONObject("gameBoard")
+                //val boardFields = gameBoardJSON.getJSONArray("fields")
+                //runOnUiThread { // wichtig!
+                    //viewModel.updateGameBoardFromJson(boardFields,players)
+                //}
+            }
+        }
 
         setContent {
             HexagonBoardScreen(
@@ -465,11 +533,14 @@ class GameActivity : ComponentActivity() {
                 onDrawCard = onDrawCard,
                 onPlaceHouses = onPlaceHouses,
                 onEndTurn = onEndTurn,
-                terrainCardType = terrainCardType
+                terrainCardType = viewModel.terrainCardType,
+                gameBoard = viewModel.gameBoard,
+                players = players
             )
         }
     }
 }
+
 
 /*
 @Preview(showBackground = true)

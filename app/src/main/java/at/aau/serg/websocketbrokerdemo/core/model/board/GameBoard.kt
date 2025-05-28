@@ -9,6 +9,8 @@ import kotlin.math.abs
 
 import androidx.collection.emptyObjectList
 import at.aau.serg.websocketbrokerdemo.core.model.player.Kingdom
+import at.aau.serg.websocketbrokerdemo.core.model.player.Player
+import at.aau.serg.websocketbrokerdemo.core.model.player.PlayerDAO
 
 /**
  * Das Hauptspielbrett mit allen Terrainfeldern.
@@ -20,6 +22,16 @@ class GameBoard() {
      * 1D-Array der Felder [id]
      */
     private lateinit var fields: Array<TerrainField>
+
+    fun setField(id: Int, type: TerrainType, builtBy: Player? = null, ownerSinceRound: Int = -1) {
+        if (id < 0 || id >= size) {
+            throw IndexOutOfBoundsException("Field ID must be between 0 and $size")
+        }
+        //fields[id] = TerrainField(type, id, builtBy, ownerSinceRound)
+        fields[id].type = type
+        fields[id].builtBy = builtBy
+        fields[id].ownerSinceRound = ownerSinceRound
+    }
 
     /**
      * Builds the Gameboard. Implement with numbers later to decide what quadrants to pick
@@ -36,7 +48,7 @@ class GameBoard() {
         val concatBottom = concatQuadrantFields(quadrant3, quadrant4)
 
         val concat = concatTop + concatBottom
-        fields = Array(400) {id -> TerrainField(concat[id]!!, id) }
+        fields = Array(400) {id -> TerrainField(concat[id]!!, id, null, -1) }
     }
 
     /**
@@ -103,6 +115,27 @@ class GameBoard() {
     fun areFieldAdjacentToKingdom(field: TerrainField, kingdom: Kingdom): Boolean {
         return kingdom.getAdjacentFields(this).any { adjacent ->
             areFieldsAdjacent(field,adjacent)
+        }
+    }
+
+    fun updateGameBoardFromJson(boardFields: org.json.JSONArray, players: List<PlayerDAO>) {
+        for (j in 0 until boardFields.length()) {
+            val field = boardFields.getJSONObject(j)
+
+            var playerdao = players.firstOrNull() { it.id == field.getString("owner") }
+            var player: Player? = null
+            if (playerdao == null) {
+                player = null
+            } else {
+                player = Player(playerdao, this)
+                System.out.println("Updating field with player: "+field);
+            }
+            setField(
+                id = field.getInt("id"),
+                type = TerrainType.valueOf(field.getString("type")),
+                builtBy = player,
+                ownerSinceRound = field.getInt("ownerSinceRound")
+            )
         }
     }
 }

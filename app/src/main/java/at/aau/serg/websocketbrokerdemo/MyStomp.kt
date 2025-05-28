@@ -151,11 +151,40 @@ object MyStomp {
         }
     }
 
-    fun placeHouses(gameId: String) {
+    fun placeHouses(gameId: String,) {
         val payload = """
         {
             "gameId": "$gameId",
-            "playerId": "$playerId"
+            "playerId": "$playerId",
+            "type": "PLACE_HOUSE",
+            "position": {
+                "x": 0,
+                "y": 0
+            }
+        }
+    """.trimIndent()
+
+        Log.d("MyStomp", "Sende PlaceHouses Nachricht: $payload")
+
+        scope.launch {
+            try {
+                session.sendText("/app/game/placeHouses", payload)
+                Log.d("MyStomp", "PlaceHouses Nachricht gesendet an /app/game/placeHouses")
+            } catch (e: Exception) {
+                Log.e("MyStomp", "Fehler beim Senden von PlaceHouses: ${e.message}")
+            }
+        }
+    }
+    fun placeHouses(gameId: String,row: Int, column: Int) {
+        val payload = """
+        {
+            "gameId": "$gameId",
+            "playerId": "$playerId",
+            "type": "PLACE_HOUSE",
+            "position": {
+                "x": "$column",
+                "y": "$row"
+            }
         }
     """.trimIndent()
 
@@ -193,6 +222,16 @@ object MyStomp {
 
     fun subscribeToGameUpdatesTerrainCard(roomId: String, callback: (String) -> Unit) {
         subscribeToTopic("/topic/game/card/$roomId", callback)
+    }
+
+    fun subscribeToGameUpdates(roomId: String, callback: (String) -> Unit) {
+        subscribeToTopic("/topic/game/update/$roomId", callback)
+    }
+
+    fun getGameUpdate(roomId: String) {
+        scope.launch {
+            session.sendText("/app/game/get", "{\"roomId\":\"$roomId\"}")
+        }
     }
 
     fun subscribeToStartMsg(roomId:String,callback: (PlayerListDAO) -> Unit){
