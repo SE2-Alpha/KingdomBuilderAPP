@@ -119,6 +119,48 @@ fun HexagonBoardScreen(
     var drawCardIsClicked by remember { mutableStateOf(false) }
 
 
+    roomId?.let { validRoomId ->
+        MyStomp.subscribeToGameUpdates(validRoomId) { message ->
+            val obj = org.json.JSONObject(message)
+            val gameManager = obj.getJSONObject("gameManager")
+
+            val playersJson = obj.getJSONArray("players")
+            var players = mutableListOf<PlayerDAO>() // PlayerData ist ein Hilfsmodell, siehe unten
+            for (j in 0 until playersJson.length()) {
+                val playerObj = playersJson.getJSONObject(j)
+                players.add(
+                    PlayerDAO(
+                        id = playerObj.getString("id"),
+                        name = (if (!playerObj.isNull("name")) playerObj.getString("name") else null).toString(),
+                        color = playerObj.getInt("color"),
+                        remainingSettlements = playerObj.getInt("remainingSettlements"),
+                        score = playerObj.getInt("score")
+                    )
+                )
+            }
+
+
+            val gameBoardJSON = gameManager.getJSONObject("gameBoard")
+            val boardFields = gameBoardJSON.getJSONArray("fields")
+
+            gameBoard.updateGameBoardFromJson(boardFields,players)
+            var player = players.firstOrNull { it.id == MyStomp.playerId }
+            if(player != null)
+            {
+                Player.localPlayer = Player(player,gameBoard)
+            } else {
+                Log.e("GameActivity", "Player not found for ID: ${MyStomp.playerId}")
+                Toast.makeText(context, "Player not found", Toast.LENGTH_SHORT).show()
+            }
+
+
+        }
+    }
+
+    if(Player == null) {
+        return;
+    }
+
 
     // Parameter für Übersichtsmodus (20x20 Felder)
     val overviewRows = 20
@@ -425,35 +467,6 @@ fun HexagonBoardScreen(
                     }
                 }
             }
-        }
-    }
-    roomId?.let { validRoomId ->
-        MyStomp.subscribeToGameUpdates(validRoomId) { message ->
-            val obj = org.json.JSONObject(message)
-            val gameManager = obj.getJSONObject("gameManager")
-
-            val playersJson = obj.getJSONArray("players")
-            var players1 = mutableListOf<PlayerDAO>() // PlayerData ist ein Hilfsmodell, siehe unten
-            for (j in 0 until playersJson.length()) {
-                val playerObj = playersJson.getJSONObject(j)
-                players1.add(
-                    PlayerDAO(
-                        id = playerObj.getString("id"),
-                        name = (if (!playerObj.isNull("name")) playerObj.getString("name") else null).toString(),
-                        color = playerObj.getInt("color"),
-                        remainingSettlements = playerObj.getInt("remainingSettlements"),
-                        score = playerObj.getInt("score")
-                    )
-                )
-            }
-
-
-            val gameBoardJSON = gameManager.getJSONObject("gameBoard")
-            val boardFields = gameBoardJSON.getJSONArray("fields")
-
-            gameBoard.updateGameBoardFromJson(boardFields,players)
-
-            hexagons.first().field.ownerSinceRound++
         }
     }
 }
