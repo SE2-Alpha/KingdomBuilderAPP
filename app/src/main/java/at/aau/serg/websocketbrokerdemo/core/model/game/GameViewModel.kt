@@ -13,28 +13,16 @@ import kotlin.collections.mutableListOf
 class GameViewModel : ViewModel() {
 
     // Board als Compose-State
-    var gameBoard by mutableStateOf(GameBoard())
-        private set
+    var gameBoard = GameBoard()
 
     fun buildGameBoard() {
         gameBoard = GameBoard().apply { buildGameboard() }
     }
 
     // Callback zum Updaten des Boards aus JSON
-    fun updateGameBoardFromJson(boardFields: org.json.JSONArray, players: List<PlayerDAO>) {
-        val newBoard = GameBoard()
-        newBoard.buildGameboard()
-        for (j in 0 until boardFields.length()) {
-            val field = boardFields.getJSONObject(j)
-            System.out.println("Updating field: "+field);
-            newBoard.setField(
-                id = field.getInt("id"),
-                type = TerrainType.valueOf(field.getString("type")),
-                builtBy = players.firstOrNull { it.id == field.getString("owner") } as Player?,
-                ownerSinceRound = field.getInt("ownerSinceRound")
-            )
-        }
-        gameBoard = newBoard
+    fun updateGameBoardFromJson(fields: org.json.JSONArray, players: List<PlayerDAO>) {
+        // Board komplett neu bauen und setzen (Compose merkt das!)
+        gameBoard = GameBoard().apply { updateGameBoardFromJson(fields, players) }
     }
 
     var terrainCardType by mutableStateOf<String?>(null)

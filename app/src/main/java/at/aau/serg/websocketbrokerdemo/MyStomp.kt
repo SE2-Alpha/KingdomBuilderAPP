@@ -230,7 +230,7 @@ object MyStomp {
 
     fun getGameUpdate(roomId: String) {
         scope.launch {
-            session.sendText("/app/game/get", "{\"roomId\":\"$roomId\"}")
+            session.sendText("/app/game/get", roomId)
         }
     }
 

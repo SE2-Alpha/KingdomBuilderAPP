@@ -23,6 +23,17 @@ class GameBoard() {
      */
     private lateinit var fields: Array<TerrainField>
 
+    init {
+        buildGameboard()  // Board immer bauen, wenn das Objekt erzeugt wird!
+    }
+
+    fun getFieldsById(id: Int): TerrainField {
+        if (id < 0 || id >= size) {
+            throw IndexOutOfBoundsException("Field ID must be between 0 and $size")
+        }
+        return fields[id]
+    }
+
     fun setField(id: Int, type: TerrainType, builtBy: Player? = null, ownerSinceRound: Int = -1) {
         if (id < 0 || id >= size) {
             throw IndexOutOfBoundsException("Field ID must be between 0 and $size")
@@ -100,7 +111,8 @@ class GameBoard() {
 
     }
     fun getFieldByRowAndCol(row: Int, col: Int): TerrainField {
-        return fields[row*20 + col]
+        if (fields.isEmpty()) throw IllegalStateException("GameBoard is not initialized!")
+        return fields[row * 20 + col]
     }
     fun getAdjacentFields(field: TerrainField): List<TerrainField> {
         val adjacent = mutableListOf<TerrainField>()
@@ -119,6 +131,9 @@ class GameBoard() {
     }
 
     fun updateGameBoardFromJson(boardFields: org.json.JSONArray, players: List<PlayerDAO>) {
+        if(fields.size == 0) {
+            return
+        }
         for (j in 0 until boardFields.length()) {
             val field = boardFields.getJSONObject(j)
 
