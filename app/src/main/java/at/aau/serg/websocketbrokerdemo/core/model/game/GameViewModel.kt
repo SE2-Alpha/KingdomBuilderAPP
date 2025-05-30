@@ -10,37 +10,33 @@ import at.aau.serg.websocketbrokerdemo.core.model.player.Player
 import at.aau.serg.websocketbrokerdemo.core.model.player.PlayerDAO
 import kotlin.collections.mutableListOf
 
+// Im ViewModel
 class GameViewModel : ViewModel() {
-
-    // Board als Compose-State
-    var gameBoard = GameBoard()
-
-    fun buildGameBoard() {
-        gameBoard = GameBoard().apply { buildGameboard() }
-    }
-
-    // Callback zum Updaten des Boards aus JSON
-    fun updateGameBoardFromJson(fields: org.json.JSONArray, players: List<PlayerDAO>) {
-        // Board komplett neu bauen und setzen (Compose merkt das!)
-        gameBoard = GameBoard().apply { updateGameBoardFromJson(fields, players) }
-    }
+    var gameBoard by mutableStateOf(GameBoard())
+        private set
 
     var terrainCardType by mutableStateOf<String?>(null)
         private set
 
-    fun updateTerrainCardType(message: String) {
-        val terrainType = when (message.toIntOrNull()) {
-            0 -> TerrainType.GRASS
-            1 -> TerrainType.CANYON
-            2 -> TerrainType.DESERT
-            3 -> TerrainType.FLOWERS
-            4 -> TerrainType.FOREST
-            else -> null
-        }
-        terrainCardType = terrainType?.toString()
+    // NEU: updateGameBoardFromJson ersetzt das Board durch ein neues Objekt (falls notwendig)
+    fun updateGameBoardFromJson(boardFields: org.json.JSONArray, players: List<PlayerDAO>) {
+        val newGameBoard = GameBoard()
+        newGameBoard.updateGameBoardFromJson(boardFields, players)
+        gameBoard = newGameBoard // Triggert Compose-Redraw!
     }
 
-    fun resetTerrainCardType() {
-        terrainCardType = null
+    fun buildGameBoard() {
+        gameBoard.buildGameboard()
+    }
+
+    fun updateTerrainCardType(message: String) {
+        terrainCardType = message
+    }
+    var players by mutableStateOf<List<PlayerDAO>>(emptyList())
+        private set
+
+    fun updatePlayers(newPlayers: List<PlayerDAO>) {
+        players = newPlayers
     }
 }
+

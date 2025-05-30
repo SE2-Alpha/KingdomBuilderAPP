@@ -562,6 +562,7 @@ class GameActivity : ComponentActivity() {
 
                     // WICHTIG: immer im UI-Thread!
                     runOnUiThread {
+                        viewModel.updatePlayers(players)
                         viewModel.updateGameBoardFromJson(boardFields, players)
                     }
                 }
@@ -577,7 +578,7 @@ class GameActivity : ComponentActivity() {
                 onEndTurn = onEndTurn,
                 terrainCardType = viewModel.terrainCardType,
                 gameBoard = viewModel.gameBoard,
-                players = players
+                players = viewModel.players
             )
         }
     }
