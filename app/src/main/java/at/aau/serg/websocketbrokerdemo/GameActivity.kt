@@ -365,22 +365,8 @@ fun HexagonBoardScreen(
         Box(modifier = Modifier.align(Alignment.BottomEnd)){
             Column {
                 Text("Mein Name: "+MyStomp.userName)
-                Text("Aktivaler Spieler: ${activePlayer?.name ?: "Keiner"}")
-
-                Button(
-                    onClick = { MyStomp.setPlayerActive(true) },
-                    modifier = Modifier.padding(4.dp)
-                ) {
-                    Text("Activate Player")
-                }
-                Button(
-                    onClick = { MyStomp.setPlayerActive(false) },
-                    modifier = Modifier.padding(4.dp)
-                ) {
-                    Text("Deactivate Player")
-                }
+                Text("Aktiver Spieler: ${activePlayer?.name ?: "Keiner"}")
             }
-
         }
 
         if(playerIsActive) {
@@ -490,6 +476,7 @@ class GameActivity : ComponentActivity() {
                             )
                         )
                     }
+                    MyStomp.setPlayerActive(activePlayer?.id == MyStomp.playerId)
 
                     // WICHTIG: immer im UI-Thread!
                     runOnUiThread {
