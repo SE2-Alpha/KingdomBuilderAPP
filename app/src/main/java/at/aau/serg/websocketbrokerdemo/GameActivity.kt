@@ -331,10 +331,7 @@ fun HexagonBoardScreen(
                             "Quadrant 4" -> 10 to 10
                             else -> 0 to 0
                         }
-                        val localRow = hex.row - rowOffset
-                        val localCol = hex.col - colOffset
-                        val key = Triple(hex.quadrant, localRow, localCol)
-                        val fillColor = hex.field.getColor(context) // Hexagon-Farbe
+                        val fillColor = gameBoard.getFieldByRowAndCol(hex.row,hex.col).getColor(context) // Hexagon-Farbe
                         // Zuerst Füllung, dann Kontur zeichnen
                         drawPath(path = hexPath, color = fillColor)
                         drawPath(path = hexPath, color = Color.Black, style = Stroke(width = 2f))
@@ -567,6 +564,11 @@ class GameActivity : ComponentActivity() {
                     }
                 }
 
+            }
+        }
+        MyStomp.connect(context = this) {
+            roomId?.let { validRoomId ->
+                MyStomp.getGameUpdate(roomId)
             }
         }
 

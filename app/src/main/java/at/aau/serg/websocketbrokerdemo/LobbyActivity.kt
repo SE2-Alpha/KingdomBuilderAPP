@@ -83,7 +83,10 @@ class LobbyActivity : ComponentActivity()  {
         // Beispiel: Fülle Test-Spieler
         MyStomp.subscribeToStartMsg(joinedRoomId?: "0") { msg ->
             msg.players.forEach { player ->
-                if (player.id == Player.localPlayer.id) Player.localPlayer.color = player.color
+                if (player.id == MyStomp.playerId)
+                {
+                    Player.localPlayer = Player(player.id, player.name, player.color, GameBoard())
+                }
             }
         }
     }
