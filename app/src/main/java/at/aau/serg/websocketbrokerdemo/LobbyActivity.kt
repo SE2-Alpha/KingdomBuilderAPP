@@ -374,12 +374,17 @@ class LobbyActivity : ComponentActivity()  {
                     )
                     if(MyStomp.playerId == playerObj.getString("id") && isActivityReallyActive())
                     {
-                        joinedRoomId = obj.getString("id")
-                        if(RoomStatus.valueOf(obj.getString("status")) == RoomStatus.STARTED) {
-                            Log.e("LobbyActivity", "Raum ist bereits gestartet, starte GameActivity")
-                            startGameActivity()
-                        } else {
-                            onRoomClick(joinedRoomId.toString())
+                        if(joinedRoomId == null) {
+                            joinedRoomId = obj.getString("id")
+                            if (RoomStatus.valueOf(obj.getString("status")) == RoomStatus.STARTED) {
+                                Log.e(
+                                    "LobbyActivity",
+                                    "Raum ist bereits gestartet, starte GameActivity"
+                                )
+                                startGameActivity()
+                            } else {
+                                onRoomClick(joinedRoomId.toString())
+                            }
                         }
 
                     }
