@@ -9,7 +9,7 @@ import com.example.myapplication.R
  * Einzelnes Feld auf dem Spielbrett.
  */
 
-data class TerrainField(var type: TerrainType, val id: Int, var builtBy: Player?, var ownerSinceRound: Int) { //needs quadrant number and ids of neighbours
+data class TerrainField(var type: TerrainType, val id: Int, var builtBy: Player? = null, var ownerSinceRound: Int = -1) { //needs quadrant number and ids of neighbours
     /**
      * Referenz auf den Spieler, der hier gebaut hat (null wenn frei)
      */
