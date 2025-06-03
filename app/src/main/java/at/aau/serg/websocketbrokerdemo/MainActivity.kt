@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
                 verticalArrangement = Arrangement.Center
             ) {
                 Button(onClick = {
-                    MyStomp.connect {
+                    MyStomp.connect(context = context) {
                         // Diese Methode wird erst aufgerufen, wenn `session` gültig ist
                         MyStomp.subscribeToTopic("/topic/hello-response") { msg ->
                             responseText = msg
