@@ -203,4 +203,6 @@ object MyStomp {
             session.sendText("/app/game/reportCheat", payload)
         }
     }
+
+    data class CheatwindowUpdate(val isWindowActive: Boolean, val reportedPlayerId: String)
 }
