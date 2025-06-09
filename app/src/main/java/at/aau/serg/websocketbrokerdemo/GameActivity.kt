@@ -419,6 +419,14 @@ fun HexagonBoardScreen(
 class GameActivity : ComponentActivity() {
 
     private var terrainCardType = mutableStateOf<String?>(null)
+    // Zustand für den Cheat-Modus
+    private var isCheatModeActive = mutableStateOf(false)
+    // Zustand, um zu wissen, ob tatsächlich geschummelt wurde
+    private var hasPlacedCheatedHouse = mutableStateOf(false)
+    // Zustand für das 3-Sekunden-Meldefenster
+    private var isReportWindowActive = mutableStateOf(false)
+    // ID des Spielers, der zuletzt am Zug war und gemeldet werden kann
+    private var lastActivePlayerId = mutableStateOf<String?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -457,7 +465,6 @@ class GameActivity : ComponentActivity() {
 
             }
         } ?: Log.e("GameActivity", "Room ID is null. Cannot subscribe to game updates.")
-
 
         setContent {
             HexagonBoardScreen(
