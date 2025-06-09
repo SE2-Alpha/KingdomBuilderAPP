@@ -205,4 +205,16 @@ object MyStomp {
     }
 
     data class CheatwindowUpdate(val isWindowActive: Boolean, val reportedPlayerId: String)
+
+    fun subscribeToCheatReportWindow(roomId: String, callback: (CheatwindowUpdate) -> Unit) {
+        subscribeToTopic("/topic/game/cheatwindow/$roomId") { message ->
+
+            try {
+                val update = Gson().fromJson(message, CheatwindowUpdate::class.java)
+                callback(update)
+            } catch (e: Exception) {
+                Log.e("MyStomp", "Fehler beim Parsen des Cheatwindow-Updates: ${e.message}")
+            }
+        }
+    }
 }
