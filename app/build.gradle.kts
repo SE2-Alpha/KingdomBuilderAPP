@@ -135,6 +135,7 @@ dependencies {
     implementation(libs.androidx.annotation)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.gson)
+    implementation(libs.androidx.games.activity)
     testImplementation(libs.junit)
     testImplementation(libs.junit.jupiter.api)
     testImplementation(libs.junit.jupiter.params)

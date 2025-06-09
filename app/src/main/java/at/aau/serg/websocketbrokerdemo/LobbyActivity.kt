@@ -52,8 +52,10 @@ import at.aau.serg.websocketbrokerdemo.core.model.lobby.Room
 import at.aau.serg.websocketbrokerdemo.core.model.lobby.RoomStatus
 import at.aau.serg.websocketbrokerdemo.core.model.player.Player
 import com.example.myapplication.R
+import com.google.androidgamesdk.GameActivity
 import kotlinx.coroutines.delay
 import org.json.JSONArray
+
 
 class LobbyActivity : ComponentActivity()  {
     override fun onCreate(savedInstanceState: Bundle?) {

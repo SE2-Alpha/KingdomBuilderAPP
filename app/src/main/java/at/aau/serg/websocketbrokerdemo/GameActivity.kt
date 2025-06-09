@@ -1,5 +1,6 @@
 package at.aau.serg.websocketbrokerdemo
 
+import android.R
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
@@ -16,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,6 +38,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.core.graphics.toColor
 import androidx.core.graphics.toColorLong
 import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
@@ -394,7 +399,21 @@ fun HexagonBoardScreen(
                     Text("Deactivate Player")
                 }
             }
+        }
 
+        // Rechter unterer Bereich: Melde-Button
+        Box(modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)){
+            Column(horizontalAlignment = Alignment.End) {
+                // Der Melde-Button. Nur aktiv, wenn das Meldefenster offen ist.
+                Button(
+                    onClick = onReportPlayer,
+                    enabled = isReportWindowActive,
+                    colors = ButtonDefaults.buttonColors(
+                        disabledContainerColor = Color.DarkGray
+                    )
+                ) {
+                    Text("Melde Spieler!")
+            }
         }
 
         if(playerIsActive) {
@@ -415,6 +434,18 @@ fun HexagonBoardScreen(
                         modifier = Modifier.padding(4.dp)) {
                         Text("Draw Card")
                     }
+                    Button(
+                        onClick = onToggleCheatMode,
+                        modifier = Modifier.padding(4.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            // Farbe ändert sich, wenn der Modus aktiv ist
+                            containerColor = if (isCheatModeActive) Color.Red else MaterialTheme.colorScheme.primary
+                    )
+                    ) {
+                        Text(if (isCheatModeActive) "Cheat Mode: ON" else "Cheat Mode: OFF")
+                    }
+
+
                     Button(
                         onClick = { onPlaceHouses(roomId) },
                         enabled = drawCardIsClicked,
@@ -441,13 +472,17 @@ fun HexagonBoardScreen(
 
 class GameActivity : ComponentActivity() {
 
-    private var terrainCardType = mutableStateOf<String?>(null)
+    private var terrainCardType by mutableStateOf<String?>(null)
+
     // Zustand für den Cheat-Modus
-    private var isCheatModeActive = mutableStateOf(false)
+    private var isCheatModeActive by mutableStateOf(false)
+
     // Zustand, um zu wissen, ob tatsächlich geschummelt wurde
     private var hasPlacedCheatedHouse = mutableStateOf(false)
+
     // Zustand für das 3-Sekunden-Meldefenster
-    private var isReportWindowActive = mutableStateOf(false)
+    private var isReportWindowActive by mutableStateOf(false)
+
     // ID des Spielers, der zuletzt am Zug war und gemeldet werden kann
     private var lastActivePlayerId = mutableStateOf<String?>(null)
 
@@ -467,10 +502,13 @@ class GameActivity : ComponentActivity() {
         }
 
         val onEndTurn: (String) -> Unit = { roomId ->
-            Log.d("GameActivity", "Attempting to end turn in room: ${roomId.orEmpty()}, has cheated: ${hasPlacedCheatedHouse.value}")
+            Log.d(
+                "GameActivity",
+                "Attempting to end turn in room: ${roomId.orEmpty()}, has cheated: ${hasPlacedCheatedHouse.value}"
+            )
             MyStomp.endTurn(roomId.orEmpty(), hasPlacedCheatedHouse.value)
 
-            isCheatModeActive.value = false
+            this@GameActivity.isCheatModeActive = false
             hasPlacedCheatedHouse.value = false
             terrainCardType.value = null
         }
@@ -495,7 +533,7 @@ class GameActivity : ComponentActivity() {
 
         roomId?.let { validRoomId ->
             MyStomp.subscribeToCheatReportWindow(validRoomId) { cheatWindowUpdate ->
-                isReportWindowActive.value = cheatWindowUpdate.isWindowActive
+                this@GameActivity.isReportWindowActive = cheatWindowUpdate.isWindowActive
                 lastActivePlayerId.value = cheatWindowUpdate.reportedPlayerId
 
                 // Timer im Client starten, um den Button nach 3s wieder zu deaktivieren
@@ -503,7 +541,7 @@ class GameActivity : ComponentActivity() {
                     // Coroutine nutzen, um nach 3 Sekunden den Zustand zurückzusetzen
                     CoroutineScope(Dispatchers.Main).launch {
                         delay(3000)
-                        isReportWindowActive.value = false
+                        this@GameActivity.isReportWindowActive = false
                     }
                 }
             }
@@ -516,19 +554,26 @@ class GameActivity : ComponentActivity() {
                 onPlaceHouses = onPlaceHouses,
                 onEndTurn = onEndTurn,
                 terrainCardType = terrainCardType,
-                isCheatModeActive = isCheatModeActive.value,
-                onToggleCheatMode = { isCheatModeActive.value = !isCheatModeActive.value },
-                isReportWindowActive = isReportWindowActive.value,
+
+                isCheatModeActive = isCheatModeActive,
+                onToggleCheatMode = { this@GameActivity.isCheatModeActive = !isCheatModeActive },
+                isReportWindowActive = isReportWindowActive,
                 onHousePlaced = { isCheated -> if (isCheated) hasPlacedCheatedHouse.value = true },
-                onReportPlayer = { if (lastActivePlayerId.value != null){
-                    MyStomp.reportCheat(roomId.orEmpty(), MyStomp.playerId, lastActivePlayerId.value!!)
-                    Toast.makeText(this, "Spieler gemeldet!", Toast.LENGTH_SHORT).show()
-                    isReportWindowActive.value = false // Button sofort deaktivieren
-                }
+                onReportPlayer = {
+                    if (lastActivePlayerId.value != null) {
+                        MyStomp.reportCheat(
+                            roomId.orEmpty(),
+                            MyStomp.playerId,
+                            lastActivePlayerId.value!!
+                        )
+                        Toast.makeText(this, "Spieler gemeldet!", Toast.LENGTH_SHORT).show()
+                        this@GameActivity.isReportWindowActive = false // Button sofort deaktivieren
+                    }
                 }
             )
         }
     }
+}
 }
 
 /*
