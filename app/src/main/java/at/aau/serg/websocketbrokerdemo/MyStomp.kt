@@ -191,4 +191,16 @@ object MyStomp {
         }
     }
 
+    fun reportCheat(gameId: String, reporterId: String, reportedId: String) {
+        val payload = """
+        {
+            "gameId": "$gameId",
+            "reporterId": "$reporterId",
+            "reportedId": "$reportedId"
+        }
+    """.trimIndent()
+        scope.launch {
+            session.sendText("/app/game/reportCheat", payload)
+        }
+    }
 }
