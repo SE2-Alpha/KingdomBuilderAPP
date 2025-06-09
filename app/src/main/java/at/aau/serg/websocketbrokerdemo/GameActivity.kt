@@ -41,6 +41,10 @@ import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
 import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainField
 import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainType
 import at.aau.serg.websocketbrokerdemo.core.model.player.Player
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -465,6 +469,22 @@ class GameActivity : ComponentActivity() {
 
             }
         } ?: Log.e("GameActivity", "Room ID is null. Cannot subscribe to game updates.")
+
+        roomId?.let { validRoomId ->
+            MyStomp.subscribeToCheatReportWindow(validRoomId) { cheatWindowUpdate ->
+                isReportWindowActive.value = cheatWindowUpdate.isWindowActive
+                lastActivePlayerId.value = cheatWindowUpdate.reportedPlayerId
+
+                // Timer im Client starten, um den Button nach 3s wieder zu deaktivieren
+                if (cheatWindowUpdate.isWindowActive) {
+                    // Coroutine nutzen, um nach 3 Sekunden den Zustand zurückzusetzen
+                    CoroutineScope(Dispatchers.Main).launch {
+                        delay(3000)
+                        isReportWindowActive.value = false
+                    }
+                }
+            }
+        }
 
         setContent {
             HexagonBoardScreen(
