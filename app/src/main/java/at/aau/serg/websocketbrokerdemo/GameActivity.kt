@@ -97,7 +97,12 @@ fun HexagonBoardScreen(
     onDrawCard: (String) -> Unit,
     onPlaceHouses: (String) -> Unit,
     onEndTurn: (String) -> Unit,
-    terrainCardType: MutableState<String?>
+    terrainCardType: MutableState<String?>,
+    isCheatModeActive: Boolean,
+    onToggleCheatMode: () -> Unit,
+    onHousePlaced: (isCheated: Boolean) -> Unit,
+    isReportWindowActive: Boolean,
+    onReportPlayer: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -448,8 +453,12 @@ class GameActivity : ComponentActivity() {
         }
 
         val onEndTurn: (String) -> Unit = { roomId ->
-            Log.d("GameActivity", "Attempting to end turn in room: $roomId")
-            MyStomp.endTurn(roomId)
+            Log.d("GameActivity", "Attempting to end turn in room: ${roomId.orEmpty()}, has cheated: ${hasPlacedCheatedHouse.value}")
+            MyStomp.endTurn(roomId.orEmpty(), hasPlacedCheatedHouse.value)
+
+            isCheatModeActive.value = false
+            hasPlacedCheatedHouse.value = false
+            terrainCardType.value = null
         }
 
         roomId?.let { validRoomId ->
@@ -492,7 +501,17 @@ class GameActivity : ComponentActivity() {
                 onDrawCard = onDrawCard,
                 onPlaceHouses = onPlaceHouses,
                 onEndTurn = onEndTurn,
-                terrainCardType = terrainCardType
+                terrainCardType = terrainCardType,
+                isCheatModeActive = isCheatModeActive.value,
+                onToggleCheatMode = { isCheatModeActive.value = !isCheatModeActive.value },
+                isReportWindowActive = isReportWindowActive.value,
+                onHousePlaced = { isCheated -> if (isCheated) hasPlacedCheatedHouse.value = true },
+                onReportPlayer = { if (lastActivePlayerId.value != null){
+                    MyStomp.reportCheat(roomId.orEmpty(), MyStomp.playerId, lastActivePlayerId.value!!)
+                    Toast.makeText(this, "Spieler gemeldet!", Toast.LENGTH_SHORT).show()
+                    isReportWindowActive.value = false // Button sofort deaktivieren
+                }
+                }
             )
         }
     }
