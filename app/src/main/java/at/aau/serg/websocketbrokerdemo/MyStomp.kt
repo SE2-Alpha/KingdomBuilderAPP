@@ -1,5 +1,6 @@
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
+import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -9,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContentProviderCompat.requireContext
+import at.aau.serg.websocketbrokerdemo.GameEndingActivity
 import at.aau.serg.websocketbrokerdemo.core.model.lobby.PlayerListDAO
 import at.aau.serg.websocketbrokerdemo.core.model.player.PlayerScoreDTO
 import com.google.gson.Gson
@@ -242,7 +244,7 @@ object MyStomp {
         }
     }
 
-    fun subscribeToScoreUpdates(callback: (List<PlayerScoreDTO>) -> Unit) {
+    fun subscribeToScoreUpdates(context: Context, onScoresReceived: (List<PlayerScoreDTO>) -> Unit) {
         subscribeToTopic("/topic/game/scores") { json ->
             try {
                 val gson = Gson()
@@ -250,11 +252,18 @@ object MyStomp {
                 val scores: List<PlayerScoreDTO> = gson.fromJson(json, listType)
 
                 Handler(Looper.getMainLooper()).post {
-                    callback(scores)
+                    onScoresReceived(scores)
+
+                    // Wechsel zu GameEndingActivity
+                    val intent = Intent(context, GameEndingActivity::class.java).apply {
+                        putExtra("scores_json", gson.toJson(scores))
+                    }
+                    context.startActivity(intent)
                 }
             } catch (e: Exception) {
                 Log.e("MyStomp", "Fehler beim Parsen der Scores: ${e.message}")
             }
         }
     }
+
 }
