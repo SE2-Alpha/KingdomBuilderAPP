@@ -95,8 +95,6 @@ fun StartMenu() {
                 .align(Alignment.BottomEnd)
         ) {
 
-            //für Settings und Regeln Composable functions oder eigene Acitvities??
-
             Column {
                 IconButton(
                     onClick = {
