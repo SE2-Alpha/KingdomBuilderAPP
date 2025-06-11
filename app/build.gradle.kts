@@ -117,7 +117,8 @@ sonar {
             **/GameViewModel.kt,
             **/Player.kt,
             **/Room.kt,
-            **/GameBoard.kt
+            **/GameBoard.kt,
+            **/GameEndingActivity.kt
             """
             )
     }
