@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContentProviderCompat.requireContext
 import at.aau.serg.websocketbrokerdemo.core.model.lobby.PlayerListDAO
+import at.aau.serg.websocketbrokerdemo.core.model.player.PlayerScoreDTO
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -241,4 +242,19 @@ object MyStomp {
         }
     }
 
+    fun subscribeToScoreUpdates(callback: (List<PlayerScoreDTO>) -> Unit) {
+        subscribeToTopic("/topic/game/scores") { json ->
+            try {
+                val gson = Gson()
+                val listType = object : com.google.gson.reflect.TypeToken<List<PlayerScoreDTO>>() {}.type
+                val scores: List<PlayerScoreDTO> = gson.fromJson(json, listType)
+
+                Handler(Looper.getMainLooper()).post {
+                    callback(scores)
+                }
+            } catch (e: Exception) {
+                Log.e("MyStomp", "Fehler beim Parsen der Scores: ${e.message}")
+            }
+        }
+    }
 }
