@@ -266,7 +266,11 @@ fun HexagonBoardScreen(
                                             ).builtBy = Player.localPlayer
 
                                             // Der Activity melden, ob dieaer Zug ein Cheat war
-                                            val wasCheated = canPlaceWithCheat && !canPlaceNormally
+                                            val wasCheated = isCheatModeActive
+                                            Log.d(
+                                                "CHEAT_DEBUG",
+                                                "HAUS PLATZIERT: isCheatModeActive ist ($isCheatModeActive), wasCheated ist ($wasCheated)"
+                                            )
                                             onHousePlaced(wasCheated)
 
                                             Log.i(
@@ -317,7 +321,7 @@ fun HexagonBoardScreen(
                         drawPath(path = hexPath, color = fillColor)
                         drawPath(path = hexPath, color = Color.Black, style = Stroke(width = 2f))
                         //Falls Feld besetzt, Gebäude Zeichnen
-                        if (markedFields[key] == true) {
+                        if (markedFields[key] == true || hex.field.builtBy != null) {
                             if (drawCardIsClicked) {
                                 drawIntoCanvas { canvas ->
                                     val iconSize = 55f
@@ -436,7 +440,9 @@ fun HexagonBoardScreen(
         }
 
         // Rechter unterer Bereich: Melde-Button
-        Box(modifier = Modifier.align(Alignment.TopStart).padding(16.dp)) {
+        Box(modifier = Modifier
+            .align(Alignment.TopStart)
+            .padding(16.dp)) {
             Column(horizontalAlignment = Alignment.End) {
                 // Der Melde-Button. Nur aktiv, wenn das Meldefenster offen ist.
                 Button(
@@ -536,6 +542,7 @@ class GameActivity : ComponentActivity() {
         val onPlaceHouses: (String) -> Unit = { roomId ->
             Log.d("GameActivity", "Attempting to place houses in room: $roomId")
             MyStomp.placeHouses(roomId)
+
         }
 
         val onEndTurn: (String) -> Unit = { roomId ->
@@ -584,6 +591,8 @@ class GameActivity : ComponentActivity() {
             }
         }
 
+        // In GameActivity.kt
+
         setContent {
             HexagonBoardScreen(
                 roomId = roomId.orEmpty(),
@@ -591,12 +600,19 @@ class GameActivity : ComponentActivity() {
                 onPlaceHouses = onPlaceHouses,
                 onEndTurn = onEndTurn,
                 terrainCardType = terrainCardType,
-
                 isCheatModeActive = isCheatModeActive,
-                onToggleCheatMode = { this@GameActivity.isCheatModeActive = !isCheatModeActive },
+
+                onToggleCheatMode = remember { { isCheatModeActive = !isCheatModeActive } },
+
                 isReportWindowActive = isReportWindowActive,
-                onHousePlaced = { isCheated -> if (isCheated) hasPlacedCheatedHouse.value = true },
-                onReportPlayer = {
+
+                onHousePlaced = remember { { isCheated ->
+                    if (isCheated) {
+                        hasPlacedCheatedHouse.value = true
+                    }
+                } },
+
+                onReportPlayer = remember { {
                     if (lastActivePlayerId.value != null) {
                         MyStomp.reportCheat(
                             roomId.orEmpty(),
@@ -604,9 +620,9 @@ class GameActivity : ComponentActivity() {
                             lastActivePlayerId.value!!
                         )
                         Toast.makeText(this, "Spieler gemeldet!", Toast.LENGTH_SHORT).show()
-                        this@GameActivity.isReportWindowActive = false // Button sofort deaktivieren
+                        isReportWindowActive = false // Button sofort deaktivieren
                     }
-                }
+                } }
             )
         }
     }
