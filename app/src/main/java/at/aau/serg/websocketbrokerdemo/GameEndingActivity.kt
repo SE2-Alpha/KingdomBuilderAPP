@@ -47,9 +47,10 @@ class GameEndingActivity : ComponentActivity() {
             scoresJson,
             object : TypeToken<List<PlayerScoreDTO>>() {}.type
         )
+        val roomid = intent.getStringExtra("roomid")
 
         setContent {
-            GameEndingScreen(scores)
+            GameEndingScreen(scores,roomid)
 
             /*Beispielhafte Testdaten
             val testScores = listOf(
@@ -66,7 +67,7 @@ class GameEndingActivity : ComponentActivity() {
 }
 
 @Composable
-fun GameEndingScreen(scores: List<PlayerScoreDTO>){
+fun GameEndingScreen(scores: List<PlayerScoreDTO>, roomId: String? = null) {
     val context = LocalContext.current
     val sortedScores = scores.sortedByDescending { it.points}
     val winnerName = sortedScores.firstOrNull()?.playerName
@@ -90,6 +91,11 @@ fun GameEndingScreen(scores: List<PlayerScoreDTO>){
             Scoreboard(sortedScores)
         }
         Button(onClick = {
+            MyStomp.connect(context = context) {
+                roomId?.let { validRoomId ->
+                    MyStomp.leaveRoom(roomId)
+                }
+            }
             val intent = Intent(context, StartMenuActivity::class.java)
             context.startActivity(intent)
         },

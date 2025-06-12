@@ -257,6 +257,7 @@ object MyStomp {
                     // Wechsel zu GameEndingActivity
                     val intent = Intent(context, GameEndingActivity::class.java).apply {
                         putExtra("scores_json", gson.toJson(scores))
+                        putExtra("roomid", roomId)
                     }
                     context.startActivity(intent)
                 }
