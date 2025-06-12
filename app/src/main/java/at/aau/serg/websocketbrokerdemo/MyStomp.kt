@@ -244,15 +244,15 @@ object MyStomp {
         }
     }
 
-    fun subscribeToScoreUpdates(roomId:String, context: Context, onScoresReceived: (List<PlayerScoreDTO>) -> Unit) {
+    fun subscribeToScoreUpdates(roomId:String, context: Context) {
         subscribeToTopic("/topic/game/scores/$roomId") { json ->
+            Log.d("MyStomp", "Received score update: $json")
             try {
                 val gson = Gson()
                 val listType = object : com.google.gson.reflect.TypeToken<List<PlayerScoreDTO>>() {}.type
                 val scores: List<PlayerScoreDTO> = gson.fromJson(json, listType)
 
                 Handler(Looper.getMainLooper()).post {
-                    onScoresReceived(scores)
 
                     // Wechsel zu GameEndingActivity
                     val intent = Intent(context, GameEndingActivity::class.java).apply {
