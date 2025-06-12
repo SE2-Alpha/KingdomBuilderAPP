@@ -215,7 +215,7 @@ fun HexagonBoardScreen(
             Canvas(
                 modifier = Modifier
                     .fillMaxSize()
-                    .pointerInput(selectedQuadrant) {
+                    .pointerInput(selectedQuadrant, isCheatModeActive) {
                         detectTapGestures { tapOffset: Offset ->
                             // Transformation des Tap-Offsets, damit die Trefferprüfung mit dem zentrierten Board funktioniert.
                             val transformedOffset =
@@ -602,17 +602,17 @@ class GameActivity : ComponentActivity() {
                 terrainCardType = terrainCardType,
                 isCheatModeActive = isCheatModeActive,
 
-                onToggleCheatMode = remember { { isCheatModeActive = !isCheatModeActive } },
+                onToggleCheatMode = { isCheatModeActive = !isCheatModeActive } ,
 
                 isReportWindowActive = isReportWindowActive,
 
-                onHousePlaced = remember { { isCheated ->
+                onHousePlaced = { isCheated ->
                     if (isCheated) {
                         hasPlacedCheatedHouse.value = true
                     }
-                } },
+                } ,
 
-                onReportPlayer = remember { {
+                onReportPlayer = {
                     if (lastActivePlayerId.value != null) {
                         MyStomp.reportCheat(
                             roomId.orEmpty(),
@@ -622,7 +622,7 @@ class GameActivity : ComponentActivity() {
                         Toast.makeText(this, "Spieler gemeldet!", Toast.LENGTH_SHORT).show()
                         isReportWindowActive = false // Button sofort deaktivieren
                     }
-                } }
+                }
             )
         }
     }
