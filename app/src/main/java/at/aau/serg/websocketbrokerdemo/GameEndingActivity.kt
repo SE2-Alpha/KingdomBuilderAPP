@@ -20,23 +20,19 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import at.aau.serg.websocketbrokerdemo.core.model.player.PlayerScoreDTO
-import at.aau.serg.websocketbrokerdemo.ui.theme.MyApplicationTheme
 import com.example.myapplication.R
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -53,9 +49,9 @@ class GameEndingActivity : ComponentActivity() {
         )
 
         setContent {
-            //GameEndingScreen(scores)
+            GameEndingScreen(scores)
 
-            // Beispielhafte Testdaten
+            /*Beispielhafte Testdaten
             val testScores = listOf(
                 PlayerScoreDTO(playerId = "Alice", points = 85),
                 PlayerScoreDTO(playerId = "Bob", points = 65),
@@ -63,6 +59,8 @@ class GameEndingActivity : ComponentActivity() {
                 PlayerScoreDTO(playerId = "Dana", points = 40)
             )
             GameEndingScreen(testScores)
+
+             */
         }
     }
 }
@@ -71,7 +69,7 @@ class GameEndingActivity : ComponentActivity() {
 fun GameEndingScreen(scores: List<PlayerScoreDTO>){
     val context = LocalContext.current
     val sortedScores = scores.sortedByDescending { it.points}
-    val winnerId = sortedScores.firstOrNull()?.playerId
+    val winnerName = sortedScores.firstOrNull()?.playerName
 
     Box(
         modifier = Modifier
@@ -79,7 +77,7 @@ fun GameEndingScreen(scores: List<PlayerScoreDTO>){
     ){
         BackgroundWithTitle()
         Column {
-            winnerId?.let {
+            winnerName?.let {
                 Text(
                     text = "🎉 Congratulations $it, you won! 🎉",
                     style = MaterialTheme.typography.headlineSmall,
@@ -140,7 +138,7 @@ fun Scoreboard(scores: List<PlayerScoreDTO>) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(
-                        text = "Player ID: ${playerScore.playerId}",
+                        text = "Player: ${playerScore.playerName}",
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.weight(1f)
                     )
@@ -167,10 +165,10 @@ fun Scoreboard(scores: List<PlayerScoreDTO>) {
 @Composable
 fun GameEndingScreenPreviewWithTestData(){
     val testScores = listOf(
-        PlayerScoreDTO(playerId = "Alice", points = 85),
-        PlayerScoreDTO(playerId = "Bob", points = 65),
-        PlayerScoreDTO(playerId = "Charlie", points = 95),
-        PlayerScoreDTO(playerId = "Dana", points = 40)
+        PlayerScoreDTO(playerId = "1", playerName = "Alice", points = 85),
+        PlayerScoreDTO(playerId = "2", playerName = "Bob", points = 65),
+        PlayerScoreDTO(playerId = "3", playerName = "Charlie", points = 95),
+        PlayerScoreDTO(playerId = "4", playerName = "Dana", points = 40)
     )
     GameEndingScreen(testScores)
 }

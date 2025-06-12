@@ -244,8 +244,8 @@ object MyStomp {
         }
     }
 
-    fun subscribeToScoreUpdates(context: Context, onScoresReceived: (List<PlayerScoreDTO>) -> Unit) {
-        subscribeToTopic("/topic/game/scores") { json ->
+    fun subscribeToScoreUpdates(roomId:String, context: Context, onScoresReceived: (List<PlayerScoreDTO>) -> Unit) {
+        subscribeToTopic("/topic/game/scores/$roomId") { json ->
             try {
                 val gson = Gson()
                 val listType = object : com.google.gson.reflect.TypeToken<List<PlayerScoreDTO>>() {}.type
