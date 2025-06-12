@@ -2,6 +2,7 @@ package at.aau.serg.websocketbrokerdemo
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -15,9 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -42,6 +40,14 @@ class StartMenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        //automatic connection
+        MyStomp.connect(context = this) {
+            MyStomp.subscribeToTopic("/topic/hello-response") { msg ->
+                Log.d("STOMP", "Received: $msg")
+            }
+        }
+
         setContent {
             StartMenu()
         }
@@ -94,9 +100,6 @@ fun StartMenu() {
             modifier = Modifier
                 .align(Alignment.BottomEnd)
         ) {
-
-            //für Settings und Regeln Composable functions oder eigene Acitvities??
-
             Column {
                 IconButton(
                     onClick = {

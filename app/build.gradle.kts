@@ -106,7 +106,6 @@ sonar {
         )
         property("sonar.coverage.exclusions",
             """
-            **/MainActivity.kt,
             **/StartMenuActivity.kt,
             **/LobbyActivity.kt,
             **/GameActivity.kt,
