@@ -1,9 +1,14 @@
+import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContentProviderCompat.requireContext
 import at.aau.serg.websocketbrokerdemo.core.model.lobby.PlayerListDAO
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
@@ -25,7 +30,8 @@ object MyStomp {
     private lateinit var client: StompClient
     private lateinit var session: StompSession
     private val scope = CoroutineScope(Dispatchers.IO)
-    val playerId: String = UUID.randomUUID().toString()
+    var playerId: String = ""
+    var userName: String = ""
     var playerIsActive by mutableStateOf(false)
 
     fun setPlayerActive(isActive: Boolean) {
@@ -55,7 +61,14 @@ object MyStomp {
         topicCallbacks[topic]?.add(callback)
     }
 
-    fun connect(forceReconnect: Boolean = false, onConnected: (() -> Unit)? = null) {
+    fun connect(context: Context,forceReconnect: Boolean = false, onConnected: (() -> Unit)? = null) {
+        val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+        userName = prefs.getString("user_name", "") ?: ""
+        playerId = prefs.getString("player_id", UUID.randomUUID().toString()) ?: UUID.randomUUID().toString()
+        val editor = prefs.edit()
+        editor.putString("player_id", playerId)
+        editor.apply()
+
         if (::session.isInitialized && !forceReconnect) {
             Handler(Looper.getMainLooper()).post {
                 onConnected?.invoke()
@@ -95,13 +108,13 @@ object MyStomp {
 
     fun createRoom() {
         scope.launch {
-            session.sendText("/app/lobby/create", "{\"playerId\":\"$playerId\"}")
+            session.sendText("/app/lobby/create", "{\"playerId\":\"$playerId\", \"userName\":\"$userName\"}")
         }
     }
 
     fun joinRoom(roomId: String) {
         scope.launch {
-            session.sendText("/app/lobby/join", "{\"playerId\":\"$playerId\", \"roomId\":\"$roomId\"}")
+            session.sendText("/app/lobby/join", "{\"playerId\":\"$playerId\", \"roomId\":\"$roomId\", \"userName\":\"$userName\"}")
         }
     }
 
@@ -138,11 +151,40 @@ object MyStomp {
         }
     }
 
-    fun placeHouses(gameId: String) {
+    fun placeHouses(gameId: String,) {
         val payload = """
         {
             "gameId": "$gameId",
-            "playerId": "$playerId"
+            "playerId": "$playerId",
+            "type": "PLACE_HOUSE",
+            "position": {
+                "x": 0,
+                "y": 0
+            }
+        }
+    """.trimIndent()
+
+        Log.d("MyStomp", "Sende PlaceHouses Nachricht: $payload")
+
+        scope.launch {
+            try {
+                session.sendText("/app/game/placeHouses", payload)
+                Log.d("MyStomp", "PlaceHouses Nachricht gesendet an /app/game/placeHouses")
+            } catch (e: Exception) {
+                Log.e("MyStomp", "Fehler beim Senden von PlaceHouses: ${e.message}")
+            }
+        }
+    }
+    fun placeHouses(gameId: String,row: Int, column: Int) {
+        val payload = """
+        {
+            "gameId": "$gameId",
+            "playerId": "$playerId",
+            "type": "PLACE_HOUSE",
+            "position": {
+                "x": "$column",
+                "y": "$row"
+            }
         }
     """.trimIndent()
 
@@ -182,6 +224,16 @@ object MyStomp {
 
     fun subscribeToGameUpdatesTerrainCard(roomId: String, callback: (String) -> Unit) {
         subscribeToTopic("/topic/game/card/$roomId", callback)
+    }
+
+    fun subscribeToGameUpdates(roomId: String, callback: (String) -> Unit) {
+        subscribeToTopic("/topic/game/update/$roomId", callback)
+    }
+
+    fun getGameUpdate(roomId: String) {
+        scope.launch {
+            session.sendText("/app/game/get", roomId)
+        }
     }
 
     fun subscribeToStartMsg(roomId:String,callback: (PlayerListDAO) -> Unit){

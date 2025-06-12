@@ -67,4 +67,15 @@ class Player(val id: String, val name: String, var color: Int, private val gameB
     companion object LocalPlayer{
         lateinit var localPlayer: Player
     }
+
+    //make a contructor that takes a playerdao
+    constructor(playerDAO: PlayerDAO, gameBoard: GameBoard) : this(
+        playerDAO.id,
+        playerDAO.name,
+        playerDAO.color,
+        gameBoard
+    ) {
+        this.remainingSettlements = playerDAO.remainingSettlements
+        this.score = playerDAO.score
+    }
 }
