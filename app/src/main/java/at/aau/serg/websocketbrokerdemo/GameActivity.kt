@@ -491,7 +491,7 @@ fun HexagonBoardScreen(
                 }
             }
         Box(modifier = Modifier
-            .align(Alignment.TopStart)
+            .align(Alignment.TopEnd)
             .padding(16.dp)) {
             Column(horizontalAlignment = Alignment.End) {
                 // Der Melde-Button. Nur aktiv, wenn das Meldefenster offen ist.
