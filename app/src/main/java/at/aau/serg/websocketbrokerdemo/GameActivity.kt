@@ -437,24 +437,6 @@ fun HexagonBoardScreen(
             }
         }
 
-        // Rechter unterer Bereich: Melde-Button
-        Box(modifier = Modifier
-            .align(Alignment.TopStart)
-            .padding(16.dp)) {
-            Column(horizontalAlignment = Alignment.End) {
-                // Der Melde-Button. Nur aktiv, wenn das Meldefenster offen ist.
-                Button(
-                    onClick = onReportPlayer,
-                    enabled = isReportWindowActive,
-                    colors = ButtonDefaults.buttonColors(
-                        disabledContainerColor = Color.DarkGray
-                    )
-                ) {
-                    Text("Melde Spieler!")
-                }
-            }
-        }
-
             if (playerIsActive) {
                 Box(modifier = Modifier.align(Alignment.BottomStart)) {
                     Column(
@@ -508,6 +490,22 @@ fun HexagonBoardScreen(
                     }
                 }
             }
+        Box(modifier = Modifier
+            .align(Alignment.TopStart)
+            .padding(16.dp)) {
+            Column(horizontalAlignment = Alignment.End) {
+                // Der Melde-Button. Nur aktiv, wenn das Meldefenster offen ist.
+                Button(
+                    onClick = onReportPlayer,
+                    enabled = isReportWindowActive,
+                    colors = ButtonDefaults.buttonColors(
+                        disabledContainerColor = Color.DarkGray
+                    )
+                ) {
+                    Text("Melde Spieler!")
+                }
+            }
+        }
     }
 }
 
@@ -641,8 +639,7 @@ class GameActivity : ComponentActivity() {
                 terrainCardType = viewModel.terrainCardType,
                 gameBoard = viewModel.gameBoard,
                 players = viewModel.players,
-                activePlayer = activePlayer
-
+                activePlayer = activePlayer,
                 isCheatModeActive = isCheatModeActive,
 
                 onToggleCheatMode = { isCheatModeActive = !isCheatModeActive } ,
@@ -656,7 +653,11 @@ class GameActivity : ComponentActivity() {
                 } ,
 
                 onReportPlayer = {
+
+                    Log.d("CHEAT_DEBUG", "Melde-Button geklickt. lastActivePlayerId ist: ${lastActivePlayerId.value}")
+
                     if (lastActivePlayerId.value != null) {
+                        Log.d("CHEAT_DEBUG", "Bedingung erfüllt. Sende Meldung für Spieler: ${lastActivePlayerId.value!!}")
                         MyStomp.reportCheat(
                             roomId.orEmpty(),
                             MyStomp.playerId,
@@ -664,6 +665,8 @@ class GameActivity : ComponentActivity() {
                         )
                         Toast.makeText(this, "Spieler gemeldet!", Toast.LENGTH_SHORT).show()
                         isReportWindowActive = false // Button sofort deaktivieren
+                    } else {
+                        Log.d("CHEAT_DEBUG", "Bedingung NICHT erfüllt. lastActivePlayerId war null. Meldung wird nicht gesendet.")
                     }
                 }
             )

@@ -243,12 +243,12 @@ object MyStomp {
         }
     }
 
-    fun reportCheat(gameId: String, reporterId: String, reportedId: String) {
+    fun reportCheat(gameId: String, reporterPlayerId: String, reportedPlayerId: String) {
         val payload = """
         {
             "gameId": "$gameId",
-            "reporterId": "$reporterId",
-            "reportedId": "$reportedId"
+            "reporterPlayerId": "$reporterPlayerId",
+            "reportedPlayerId": "$reportedPlayerId"
         }
     """.trimIndent()
         scope.launch {
@@ -259,13 +259,14 @@ object MyStomp {
     data class CheatwindowUpdate(val isWindowActive: Boolean, val reportedPlayerId: String)
 
     fun subscribeToCheatReportWindow(roomId: String, callback: (CheatwindowUpdate) -> Unit) {
-        subscribeToTopic("/topic/game/cheatwindow/$roomId") { message ->
-
+        subscribeToTopic("/topic/game/cheatWindow/$roomId") { message ->
+            Log.d("CHEAT_DEBUG", "Nachricht für Cheat-Fenster erhalten: $message")
             try {
                 val update = Gson().fromJson(message, CheatwindowUpdate::class.java)
+                Log.d("CHEAT_DEBUG", "Geparstes Update: isWindowActive=${update.isWindowActive}, reportedPlayerId=${update.reportedPlayerId}")
                 callback(update)
             } catch (e: Exception) {
-                Log.e("MyStomp", "Fehler beim Parsen des Cheatwindow-Updates: ${e.message}")
+                Log.e("MyStomp", "Fehler beim Parsen des CheatWindow-Updates: ${e.message}")
             }
         }
     }
