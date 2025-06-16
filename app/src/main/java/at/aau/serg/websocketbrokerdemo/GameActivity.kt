@@ -52,6 +52,14 @@ import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import androidx.activity.compose.setContent;
+import androidx.activity.viewModels;
+import java.util.Objects;
 
 // Datenklasse für ein Hexagon-Feld
 data class Hexagon(
@@ -198,7 +206,8 @@ fun HexagonBoardScreen(
                     .pointerInput(selectedQuadrant) {
                         detectTapGestures { tapOffset: Offset ->
                             // Transformation des Tap-Offsets, damit die Trefferprüfung mit dem zentrierten Board funktioniert.
-                            val transformedOffset = Offset(tapOffset.x - offsetX, tapOffset.y - offsetY)
+                            val transformedOffset =
+                                Offset(tapOffset.x - offsetX, tapOffset.y - offsetY)
                             // Im Zoommodus: Bestimme den rowOffset/colOffset
                             val (rowOffset, colOffset) = if (selectedQuadrant != null) {
                                 when (selectedQuadrant) {
@@ -211,7 +220,14 @@ fun HexagonBoardScreen(
                             } else 0 to 0
                             // Prüfe alle Hexagone, ob der getippte Punkt darin liegt
                             hexagons.forEach { hex ->
-                                if (pointInHexagon(transformedOffset.x, transformedOffset.y, hex.centerX, hex.centerY, side)) {
+                                if (pointInHexagon(
+                                        transformedOffset.x,
+                                        transformedOffset.y,
+                                        hex.centerX,
+                                        hex.centerY,
+                                        side
+                                    )
+                                ) {
                                     if (selectedQuadrant == null) {
                                         // Übersichtsmodus: Zoom in das angeklickte Quartil
                                         selectedQuadrant = hex.quadrant
@@ -221,20 +237,26 @@ fun HexagonBoardScreen(
                                         val localRow = hex.row - rowOffset
                                         val localCol = hex.col - colOffset
                                         val key = Pair(localRow, localCol)
-                                        val currentlyMarked = gameBoard.getFieldByRowAndCol(hex.row, hex.col).builtBy != null
+                                        val currentlyMarked = gameBoard.getFieldByRowAndCol(
+                                            hex.row,
+                                            hex.col
+                                        ).builtBy != null
                                         //TODO(): Make building of completed turns permanent
-                                        if(!currentlyMarked && hex.field.isBuildable){
+                                        if (!currentlyMarked && hex.field.isBuildable) {
                                             markedFields[key] = true
                                             //hex.field.builtBy = Player.localPlayer
                                             //gameBoard.getFieldByRowAndCol(hex.row,hex.col).builtBy = Player.localPlayer
-                                            MyStomp.placeHouses(roomId,hex.row,hex.col)
-                                        }else{
+                                            MyStomp.placeHouses(roomId, hex.row, hex.col)
+                                        } else {
                                             markedFields[key] = false
                                             //hex.field.builtBy = null
                                             //gameBoard.getFieldByRowAndCol(hex.row,hex.col).builtBy = null
                                         }
 
-                                        Log.i("Player Interaction","Field ${hex.row}, ${hex.col} in ${hex.quadrant} toggled to ${!currentlyMarked}")
+                                        Log.i(
+                                            "Player Interaction",
+                                            "Field ${hex.row}, ${hex.col} in ${hex.quadrant} toggled to ${!currentlyMarked}"
+                                        )
                                     }
                                     return@detectTapGestures
                                 }
@@ -416,14 +438,25 @@ private fun GameViewModel.getLocalPlayer() {
     TODO("Not yet implemented")
 }
 
-class GameActivity : ComponentActivity() {
+class GameActivity : ComponentActivity(), SensorEventListener {
 
     private val viewModel: GameViewModel by viewModels()
     private var activePlayer: PlayerDAO? = null
     private var players: List<PlayerDAO> = emptyList()
 
+    private lateinit var sensorManager: SensorManager
+    private var accelerometer: Sensor? = null
+    private var acceleration = 10
+    private var currentAcceleration = SensorManager.GRAVITY_EARTH
+    private var lastAcceleration = SensorManager.GRAVITY_EARTH
+    private val shakeThreshold = 15 // Schwellenwert für die Schüttelerkennung
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
         viewModel.buildGameBoard()
 
@@ -476,6 +509,8 @@ class GameActivity : ComponentActivity() {
                             )
                         )
                     }
+                    this.players = players
+
                     MyStomp.setPlayerActive(activePlayer?.id == MyStomp.playerId)
 
                     // WICHTIG: immer im UI-Thread!
@@ -505,6 +540,26 @@ class GameActivity : ComponentActivity() {
                 activePlayer = activePlayer
             )
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Regristierte den Listener, wenn die Activity im Vordergrund ist
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI)
+    }
+
+    override fun onPause(){
+        super.onPause()
+        // Entferne den Listener, wenn die Activity nicht mehr im Vordergrund ist
+        sensorManager.unregisterListener(this)
+    }
+
+    override fun onSensorChanged(event: SensorEvent?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        TODO("Not yet implemented")
     }
 }
 
