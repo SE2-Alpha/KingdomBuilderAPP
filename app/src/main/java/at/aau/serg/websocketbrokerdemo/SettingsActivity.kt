@@ -16,7 +16,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -40,6 +42,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
 
@@ -186,12 +189,24 @@ class SettingsActivity: ComponentActivity() {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 IconButton(onClick = onCancel) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Cancel",
-                        tint = colorResource(id = R.color.beige_lobby_background)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                color = colorResource(id = R.color.light_blue_900).copy(alpha = 0.5f),
+                                shape = RoundedCornerShape(2.dp) // leicht abgerundet, aber eckig
+                            )
+                            .padding(6.dp)
+                            .size(40.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Cancel",
+                            tint = colorResource(id = R.color.beige_lobby_background)
+                        )
+                    }
                 }
+
                 Text(
                     text = title,
                     color = colorResource(id = R.color.light_blue_900),
@@ -199,13 +214,30 @@ class SettingsActivity: ComponentActivity() {
                     fontWeight = FontWeight.Bold
                 )
                 IconButton(onClick = onSave) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = "Save",
-                        tint = colorResource(id = R.color.beige_lobby_background)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                color = colorResource(id = R.color.light_blue_900).copy(alpha = 0.5f),
+                                shape = RoundedCornerShape(4.dp) // optional: für leicht abgerundete Ecken
+                            )
+                            .padding(6.dp) // etwas Innenabstand, damit Icon nicht direkt am Rand klebt
+                            .size(40.dp), // quadratisch
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = "Save",
+                            tint = colorResource(id = R.color.beige_lobby_background)
+                        )
+                    }
                 }
+
             }
         }
+    }
+    @Preview (showBackground = true)
+    @Composable
+    fun SettingsScreenPreview(){
+        SettingsScreen(onSave = {})
     }
 }
