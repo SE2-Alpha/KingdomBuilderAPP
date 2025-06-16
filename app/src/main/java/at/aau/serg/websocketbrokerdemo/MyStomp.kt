@@ -200,6 +200,29 @@ object MyStomp {
         }
     }
 
+    fun undoLastMove(gameId: String){
+        val payload = """
+            {
+            "gameId": "$gameId",
+            "playerId": "$playerId"
+            "type": "UNDO_LAST_MOVE"
+            }
+        """.trimIndent()
+
+        Log.d("MyStomp", "Sende UndoLastMove Nachricht: $payload")
+
+        scope.launch {
+            try {
+                session.sendText("/app/game/undoLastMove", payload)
+                Log.d("MyStomp", "UndoLastMove Nachricht gesendet an /app/game/undoLastMove")
+                } catch (e: Exception) {
+                Log.e("MyStomp", "Fehler beim Senden von UndoLastMove: ${e.message}")
+            }
+        }
+    }
+
+
+
     fun endTurn(gameId: String) {
         val payload = """
         {
