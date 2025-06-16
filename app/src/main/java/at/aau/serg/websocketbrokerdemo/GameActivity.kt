@@ -14,14 +14,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -34,6 +39,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -47,6 +53,7 @@ import at.aau.serg.websocketbrokerdemo.core.model.lobby.Room
 import at.aau.serg.websocketbrokerdemo.core.model.lobby.RoomStatus
 import at.aau.serg.websocketbrokerdemo.core.model.player.Player
 import at.aau.serg.websocketbrokerdemo.core.model.player.PlayerDAO
+import com.example.myapplication.R
 import org.json.JSONObject
 import kotlin.math.abs
 import kotlin.math.cos
@@ -384,7 +391,14 @@ fun HexagonBoardScreen(
                             drawCardIsClicked = true
                         },
                         enabled = !drawCardIsClicked,
-                        modifier = Modifier.padding(4.dp)) {
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .shadow(8.dp, shape = RoundedCornerShape(20.dp)),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = colorResource(id = com.example.myapplication.R.color.beige_lobby_background),
+                            contentColor = colorResource(id = R.color.light_blue_900)
+                        ),
+                        shape = RoundedCornerShape(20.dp)) {
                         Text("Draw Card")
                     }
                     Button(
@@ -396,7 +410,14 @@ fun HexagonBoardScreen(
 
                         },
                         enabled = drawCardIsClicked,
-                        modifier = Modifier.padding(4.dp)) {
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .shadow(8.dp, shape = RoundedCornerShape(20.dp)),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = colorResource(id = R.color.beige_lobby_background),
+                            contentColor = colorResource(id = R.color.light_blue_900)
+                        ),
+                        shape = RoundedCornerShape(20.dp)) {
                         Text("End Turn")
                     }
                 }
