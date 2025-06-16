@@ -388,13 +388,6 @@ fun HexagonBoardScreen(
                         Text("Draw Card")
                     }
                     Button(
-                        onClick = { onPlaceHouses(roomId) },
-                        enabled = drawCardIsClicked,
-                        modifier = Modifier.padding(4.dp)
-                    ) {
-                        Text("Place Houses")
-                    }
-                    Button(
                         onClick = {
                             onEndTurn(roomId)
                             drawCardIsClicked = false
