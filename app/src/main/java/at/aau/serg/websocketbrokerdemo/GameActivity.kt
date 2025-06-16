@@ -19,9 +19,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -195,7 +198,10 @@ fun HexagonBoardScreen(
                         .align(Alignment.TopStart)
                         .zIndex(1f)
                 ) {
-                    Text("Zurück")
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Zurück"
+                    )
                 }
             }
             // Canvas zum Zeichnen und Erfassen von Klicks
