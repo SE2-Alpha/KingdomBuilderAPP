@@ -446,7 +446,7 @@ class GameActivity : ComponentActivity(), SensorEventListener {
 
     private lateinit var sensorManager: SensorManager
     private var accelerometer: Sensor? = null
-    private var acceleration = 10
+    private var acceleration = 10f
     private var currentAcceleration = SensorManager.GRAVITY_EARTH
     private var lastAcceleration = SensorManager.GRAVITY_EARTH
     private val shakeThreshold = 15 // Schwellenwert für die Schüttelerkennung
@@ -542,6 +542,7 @@ class GameActivity : ComponentActivity(), SensorEventListener {
         }
     }
 
+    // onResume und onPause für den Listener
     override fun onResume() {
         super.onResume()
         // Regristierte den Listener, wenn die Activity im Vordergrund ist
@@ -554,12 +555,34 @@ class GameActivity : ComponentActivity(), SensorEventListener {
         sensorManager.unregisterListener(this)
     }
 
+    // Logik für die Sensoren
     override fun onSensorChanged(event: SensorEvent?) {
-        TODO("Not yet implemented")
+        if (event?.sensor?.type == Sensor.TYPE_ACCELEROMETER) {
+            val x = event.values[0]
+            val y = event.values[1]
+            val z = event.values[2]
+            lastAcceleration = currentAcceleration
+            currentAcceleration = kotlin.math.sqrt((x * x + y * y + z * z).toDouble()).toFloat()
+            val delta = currentAcceleration - lastAcceleration
+            acceleration = acceleration * 0.9f + delta
+
+            if (acceleration > shakeThreshold) {
+                // Prüfe, ob der aktuelle Spieler am Zug ist
+                if (activePlayer?.id == MyStomp.playerId) {
+                    val roomId = intent.getStringExtra("ROOM_ID")
+                    if (roomId != null) {
+                        runOnUiThread {
+                            Toast.makeText(this, "Zug wird rückgängig gemacht!", Toast.LENGTH_SHORT).show()
+                            MyStomp.undoLastMove(roomId)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        TODO("Not yet implemented")
+        // Wird für die Funktion nicht benötigt, muss aber implementiert werden.
     }
 }
 
