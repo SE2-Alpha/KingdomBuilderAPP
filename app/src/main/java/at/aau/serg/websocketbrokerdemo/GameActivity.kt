@@ -376,7 +376,7 @@ fun HexagonBoardScreen(
                         .padding(start = 16.dp)
                 ){
                     terrainCardType?.let {
-                        Text("Terraintype: $it")
+                        Text("Terraintype: "+it)
                     }
                     Button(
                         onClick = {
