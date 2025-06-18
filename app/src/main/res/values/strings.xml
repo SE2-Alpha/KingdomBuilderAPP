@@ -12,5 +12,5 @@
     <string name="title_activity_game" translatable="false">GameActivity</string>
     <string name="title_activity_settings" translatable="false"></string>
     <string name="title_activity_rules" translatable="false"></string>
-    <string name="title_activity_game_ending">GameEndingActivity</string>
+    <string name="title_activity_game_ending" translatable="false">GameEndingActivity</string>
 </resources>
