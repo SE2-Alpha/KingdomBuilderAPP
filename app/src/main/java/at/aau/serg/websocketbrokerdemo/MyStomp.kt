@@ -1,5 +1,6 @@
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
+import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -9,7 +10,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContentProviderCompat.requireContext
+import at.aau.serg.websocketbrokerdemo.GameEndingActivity
 import at.aau.serg.websocketbrokerdemo.core.model.lobby.PlayerListDAO
+import at.aau.serg.websocketbrokerdemo.core.model.player.PlayerScoreDTO
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -238,6 +241,29 @@ object MyStomp {
         subscribeToTopic("/topic/room/Init/$roomId"){
             val parsed = Gson().fromJson(it, PlayerListDAO::class.java)
             callback(parsed)
+        }
+    }
+
+    fun subscribeToScoreUpdates(roomId:String, context: Context) {
+        subscribeToTopic("/topic/game/scores/$roomId") { json ->
+            Log.d("MyStomp", "Received score update: $json")
+            try {
+                val gson = Gson()
+                val listType = object : com.google.gson.reflect.TypeToken<List<PlayerScoreDTO>>() {}.type
+                val scores: List<PlayerScoreDTO> = gson.fromJson(json, listType)
+
+                Handler(Looper.getMainLooper()).post {
+
+                    // Wechsel zu GameEndingActivity
+                    val intent = Intent(context, GameEndingActivity::class.java).apply {
+                        putExtra("scores_json", gson.toJson(scores))
+                        putExtra("roomid", roomId)
+                    }
+                    context.startActivity(intent)
+                }
+            } catch (e: Exception) {
+                Log.e("MyStomp", "Fehler beim Parsen der Scores: ${e.message}")
+            }
         }
     }
 

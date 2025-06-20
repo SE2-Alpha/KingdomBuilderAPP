@@ -114,9 +114,11 @@ sonar {
             **/SettingsActivity.kt,
             **/RulesActivity.kt,
             **/GameViewModel.kt,
+            **/PlayerScoreDTO.kt,
             **/Player.kt,
             **/Room.kt,
-            **/GameBoard.kt
+            **/GameBoard.kt,
+            **/GameEndingActivity.kt
             """
             )
     }

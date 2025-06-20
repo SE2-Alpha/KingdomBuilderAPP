@@ -376,7 +376,7 @@ fun HexagonBoardScreen(
                         .padding(start = 16.dp)
                 ){
                     terrainCardType?.let {
-                        Text("Terraintype: $it")
+                        Text("Terraintype: "+it)
                     }
                     Button(
                         onClick = {
@@ -490,6 +490,7 @@ class GameActivity : ComponentActivity() {
         MyStomp.connect(context = this) {
             roomId?.let { validRoomId ->
                 MyStomp.getGameUpdate(roomId)
+                MyStomp.subscribeToScoreUpdates(roomId, context = this)
             }
         }
 
