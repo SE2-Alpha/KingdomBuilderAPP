@@ -16,33 +16,39 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name="at.aau.serg.websocketbrokerdemo.GameEndingActivity"
+            android:exported="false"
+            android:label="@string/title_activity_game_ending"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
+        <activity
             android:name="at.aau.serg.websocketbrokerdemo.LobbyActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
             android:exported="false"
             android:label="@string/title_activity_lobby"
-            android:theme="@style/Theme.MyApplication"
             android:screenOrientation="landscape"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode" />
+            android:theme="@style/Theme.MyApplication" />
         <activity
             android:name="at.aau.serg.websocketbrokerdemo.GameActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
             android:exported="false"
             android:label="@string/title_activity_game"
-            android:theme="@style/Theme.MyApplication"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
-            android:screenOrientation="landscape"/>
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
         <activity
             android:name="at.aau.serg.websocketbrokerdemo.SettingsActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
             android:exported="false"
             android:label="@string/title_activity_settings"
-            android:theme="@style/Theme.MyApplication"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
-            android:screenOrientation="landscape"/>
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
         <activity
             android:name="at.aau.serg.websocketbrokerdemo.RulesActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
             android:exported="false"
             android:label="@string/title_activity_rules"
-            android:theme="@style/Theme.MyApplication"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
-            android:screenOrientation="landscape"/>
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
         <activity
             android:name="at.aau.serg.websocketbrokerdemo.StartMenuActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
@@ -55,9 +61,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
-
     </application>
 
 </manifest>
