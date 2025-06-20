@@ -57,6 +57,7 @@ import com.example.myapplication.R
 import kotlinx.coroutines.delay
 import org.json.JSONArray
 
+
 class LobbyActivity : ComponentActivity()  {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -374,13 +375,19 @@ class LobbyActivity : ComponentActivity()  {
                     )
                     if(MyStomp.playerId == playerObj.getString("id") && isActivityReallyActive())
                     {
-                        if (joinedRoomId == null) {
-                            joinedRoomId = obj.getString("id")
-                            onRoomClick(joinedRoomId.toString())
-                        }
-                        if (RoomStatus.valueOf(obj.getString("status")) == RoomStatus.STARTED) {
-                            Log.e("LobbyActivity", "Raum ist bereits gestartet, starte GameActivity")
-                            startGameActivity()
+                        if(RoomStatus.valueOf(obj.getString("status")) == RoomStatus.FINISHED)
+                        {
+                            MyStomp.leaveRoom(roomId = joinedRoomId.toString())
+                            joinedRoomId = null
+                        } else {
+                            if (joinedRoomId == null) {
+                                joinedRoomId = obj.getString("id")
+                                onRoomClick(joinedRoomId.toString())
+                            }
+                            if (RoomStatus.valueOf(obj.getString("status")) == RoomStatus.STARTED) {
+                                Log.e("LobbyActivity", "Raum ist bereits gestartet, starte GameActivity")
+                                startGameActivity()
+                            }
                         }
                     }
                 }

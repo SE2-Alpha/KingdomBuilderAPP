@@ -2,6 +2,7 @@ package at.aau.serg.websocketbrokerdemo
 
 import androidx.activity.viewModels
 import MyStomp
+import android.R
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
@@ -18,9 +19,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -37,6 +39,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.core.graphics.toColor
 import androidx.core.graphics.toColorLong
 import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
@@ -48,6 +53,10 @@ import at.aau.serg.websocketbrokerdemo.core.model.lobby.RoomStatus
 import at.aau.serg.websocketbrokerdemo.core.model.player.Player
 import at.aau.serg.websocketbrokerdemo.core.model.player.PlayerDAO
 import org.json.JSONObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -112,6 +121,12 @@ fun HexagonBoardScreen(
     gameBoard: GameBoard,
     players: List<PlayerDAO>,
     activePlayer: PlayerDAO? = null,
+
+    isCheatModeActive: Boolean,
+    onToggleCheatMode: () -> Unit,
+    onHousePlaced: (isCheated: Boolean) -> Unit,
+    isReportWindowActive: Boolean,
+    onReportPlayer: () -> Unit
 ) {
     val context = LocalContext.current
     // Zustand: Wenn kein Quartil ausgewählt, ist der Übersichtsmodus aktiv,
@@ -146,7 +161,14 @@ fun HexagonBoardScreen(
                 val col = index % overviewCols
                 val centerX = overviewSide * sqrt(3f) * (col + if (row % 2 == 1) 0.5f else 0f)
                 val centerY = overviewSide * 1.5f * row + overviewSide
-                Hexagon(row, col, centerX, centerY, getQuadrant(row, col), gameBoard.getFieldByRowAndCol(row, col))
+                Hexagon(
+                    row,
+                    col,
+                    centerX,
+                    centerY,
+                    getQuadrant(row, col),
+                    gameBoard.getFieldByRowAndCol(row, col)
+                )
             }
         } else {
             // Zoommodus: 10x10-Gitter des ausgewählten Quartils
@@ -164,9 +186,17 @@ fun HexagonBoardScreen(
                 val row = localRow + rowOffset
                 val col = localCol + colOffset
                 // Neuberechnung der Positionen, sodass das Quartil zentriert angezeigt wird
-                val centerX = quadrantSide * sqrt(3f) * (localCol + if (localRow % 2 == 1) 0.5f else 0f)
+                val centerX =
+                    quadrantSide * sqrt(3f) * (localCol + if (localRow % 2 == 1) 0.5f else 0f)
                 val centerY = quadrantSide * 1.5f * localRow + quadrantSide
-                Hexagon(row, col, centerX, centerY, selectedQuadrant!!, gameBoard.getFieldByRowAndCol(row, col))
+                Hexagon(
+                    row,
+                    col,
+                    centerX,
+                    centerY,
+                    selectedQuadrant!!,
+                    gameBoard.getFieldByRowAndCol(row, col)
+                )
             }
         }
     }
@@ -203,7 +233,7 @@ fun HexagonBoardScreen(
             Canvas(
                 modifier = Modifier
                     .fillMaxSize()
-                    .pointerInput(selectedQuadrant) {
+                    .pointerInput(selectedQuadrant, isCheatModeActive) {
                         detectTapGestures { tapOffset: Offset ->
                             // Transformation des Tap-Offsets, damit die Trefferprüfung mit dem zentrierten Board funktioniert.
                             val transformedOffset =
@@ -242,15 +272,45 @@ fun HexagonBoardScreen(
                                             hex.col
                                         ).builtBy != null
                                         //TODO(): Make building of completed turns permanent
-                                        if (!currentlyMarked && hex.field.isBuildable) {
+
+                                        // Prüfen, ob normal oder via Cheat platziert werden darf
+                                        val canPlaceNormally = hex.field.isBuildable
+                                        val canPlaceWithCheat = isCheatModeActive
+
+                                        if (!currentlyMarked && (canPlaceNormally || canPlaceWithCheat)) {
+                                            // Feld makieren und Haus platzieren
                                             markedFields[key] = true
-                                            //hex.field.builtBy = Player.localPlayer
-                                            //gameBoard.getFieldByRowAndCol(hex.row,hex.col).builtBy = Player.localPlayer
-                                            MyStomp.placeHouses(roomId, hex.row, hex.col)
-                                        } else {
+                                            hex.field.builtBy = Player.localPlayer
+                                            gameBoard.getFieldByRowAndCol(
+                                                hex.row,
+                                                hex.col
+                                            ).builtBy = Player.localPlayer
+
+                                            // Der Activity melden, ob dieaer Zug ein Cheat war
+                                            val wasCheated = isCheatModeActive
+                                            Log.d(
+                                                "CHEAT_DEBUG",
+                                                "HAUS PLATZIERT: isCheatModeActive ist ($isCheatModeActive), wasCheated ist ($wasCheated)"
+                                            )
+                                            onHousePlaced(wasCheated)
+
+                                            Log.i(
+                                                "Player Interaction",
+                                                "Field ${hex.row}, ${hex.col} placed. Was cheated: $wasCheated"
+                                            )
+
+                                        } else if (currentlyMarked) {
+                                            // Optional: Erlaube das Entfernen von Häusern in der gleichen Runde
                                             markedFields[key] = false
-                                            //hex.field.builtBy = null
-                                            //gameBoard.getFieldByRowAndCol(hex.row,hex.col).builtBy = null
+                                            hex.field.builtBy = null
+                                            gameBoard.getFieldByRowAndCol(
+                                                hex.row,
+                                                hex.col
+                                            ).builtBy = null
+                                            Log.i(
+                                                "Player Interaction",
+                                                "Field ${hex.row}, ${hex.col} removed."
+                                            )
                                         }
 
                                         Log.i(
@@ -334,7 +394,7 @@ fun HexagonBoardScreen(
                                 end = vLeft2,
                                 strokeWidth = 8f
                             )
-                            if(row > 0) {
+                            if (row > 0) {
                                 drawLine(
                                     color = Color.Black,
                                     start = vLeft2,
@@ -367,7 +427,7 @@ fun HexagonBoardScreen(
                                 end = vBottom,
                                 strokeWidth = 8f
                             )
-                            if(col > 0) {
+                            if (col > 0) {
                                 drawLine(
                                     color = Color.Black,
                                     start = vBottom,
@@ -384,50 +444,79 @@ fun HexagonBoardScreen(
             }
         }
 
-        Box(modifier = Modifier.align(Alignment.BottomEnd)){
+        Box(modifier = Modifier.align(Alignment.BottomEnd)) {
             Column {
                 Text("Mein Name: "+MyStomp.userName)
                 Text("Aktiver Spieler: ${activePlayer?.name ?: "Keiner"}")
             }
         }
 
-        if(playerIsActive) {
-            Box(modifier = Modifier.align(Alignment.BottomStart)) {
-                Column(
-                    modifier = Modifier
-                        .padding(start = 16.dp)
-                ){
-                    terrainCardType?.let {
-                        Text("Terraintype: $it")
-                    }
-                    Button(
-                        onClick = {
-                            onDrawCard(roomId)
-                            drawCardIsClicked = true
-                        },
-                        enabled = !drawCardIsClicked,
-                        modifier = Modifier.padding(4.dp)) {
-                        Text("Draw Card")
-                    }
-                    Button(
-                        onClick = { onPlaceHouses(roomId) },
-                        enabled = drawCardIsClicked,
-                        modifier = Modifier.padding(4.dp)
+            if (playerIsActive) {
+                Box(modifier = Modifier.align(Alignment.BottomStart)) {
+                    Column(
+                        modifier = Modifier
+                            .padding(start = 16.dp)
                     ) {
-                        Text("Place Houses")
-                    }
-                    Button(
-                        onClick = {
-                            onEndTurn(roomId)
-                            drawCardIsClicked = false
-                            MyStomp.setPlayerActive(false)
-                            //terrainCardType = null //TODO
+                        terrainCardType?.let {
+                            Text("Terraintype: "+it)
+                        }
+                        Button(
+                            onClick = {
+                                onDrawCard(roomId)
+                                drawCardIsClicked = true
+                            },
+                            enabled = !drawCardIsClicked,
+                            modifier = Modifier.padding(4.dp)
+                        ) {
+                            Text("Draw Card")
+                        }
+                        Button(
+                            onClick = onToggleCheatMode,
+                            modifier = Modifier.padding(4.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                // Farbe ändert sich, wenn der Modus aktiv ist
+                                containerColor = if (isCheatModeActive) Color.Red else MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            Text(if (isCheatModeActive) "Cheat Mode: ON" else "Cheat Mode: OFF")
+                        }
 
-                        },
-                        enabled = drawCardIsClicked,
-                        modifier = Modifier.padding(4.dp)) {
-                        Text("End Turn")
+
+                        Button(
+                            onClick = { onPlaceHouses(roomId) },
+                            enabled = drawCardIsClicked,
+                            modifier = Modifier.padding(4.dp)
+                        ) {
+                            Text("Place Houses")
+                        }
+                        Button(
+                            onClick = {
+                                onEndTurn(roomId)
+                                drawCardIsClicked = false
+                                MyStomp.setPlayerActive(false)
+                               // terrainCardType = null
+                            },
+                            enabled = drawCardIsClicked,
+                            modifier = Modifier.padding(4.dp)
+                        ) {
+                            Text("End Turn")
+                        }
                     }
+                }
+            }
+        Box(modifier = Modifier
+            .align(Alignment.TopEnd)
+            .padding(16.dp)) {
+            Column(horizontalAlignment = Alignment.End) {
+                // Der Melde-Button. Nur aktiv, wenn das Meldefenster offen ist.
+                Button(
+                    onClick = onReportPlayer,
+                    enabled = isReportWindowActive,
+                    colors = ButtonDefaults.buttonColors(
+                        disabledContainerColor = Color.DarkGray
+                    )
+                ) {
+                    Text("Melde Spieler!")
                 }
             }
         }
@@ -439,6 +528,20 @@ private fun GameViewModel.getLocalPlayer() {
 }
 
 class GameActivity : ComponentActivity(), SensorEventListener {
+
+    private var terrainCardType by mutableStateOf<String?>(null)
+
+    // Zustand für den Cheat-Modus
+    private var isCheatModeActive by mutableStateOf(false)
+
+    // Zustand, um zu wissen, ob tatsächlich geschummelt wurde
+    private var hasPlacedCheatedHouse = mutableStateOf(false)
+
+    // Zustand für das 3-Sekunden-Meldefenster
+    private var isReportWindowActive by mutableStateOf(false)
+
+    // ID des Spielers, der zuletzt am Zug war und gemeldet werden kann
+    private var lastActivePlayerId = mutableStateOf<String?>(null)
 
     private val viewModel: GameViewModel by viewModels()
     private var activePlayer: PlayerDAO? = null
@@ -467,9 +570,18 @@ class GameActivity : ComponentActivity(), SensorEventListener {
         }
         val onPlaceHouses: (String) -> Unit = { roomId ->
             MyStomp.placeHouses(roomId)
+
         }
         val onEndTurn: (String) -> Unit = { roomId ->
-            MyStomp.endTurn(roomId)
+            Log.d(
+                "GameActivity",
+                "Attempting to end turn in room: ${roomId.orEmpty()}, has cheated: ${hasPlacedCheatedHouse.value}"
+            )
+            MyStomp.endTurn(roomId.orEmpty(), hasPlacedCheatedHouse.value)
+
+            this@GameActivity.isCheatModeActive = false
+            hasPlacedCheatedHouse.value = false
+            terrainCardType = null
         }
 
         MyStomp.connect(context = this) {
@@ -520,11 +632,29 @@ class GameActivity : ComponentActivity(), SensorEventListener {
                     }
                 }
 
+        roomId?.let { validRoomId ->
+            MyStomp.subscribeToCheatReportWindow(validRoomId) { cheatWindowUpdate ->
+                this@GameActivity.isReportWindowActive = cheatWindowUpdate.isWindowActive
+                lastActivePlayerId.value = cheatWindowUpdate.reportedPlayerId
+
+                // Timer im Client starten, um den Button nach 3s wieder zu deaktivieren
+                if (cheatWindowUpdate.isWindowActive) {
+                    // Coroutine nutzen, um nach 3 Sekunden den Zustand zurückzusetzen
+                    CoroutineScope(Dispatchers.Main).launch {
+                        delay(3000)
+                        this@GameActivity.isReportWindowActive = false
+                    }
+                }
+            }
+        }
+
+        // In GameActivity.kt
             }
         }
         MyStomp.connect(context = this) {
             roomId?.let { validRoomId ->
                 MyStomp.getGameUpdate(roomId)
+                MyStomp.subscribeToScoreUpdates(roomId, context = this)
             }
         }
 
@@ -537,7 +667,36 @@ class GameActivity : ComponentActivity(), SensorEventListener {
                 terrainCardType = viewModel.terrainCardType,
                 gameBoard = viewModel.gameBoard,
                 players = viewModel.players,
-                activePlayer = activePlayer
+                activePlayer = activePlayer,
+                isCheatModeActive = isCheatModeActive,
+
+                onToggleCheatMode = { isCheatModeActive = !isCheatModeActive } ,
+
+                isReportWindowActive = isReportWindowActive,
+
+                onHousePlaced = { isCheated ->
+                    if (isCheated) {
+                        hasPlacedCheatedHouse.value = true
+                    }
+                } ,
+
+                onReportPlayer = {
+
+                    Log.d("CHEAT_DEBUG", "Melde-Button geklickt. lastActivePlayerId ist: ${lastActivePlayerId.value}")
+
+                    if (lastActivePlayerId.value != null) {
+                        Log.d("CHEAT_DEBUG", "Bedingung erfüllt. Sende Meldung für Spieler: ${lastActivePlayerId.value!!}")
+                        MyStomp.reportCheat(
+                            roomId.orEmpty(),
+                            MyStomp.playerId,
+                            lastActivePlayerId.value!!
+                        )
+                        Toast.makeText(this, "Spieler gemeldet!", Toast.LENGTH_SHORT).show()
+                        isReportWindowActive = false // Button sofort deaktivieren
+                    } else {
+                        Log.d("CHEAT_DEBUG", "Bedingung NICHT erfüllt. lastActivePlayerId war null. Meldung wird nicht gesendet.")
+                    }
+                }
             )
         }
     }
