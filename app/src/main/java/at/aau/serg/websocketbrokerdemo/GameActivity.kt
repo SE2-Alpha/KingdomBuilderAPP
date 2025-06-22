@@ -433,6 +433,7 @@ fun HexagonBoardScreen(
         Box(modifier = Modifier.align(Alignment.BottomEnd)) {
             Column {
                 Text("Mein Name: "+MyStomp.userName)
+                Text("Verbleibende Häuser: ${activePlayer?.remainingSettlements?:"NaN"}")
                 Text("Aktiver Spieler: ${activePlayer?.name ?: "Keiner"}")
             }
         }
