@@ -10,10 +10,12 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -50,6 +52,7 @@ import androidx.compose.ui.zIndex
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
 import androidx.core.graphics.toColor
 import androidx.core.graphics.toColorLong
 import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
@@ -60,7 +63,6 @@ import at.aau.serg.websocketbrokerdemo.core.model.lobby.Room
 import at.aau.serg.websocketbrokerdemo.core.model.lobby.RoomStatus
 import at.aau.serg.websocketbrokerdemo.core.model.player.Player
 import at.aau.serg.websocketbrokerdemo.core.model.player.PlayerDAO
-import com.example.myapplication.R
 import org.json.JSONObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -442,9 +444,19 @@ fun HexagonBoardScreen(
             }
         }
 
-        Box(modifier = Modifier.align(Alignment.BottomEnd)) {
-            Column {
-                Text("Mein Name: "+MyStomp.userName)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            Column(
+                modifier = Modifier
+                    .background(Color(0xFFE0E0E0), shape = RoundedCornerShape(12.dp))
+                    .padding(12.dp)
+            ) {
+                Text("Mein Name: ${MyStomp.userName}", fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(4.dp))
                 Text("Aktiver Spieler: ${activePlayer?.name ?: "Keiner"}")
             }
         }
