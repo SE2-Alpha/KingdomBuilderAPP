@@ -203,6 +203,28 @@ object MyStomp {
         }
     }
 
+    fun toggleCheatMode(gameId: String) {
+        val payload = """
+        {
+            "gameId": "$gameId",
+            "playerId": "$playerId",
+            "type": "TOGGLE_CHEAT"
+        }
+        """.trimIndent()
+
+        Log.d("MyStomp", "Sende toggleCheat Nachricht: $payload")
+        scope.launch {
+            try {
+                session.sendText("/app/game/toggleCheatMode", payload)
+                Log.d("MyStomp", "ToggleCheat Nachricht gesendet an /app/game/toggleCheatMode")
+            } catch (e: Exception) {
+                Log.e("MyStomp", "Fehler beim Senden von toggleCheat: ${e.message}")
+            }
+        }
+
+    }
+
+
     fun endTurn(gameId: String, didCheat: Boolean) {
         val payload = """
         {

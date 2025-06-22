@@ -258,49 +258,49 @@ fun HexagonBoardScreen(
                                         // Zoommodus: Toggle Markierung des Felds (schwarz/weiß)
                                         val localRow = hex.row - rowOffset
                                         val localCol = hex.col - colOffset
+                                        MyStomp.placeHouses(roomId,hex.row,hex.col)
                                         val key = Pair(localRow, localCol)
                                         val currentlyMarked = gameBoard.getFieldByRowAndCol(hex.row, hex.col).builtBy != null
-                                        //TODO(): Make building of completed turns permanent
-
                                         // Prüfen, ob normal oder via Cheat platziert werden darf
                                         val canPlaceNormally = hex.field.isBuildable
                                         val canPlaceWithCheat = isCheatModeActive
 
-                                        if (!currentlyMarked && (canPlaceNormally || canPlaceWithCheat)) {
-                                            // Feld makieren und Haus platzieren
-                                            markedFields[key] = true
-                                            hex.field.builtBy = Player.localPlayer
-                                            gameBoard.getFieldByRowAndCol(
-                                                hex.row,
-                                                hex.col
-                                            ).builtBy = Player.localPlayer
 
-                                            // Der Activity melden, ob dieaer Zug ein Cheat war
-                                            val wasCheated = isCheatModeActive
-                                            Log.d(
-                                                "CHEAT_DEBUG",
-                                                "HAUS PLATZIERT: isCheatModeActive ist ($isCheatModeActive), wasCheated ist ($wasCheated)"
-                                            )
-                                            onHousePlaced(wasCheated)
-
-                                            Log.i(
-                                                "Player Interaction",
-                                                "Field ${hex.row}, ${hex.col} placed. Was cheated: $wasCheated"
-                                            )
-
-                                        } else if (currentlyMarked) {
-                                            // Optional: Erlaube das Entfernen von Häusern in der gleichen Runde
-                                            markedFields[key] = false
-                                            hex.field.builtBy = null
-                                            gameBoard.getFieldByRowAndCol(
-                                                hex.row,
-                                                hex.col
-                                            ).builtBy = null
-                                            Log.i(
-                                                "Player Interaction",
-                                                "Field ${hex.row}, ${hex.col} removed."
-                                            )
-                                        }
+//                                        if (!currentlyMarked && (canPlaceNormally || canPlaceWithCheat)) {
+//                                            // Feld makieren und Haus platzieren
+//                                            markedFields[key] = true
+//                                            hex.field.builtBy = Player.localPlayer
+//                                            gameBoard.getFieldByRowAndCol(
+//                                                hex.row,
+//                                                hex.col
+//                                            ).builtBy = Player.localPlayer
+//
+//                                            // Der Activity melden, ob dieaer Zug ein Cheat war
+//                                            val wasCheated = isCheatModeActive
+//                                            Log.i(
+//                                                "CHEAT_DEBUG",
+//                                                "HAUS PLATZIERT: isCheatModeActive ist ($isCheatModeActive), wasCheated ist ($wasCheated)"
+//                                            )
+//                                            onHousePlaced(wasCheated)
+//
+//                                            Log.i(
+//                                                "Player Interaction",
+//                                                "Field ${hex.row}, ${hex.col} placed. Was cheated: $wasCheated"
+//                                            )
+//
+//                                        } else if (currentlyMarked) {
+//                                            // Optional: Erlaube das Entfernen von Häusern in der gleichen Runde
+//                                            markedFields[key] = false
+//                                            hex.field.builtBy = null
+//                                            gameBoard.getFieldByRowAndCol(
+//                                                hex.row,
+//                                                hex.col
+//                                            ).builtBy = null
+//                                            Log.i(
+//                                                "Player Interaction",
+//                                                "Field ${hex.row}, ${hex.col} removed."
+//                                            )
+//                                        }
 
                                         Log.i("Player Interaction","Field ${hex.row}, ${hex.col} in ${hex.quadrant} toggled to ${!currentlyMarked}")
                                     }
@@ -457,7 +457,7 @@ fun HexagonBoardScreen(
                             Text("Draw Card")
                         }
                         Button(
-                            onClick = onToggleCheatMode,
+                            onClick = { MyStomp.toggleCheatMode(roomId);onToggleCheatMode },
                             modifier = Modifier.padding(4.dp),
                             colors = ButtonDefaults.buttonColors(
                                 // Farbe ändert sich, wenn der Modus aktiv ist
@@ -547,6 +547,7 @@ class GameActivity : ComponentActivity() {
             MyStomp.placeHouses(roomId)
 
         }
+
         val onEndTurn: (String) -> Unit = { roomId ->
             Log.d(
                 "GameActivity",
