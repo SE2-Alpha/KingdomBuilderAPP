@@ -416,7 +416,7 @@ fun HexagonBoardScreen(
                     modifier = Modifier
                         .padding(start = 16.dp)
                 ) {
-                    var str = if(me.id == activePlayer?.id) terrainCardType else ""
+                    var str = if(me.id == activePlayer?.id) terrainCardType ?: "" else ""
                     Text("Carte: $str")
                     Button(
                         onClick = {
@@ -578,6 +578,12 @@ class GameActivity : ComponentActivity(), SensorEventListener {
                                 score = playerObj.getInt("score")
                             )
                         )
+                        if(playerObj.getString("id").equals(Player.localPlayer.id)){
+                            Player.localPlayer.let{
+                                it.remainingSettlements = playerObj.getInt("remainingSettlements")
+                                it.score = playerObj.getInt("score")
+                            }
+                        }
                     }
                     MyStomp.setPlayerActive(activePlayer?.id == MyStomp.playerId)
 
@@ -588,7 +594,7 @@ class GameActivity : ComponentActivity(), SensorEventListener {
                     }
                 }
 
-                roomId?.let { validRoomId ->
+                roomId.let { validRoomId ->
                     MyStomp.subscribeToCheatReportWindow(validRoomId) { cheatWindowUpdate ->
                         this@GameActivity.isReportWindowActive = cheatWindowUpdate.isWindowActive
                         lastActivePlayerId.value = cheatWindowUpdate.reportedPlayerId

@@ -24,10 +24,11 @@ import org.hildan.krossbow.stomp.subscribeText
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import java.util.UUID
 
-const val URI_Physical = "ws://10.0.2.2:8080/ws-kingdombuilder-broker"
+const val URI_Emulator = "ws://10.0.2.2:8080/ws-kingdombuilder-broker"
 const val URI_Server = "ws://se2-demo.aau.at:53213/ws-kingdombuilder-broker"
+const val URI_Physical = "ws://10.0.0.190:8080/ws-kingdombuilder-broker"
 
-const val WEBSOCKET_URI = URI_Physical //URI_Server
+const val WEBSOCKET_URI = URI_Emulator//URI_Physical //URI_Server
 
 object MyStomp {
     private lateinit var client: StompClient
@@ -229,7 +230,7 @@ object MyStomp {
         val payload = """
             {
             "gameId": "$gameId",
-            "playerId": "$playerId"
+            "playerId": "$playerId",
             "type": "UNDO_LAST_MOVE"
             }
         """.trimIndent()
