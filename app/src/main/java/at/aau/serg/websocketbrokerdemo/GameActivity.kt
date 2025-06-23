@@ -226,7 +226,7 @@ fun HexagonBoardScreen(
                         .align(Alignment.TopStart)
                         .zIndex(1f)
                 ) {
-                    Text("Zurück")
+                    Text("Back")
                 }
             }
             // Canvas zum Zeichnen und Erfassen von Klicks
@@ -416,8 +416,10 @@ fun HexagonBoardScreen(
                     modifier = Modifier
                         .padding(start = 16.dp)
                 ) {
-                    var str = if(me.id == activePlayer?.id) terrainCardType ?: "" else ""
-                    Text("Carte: $str")
+                    var str = terrainCardType ?: ""
+                    if(me.id == activePlayer?.id) {
+                        Text("Card: $str")
+                    }
                     Button(
                         onClick = {
                             onDrawCard(roomId)
