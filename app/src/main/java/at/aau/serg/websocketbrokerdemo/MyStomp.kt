@@ -24,10 +24,11 @@ import org.hildan.krossbow.stomp.subscribeText
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import java.util.UUID
 
-const val URI_Physical = "ws://10.0.2.2:8080/ws-kingdombuilder-broker"
+const val URI_Emulator = "ws://10.0.2.2:8080/ws-kingdombuilder-broker"
 const val URI_Server = "ws://se2-demo.aau.at:53213/ws-kingdombuilder-broker"
+const val URI_Physical = "ws://10.0.0.190:8080/ws-kingdombuilder-broker"
 
-const val WEBSOCKET_URI = URI_Physical //URI_Server
+const val WEBSOCKET_URI = URI_Emulator//URI_Physical //URI_Server
 
 object MyStomp {
     private lateinit var client: StompClient
@@ -199,6 +200,49 @@ object MyStomp {
                 Log.d("MyStomp", "PlaceHouses Nachricht gesendet an /app/game/placeHouses")
             } catch (e: Exception) {
                 Log.e("MyStomp", "Fehler beim Senden von PlaceHouses: ${e.message}")
+            }
+        }
+    }
+
+    fun toggleCheatMode(gameId: String) {
+        val payload = """
+        {
+            "gameId": "$gameId",
+            "playerId": "$playerId",
+            "type": "TOGGLE_CHEAT"
+        }
+        """.trimIndent()
+
+        Log.d("MyStomp", "Sende toggleCheat Nachricht: $payload")
+        scope.launch {
+            try {
+                session.sendText("/app/game/toggleCheatMode", payload)
+                Log.d("MyStomp", "ToggleCheat Nachricht gesendet an /app/game/toggleCheatMode")
+            } catch (e: Exception) {
+                Log.e("MyStomp", "Fehler beim Senden von toggleCheat: ${e.message}")
+            }
+        }
+
+    }
+
+
+    fun undoLastMove(gameId: String){
+        val payload = """
+            {
+            "gameId": "$gameId",
+            "playerId": "$playerId",
+            "type": "UNDO_LAST_MOVE"
+            }
+        """.trimIndent()
+
+        Log.d("MyStomp", "Sende UndoLastMove Nachricht: $payload")
+
+        scope.launch {
+            try {
+                session.sendText("/app/game/undoLastMove", payload)
+                Log.d("MyStomp", "UndoLastMove Nachricht gesendet an /app/game/undoLastMove")
+                } catch (e: Exception) {
+                Log.e("MyStomp", "Fehler beim Senden von UndoLastMove: ${e.message}")
             }
         }
     }

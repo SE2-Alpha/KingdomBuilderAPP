@@ -61,6 +61,14 @@ import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import androidx.activity.compose.setContent;
+import androidx.activity.viewModels;
+import java.util.Objects;
 
 // Datenklasse für ein Hexagon-Feld
 data class Hexagon(
@@ -218,7 +226,7 @@ fun HexagonBoardScreen(
                         .align(Alignment.TopStart)
                         .zIndex(1f)
                 ) {
-                    Text("Zurück")
+                    Text("Back")
                 }
             }
             // Canvas zum Zeichnen und Erfassen von Klicks
@@ -258,49 +266,12 @@ fun HexagonBoardScreen(
                                         // Zoommodus: Toggle Markierung des Felds (schwarz/weiß)
                                         val localRow = hex.row - rowOffset
                                         val localCol = hex.col - colOffset
+                                        MyStomp.placeHouses(roomId,hex.row,hex.col)
                                         val key = Pair(localRow, localCol)
                                         val currentlyMarked = gameBoard.getFieldByRowAndCol(hex.row, hex.col).builtBy != null
-                                        //TODO(): Make building of completed turns permanent
-
                                         // Prüfen, ob normal oder via Cheat platziert werden darf
                                         val canPlaceNormally = hex.field.isBuildable
                                         val canPlaceWithCheat = isCheatModeActive
-
-                                        if (!currentlyMarked && (canPlaceNormally || canPlaceWithCheat)) {
-                                            // Feld makieren und Haus platzieren
-                                            markedFields[key] = true
-                                            hex.field.builtBy = Player.localPlayer
-                                            gameBoard.getFieldByRowAndCol(
-                                                hex.row,
-                                                hex.col
-                                            ).builtBy = Player.localPlayer
-
-                                            // Der Activity melden, ob dieaer Zug ein Cheat war
-                                            val wasCheated = isCheatModeActive
-                                            Log.d(
-                                                "CHEAT_DEBUG",
-                                                "HAUS PLATZIERT: isCheatModeActive ist ($isCheatModeActive), wasCheated ist ($wasCheated)"
-                                            )
-                                            onHousePlaced(wasCheated)
-
-                                            Log.i(
-                                                "Player Interaction",
-                                                "Field ${hex.row}, ${hex.col} placed. Was cheated: $wasCheated"
-                                            )
-
-                                        } else if (currentlyMarked) {
-                                            // Optional: Erlaube das Entfernen von Häusern in der gleichen Runde
-                                            markedFields[key] = false
-                                            hex.field.builtBy = null
-                                            gameBoard.getFieldByRowAndCol(
-                                                hex.row,
-                                                hex.col
-                                            ).builtBy = null
-                                            Log.i(
-                                                "Player Interaction",
-                                                "Field ${hex.row}, ${hex.col} removed."
-                                            )
-                                        }
 
                                         Log.i("Player Interaction","Field ${hex.row}, ${hex.col} in ${hex.quadrant} toggled to ${!currentlyMarked}")
                                     }
@@ -429,67 +400,70 @@ fun HexagonBoardScreen(
                 }
             }
         }
+        val me = Player.localPlayer
 
         Box(modifier = Modifier.align(Alignment.BottomEnd)) {
             Column {
-                Text("Mein Name: "+MyStomp.userName)
-                Text("Aktiver Spieler: ${activePlayer?.name ?: "Keiner"}")
+                Text("Mein Name: ${me.name}")
+                Text("Verbleibende Häuser: ${me.remainingSettlements}")
+                Text("Aktiver Spieler: ${activePlayer?.name ?: ""}")
             }
         }
 
-            if (playerIsActive) {
-                Box(modifier = Modifier.align(Alignment.BottomStart)) {
-                    Column(
-                        modifier = Modifier
-                            .padding(start = 16.dp)
+        if (playerIsActive) {
+            Box(modifier = Modifier.align(Alignment.BottomStart)) {
+                Column(
+                    modifier = Modifier
+                        .padding(start = 16.dp)
+                ) {
+                    var str = terrainCardType ?: ""
+                    if(me.id == activePlayer?.id) {
+                        Text("Card: $str")
+                    }
+                    Button(
+                        onClick = {
+                            onDrawCard(roomId)
+                            drawCardIsClicked = true
+                        },
+                        enabled = !drawCardIsClicked,
+                        modifier = Modifier.padding(4.dp)
                     ) {
-                        terrainCardType?.let {
-                            Text("Terraintype: "+it)
-                        }
-                        Button(
-                            onClick = {
-                                onDrawCard(roomId)
-                                drawCardIsClicked = true
-                            },
-                            enabled = !drawCardIsClicked,
-                            modifier = Modifier.padding(4.dp)
-                        ) {
-                            Text("Draw Card")
-                        }
-                        Button(
-                            onClick = onToggleCheatMode,
-                            modifier = Modifier.padding(4.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                // Farbe ändert sich, wenn der Modus aktiv ist
-                                containerColor = if (isCheatModeActive) Color.Red else MaterialTheme.colorScheme.primary
-                            )
-                        ) {
-                            Text(if (isCheatModeActive) "Cheat Mode: ON" else "Cheat Mode: OFF")
-                        }
+                        Text("Draw Card")
+                    }
+                    Button(
+                        onClick = { MyStomp.toggleCheatMode(roomId);onToggleCheatMode },
+                        modifier = Modifier.padding(4.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            // Farbe ändert sich, wenn der Modus aktiv ist
+                            containerColor = if (isCheatModeActive) Color.Red else MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text(if (isCheatModeActive) "Cheat Mode: ON" else "Cheat Mode: OFF")
+                    }
 
 
-                        Button(
-                            onClick = { onPlaceHouses(roomId) },
-                            enabled = drawCardIsClicked,
-                            modifier = Modifier.padding(4.dp)
-                        ) {
-                            Text("Place Houses")
-                        }
-                        Button(
-                            onClick = {
-                                onEndTurn(roomId)
-                                drawCardIsClicked = false
-                                MyStomp.setPlayerActive(false)
-                               // terrainCardType = null
-                            },
-                            enabled = drawCardIsClicked,
-                            modifier = Modifier.padding(4.dp)
-                        ) {
-                            Text("End Turn")
-                        }
+                    Button(
+                        onClick = { onPlaceHouses(roomId) },
+                        enabled = drawCardIsClicked,
+                        modifier = Modifier.padding(4.dp)
+                    ) {
+                        Text("Place Houses")
+                    }
+                    Button(
+                        onClick = {
+                            onEndTurn(roomId)
+                            drawCardIsClicked = false
+                            MyStomp.setPlayerActive(false)
+                            //terrainCardType = null
+                        },
+                        enabled = drawCardIsClicked,
+                        modifier = Modifier.padding(4.dp)
+                    ) {
+                        Text("End Turn")
                     }
                 }
             }
+        }
         Box(modifier = Modifier
             .align(Alignment.TopEnd)
             .padding(16.dp)) {
@@ -513,7 +487,7 @@ private fun GameViewModel.getLocalPlayer() {
     TODO("Not yet implemented")
 }
 
-class GameActivity : ComponentActivity() {
+class GameActivity : ComponentActivity(), SensorEventListener {
 
     private var terrainCardType by mutableStateOf<String?>(null)
 
@@ -533,8 +507,19 @@ class GameActivity : ComponentActivity() {
     private var activePlayer: PlayerDAO? = null
     private var players: List<PlayerDAO> = emptyList()
 
+    private lateinit var sensorManager: SensorManager
+    private var accelerometer: Sensor? = null
+    private var acceleration = 10f
+    private var currentAcceleration = SensorManager.GRAVITY_EARTH
+    private var lastAcceleration = SensorManager.GRAVITY_EARTH
+    private val shakeThreshold = 15 // Schwellenwert für die Schüttelerkennung
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
         viewModel.buildGameBoard()
 
@@ -595,6 +580,12 @@ class GameActivity : ComponentActivity() {
                                 score = playerObj.getInt("score")
                             )
                         )
+                        if(playerObj.getString("id").equals(Player.localPlayer.id)){
+                            Player.localPlayer.let{
+                                it.remainingSettlements = playerObj.getInt("remainingSettlements")
+                                it.score = playerObj.getInt("score")
+                            }
+                        }
                     }
                     MyStomp.setPlayerActive(activePlayer?.id == MyStomp.playerId)
 
@@ -605,23 +596,21 @@ class GameActivity : ComponentActivity() {
                     }
                 }
 
-        roomId?.let { validRoomId ->
-            MyStomp.subscribeToCheatReportWindow(validRoomId) { cheatWindowUpdate ->
-                this@GameActivity.isReportWindowActive = cheatWindowUpdate.isWindowActive
-                lastActivePlayerId.value = cheatWindowUpdate.reportedPlayerId
+                roomId.let { validRoomId ->
+                    MyStomp.subscribeToCheatReportWindow(validRoomId) { cheatWindowUpdate ->
+                        this@GameActivity.isReportWindowActive = cheatWindowUpdate.isWindowActive
+                        lastActivePlayerId.value = cheatWindowUpdate.reportedPlayerId
 
-                // Timer im Client starten, um den Button nach 3s wieder zu deaktivieren
-                if (cheatWindowUpdate.isWindowActive) {
-                    // Coroutine nutzen, um nach 3 Sekunden den Zustand zurückzusetzen
-                    CoroutineScope(Dispatchers.Main).launch {
-                        delay(3000)
-                        this@GameActivity.isReportWindowActive = false
+                        // Timer im Client starten, um den Button nach 3s wieder zu deaktivieren
+                        if (cheatWindowUpdate.isWindowActive) {
+                            // Coroutine nutzen, um nach 3 Sekunden den Zustand zurückzusetzen
+                            CoroutineScope(Dispatchers.Main).launch {
+                                delay(3000)
+                                this@GameActivity.isReportWindowActive = false
+                            }
+                        }
                     }
                 }
-            }
-        }
-
-        // In GameActivity.kt
             }
         }
         MyStomp.connect(context = this) {
@@ -647,8 +636,8 @@ class GameActivity : ComponentActivity() {
 
                 isReportWindowActive = isReportWindowActive,
 
-                onHousePlaced = { isCheated ->
-                    if (isCheated) {
+                onHousePlaced = { hasCheated ->
+                    if (hasCheated) {
                         hasPlacedCheatedHouse.value = true
                     }
                 } ,
@@ -673,15 +662,47 @@ class GameActivity : ComponentActivity() {
             )
         }
     }
+
+    // onResume und onPause für den Listener
+    override fun onResume() {
+        super.onResume()
+        // Regristierte den Listener, wenn die Activity im Vordergrund ist
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI)
+    }
+
+    override fun onPause(){
+        super.onPause()
+        // Entferne den Listener, wenn die Activity nicht mehr im Vordergrund ist
+        sensorManager.unregisterListener(this)
+    }
+
+    // Logik für die Sensoren
+    override fun onSensorChanged(event: SensorEvent?) {
+        if (event?.sensor?.type == Sensor.TYPE_ACCELEROMETER) {
+            val x = event.values[0]
+            val y = event.values[1]
+            val z = event.values[2]
+            lastAcceleration = currentAcceleration
+            currentAcceleration = kotlin.math.sqrt((x * x + y * y + z * z).toDouble()).toFloat()
+            val delta = currentAcceleration - lastAcceleration
+            acceleration = acceleration * 0.9f + delta
+
+            if (acceleration > shakeThreshold) {
+                // Prüfe, ob der aktuelle Spieler am Zug ist
+                if (activePlayer?.id == MyStomp.playerId) {
+                    val roomId = intent.getStringExtra("ROOM_ID")
+                    if (roomId != null) {
+                        runOnUiThread {
+                            Toast.makeText(this, "Zug wird rückgängig gemacht!", Toast.LENGTH_SHORT).show()
+                            MyStomp.undoLastMove(roomId)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        // Wird für die Funktion nicht benötigt, muss aber implementiert werden.
+    }
 }
-
-
-/*
-@Preview(showBackground = true)
-@Composable
-fun HexagonBoardScreenPreview() {
-   HexagonBoardScreen()
-}
-
-
- */
