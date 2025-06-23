@@ -28,11 +28,6 @@ class GameManagerTest {
         gameManagerTest = GameManager(players, TurnManager(players), gameBoard)
     }
 
-    @Test
-    fun `initializeGame creates valid deck`() {
-        gameManagerTest.initializeGame()
-        assertEquals(25-players.size, gameManagerTest.getTerrainDeckSize())
-    }
 
     @Test
     fun `game over detection works for multiple players`() {

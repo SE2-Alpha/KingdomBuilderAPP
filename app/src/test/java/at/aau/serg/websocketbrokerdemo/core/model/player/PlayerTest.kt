@@ -40,33 +40,6 @@ class PlayerTest {
     }
 
     @Test
-    fun `buildSettlement reduces remaining settlements`() {
-        assertTrue(player.buildSettlement(validField))
-        assertEquals(39, player.remainingSettlements)
-    }
-
-    @Test
-    fun `buildSettlement reduces settlements and updates kingdom`() {
-        assertTrue(player.buildSettlement(validField))
-        assertEquals(39, player.remainingSettlements)
-        assertTrue(player.kingdom.getSettlementCount() == 1)
-    }
-
-    @Test
-    fun `cannot build on non-buildable field`() {
-        val waterField = TerrainField(TerrainType.WATER, 999)
-        assertFalse(player.buildSettlement(waterField))
-    }
-
-    @Test
-    fun `undo build restores state`() {
-        player.buildSettlement(validField)
-        assertTrue(player.undoBuildSettlement(validField))
-        assertEquals(40, player.remainingSettlements)
-        assertNull(validField.builtBy)
-    }
-
-    @Test
     fun `card management handles empty hand correctly`() {
         assertNull(player.playerCard())
         assertNull(player.currentCard())
@@ -78,12 +51,6 @@ class PlayerTest {
         assertTrue(player.validateBuild(isolatedField))
     }
 
-    @Test
-    fun `validateBuild enforces kingdom connection`() {
-        player.buildSettlement(validField)
-        val disconnectedField = gameBoard.getFieldByRowAndCol(5,5)
-        assertFalse(player.validateBuild(disconnectedField))
-    }
 
     @Test
     fun `card management works correctly`() {

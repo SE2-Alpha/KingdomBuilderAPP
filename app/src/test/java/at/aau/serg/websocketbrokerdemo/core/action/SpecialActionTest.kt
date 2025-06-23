@@ -1,7 +1,6 @@
 package at.aau.serg.websocketbrokerdemo.core.action
 
 import at.aau.serg.websocketbrokerdemo.core.actions.SpecialAction
-import at.aau.serg.websocketbrokerdemo.core.model.cards.LocationTile
 import at.aau.serg.websocketbrokerdemo.core.model.player.Player
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach

@@ -607,23 +607,21 @@ class GameActivity : ComponentActivity() {
                     }
                 }
 
-        roomId?.let { validRoomId ->
-            MyStomp.subscribeToCheatReportWindow(validRoomId) { cheatWindowUpdate ->
-                this@GameActivity.isReportWindowActive = cheatWindowUpdate.isWindowActive
-                lastActivePlayerId.value = cheatWindowUpdate.reportedPlayerId
+                roomId?.let { validRoomId ->
+                    MyStomp.subscribeToCheatReportWindow(validRoomId) { cheatWindowUpdate ->
+                        this@GameActivity.isReportWindowActive = cheatWindowUpdate.isWindowActive
+                        lastActivePlayerId.value = cheatWindowUpdate.reportedPlayerId
 
-                // Timer im Client starten, um den Button nach 3s wieder zu deaktivieren
-                if (cheatWindowUpdate.isWindowActive) {
-                    // Coroutine nutzen, um nach 3 Sekunden den Zustand zurückzusetzen
-                    CoroutineScope(Dispatchers.Main).launch {
-                        delay(3000)
-                        this@GameActivity.isReportWindowActive = false
+                        // Timer im Client starten, um den Button nach 3s wieder zu deaktivieren
+                        if (cheatWindowUpdate.isWindowActive) {
+                            // Coroutine nutzen, um nach 3 Sekunden den Zustand zurückzusetzen
+                            CoroutineScope(Dispatchers.Main).launch {
+                                delay(3000)
+                                this@GameActivity.isReportWindowActive = false
+                            }
+                        }
                     }
                 }
-            }
-        }
-
-        // In GameActivity.kt
             }
         }
         MyStomp.connect(context = this) {
@@ -649,8 +647,8 @@ class GameActivity : ComponentActivity() {
 
                 isReportWindowActive = isReportWindowActive,
 
-                onHousePlaced = { isCheated ->
-                    if (isCheated) {
+                onHousePlaced = { hasCheated ->
+                    if (hasCheated) {
                         hasPlacedCheatedHouse.value = true
                     }
                 } ,
@@ -676,14 +674,3 @@ class GameActivity : ComponentActivity() {
         }
     }
 }
-
-
-/*
-@Preview(showBackground = true)
-@Composable
-fun HexagonBoardScreenPreview() {
-   HexagonBoardScreen()
-}
-
-
- */

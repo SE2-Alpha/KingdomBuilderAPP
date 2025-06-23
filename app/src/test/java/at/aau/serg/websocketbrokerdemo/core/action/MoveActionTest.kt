@@ -1,6 +1,5 @@
 package at.aau.serg.websocketbrokerdemo.core.action
 
-import at.aau.serg.websocketbrokerdemo.core.actions.MoveAction
 import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
 import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainField
 import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainType
