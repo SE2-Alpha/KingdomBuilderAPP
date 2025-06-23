@@ -29,7 +29,7 @@ class PlayerTest {
     fun setUp(){
         gameBoard = GameBoard()
         gameBoard.buildGameboard()
-        player = Player("1", "Player1", 0, gameBoard)
+        player = Player("1", "Player1", 0)
         validField = gameBoard.getFieldByRowAndCol(0,0).apply { type = TerrainType.GRASS }
         invalidField = TerrainField(TerrainType.WATER, 999)
     }
@@ -37,27 +37,5 @@ class PlayerTest {
     @Test
     fun remainingSettlementsAssertion(){
         assertEquals(40, player.remainingSettlements)
-    }
-
-    @Test
-    fun `card management handles empty hand correctly`() {
-        assertNull(player.playerCard())
-        assertNull(player.currentCard())
-    }
-
-    @Test
-    fun `validateBuild checks first settlement rules`() {
-        val isolatedField = gameBoard.getFieldByRowAndCol(15,15)
-        assertTrue(player.validateBuild(isolatedField))
-    }
-
-
-    @Test
-    fun `card management works correctly`() {
-        val card = mock(TerrainCard::class.java)
-        player.drawCard(card)
-        assertEquals(card, player.currentCard())
-        assertEquals(card, player.playerCard())
-        assertNull(player.playerCard())
     }
 }

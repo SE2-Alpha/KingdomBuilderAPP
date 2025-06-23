@@ -265,43 +265,6 @@ fun HexagonBoardScreen(
                                         val canPlaceNormally = hex.field.isBuildable
                                         val canPlaceWithCheat = isCheatModeActive
 
-
-//                                        if (!currentlyMarked && (canPlaceNormally || canPlaceWithCheat)) {
-//                                            // Feld makieren und Haus platzieren
-//                                            markedFields[key] = true
-//                                            hex.field.builtBy = Player.localPlayer
-//                                            gameBoard.getFieldByRowAndCol(
-//                                                hex.row,
-//                                                hex.col
-//                                            ).builtBy = Player.localPlayer
-//
-//                                            // Der Activity melden, ob dieaer Zug ein Cheat war
-//                                            val wasCheated = isCheatModeActive
-//                                            Log.i(
-//                                                "CHEAT_DEBUG",
-//                                                "HAUS PLATZIERT: isCheatModeActive ist ($isCheatModeActive), wasCheated ist ($wasCheated)"
-//                                            )
-//                                            onHousePlaced(wasCheated)
-//
-//                                            Log.i(
-//                                                "Player Interaction",
-//                                                "Field ${hex.row}, ${hex.col} placed. Was cheated: $wasCheated"
-//                                            )
-//
-//                                        } else if (currentlyMarked) {
-//                                            // Optional: Erlaube das Entfernen von Häusern in der gleichen Runde
-//                                            markedFields[key] = false
-//                                            hex.field.builtBy = null
-//                                            gameBoard.getFieldByRowAndCol(
-//                                                hex.row,
-//                                                hex.col
-//                                            ).builtBy = null
-//                                            Log.i(
-//                                                "Player Interaction",
-//                                                "Field ${hex.row}, ${hex.col} removed."
-//                                            )
-//                                        }
-
                                         Log.i("Player Interaction","Field ${hex.row}, ${hex.col} in ${hex.quadrant} toggled to ${!currentlyMarked}")
                                     }
                                     return@detectTapGestures
@@ -429,68 +392,68 @@ fun HexagonBoardScreen(
                 }
             }
         }
+        val me = Player.localPlayer
 
         Box(modifier = Modifier.align(Alignment.BottomEnd)) {
             Column {
-                Text("Mein Name: "+MyStomp.userName)
-                Text("Verbleibende Häuser: ${activePlayer?.remainingSettlements?:"NaN"}")
-                Text("Aktiver Spieler: ${activePlayer?.name ?: "Keiner"}")
+                Text("Mein Name: ${me.name}")
+                Text("Verbleibende Häuser: ${me.remainingSettlements}")
+                Text("Aktiver Spieler: ${activePlayer?.name ?: ""}")
             }
         }
 
-            if (playerIsActive) {
-                Box(modifier = Modifier.align(Alignment.BottomStart)) {
-                    Column(
-                        modifier = Modifier
-                            .padding(start = 16.dp)
+        if (playerIsActive) {
+            Box(modifier = Modifier.align(Alignment.BottomStart)) {
+                Column(
+                    modifier = Modifier
+                        .padding(start = 16.dp)
+                ) {
+                    var str = if(me.id == activePlayer?.id) terrainCardType else ""
+                    Text("Carte: $str")
+                    Button(
+                        onClick = {
+                            onDrawCard(roomId)
+                            drawCardIsClicked = true
+                        },
+                        enabled = !drawCardIsClicked,
+                        modifier = Modifier.padding(4.dp)
                     ) {
-                        terrainCardType?.let {
-                            Text("Terraintype: "+it)
-                        }
-                        Button(
-                            onClick = {
-                                onDrawCard(roomId)
-                                drawCardIsClicked = true
-                            },
-                            enabled = !drawCardIsClicked,
-                            modifier = Modifier.padding(4.dp)
-                        ) {
-                            Text("Draw Card")
-                        }
-                        Button(
-                            onClick = { MyStomp.toggleCheatMode(roomId);onToggleCheatMode },
-                            modifier = Modifier.padding(4.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                // Farbe ändert sich, wenn der Modus aktiv ist
-                                containerColor = if (isCheatModeActive) Color.Red else MaterialTheme.colorScheme.primary
-                            )
-                        ) {
-                            Text(if (isCheatModeActive) "Cheat Mode: ON" else "Cheat Mode: OFF")
-                        }
+                        Text("Draw Card")
+                    }
+                    Button(
+                        onClick = { MyStomp.toggleCheatMode(roomId);onToggleCheatMode },
+                        modifier = Modifier.padding(4.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            // Farbe ändert sich, wenn der Modus aktiv ist
+                            containerColor = if (isCheatModeActive) Color.Red else MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text(if (isCheatModeActive) "Cheat Mode: ON" else "Cheat Mode: OFF")
+                    }
 
 
-                        Button(
-                            onClick = { onPlaceHouses(roomId) },
-                            enabled = drawCardIsClicked,
-                            modifier = Modifier.padding(4.dp)
-                        ) {
-                            Text("Place Houses")
-                        }
-                        Button(
-                            onClick = {
-                                onEndTurn(roomId)
-                                drawCardIsClicked = false
-                                MyStomp.setPlayerActive(false)
-                               // terrainCardType = null
-                            },
-                            enabled = drawCardIsClicked,
-                            modifier = Modifier.padding(4.dp)
-                        ) {
-                            Text("End Turn")
-                        }
+                    Button(
+                        onClick = { onPlaceHouses(roomId) },
+                        enabled = drawCardIsClicked,
+                        modifier = Modifier.padding(4.dp)
+                    ) {
+                        Text("Place Houses")
+                    }
+                    Button(
+                        onClick = {
+                            onEndTurn(roomId)
+                            drawCardIsClicked = false
+                            MyStomp.setPlayerActive(false)
+                            //terrainCardType = null
+                        },
+                        enabled = drawCardIsClicked,
+                        modifier = Modifier.padding(4.dp)
+                    ) {
+                        Text("End Turn")
                     }
                 }
             }
+        }
         Box(modifier = Modifier
             .align(Alignment.TopEnd)
             .padding(16.dp)) {
