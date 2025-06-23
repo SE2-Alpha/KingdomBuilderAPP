@@ -375,6 +375,12 @@ class LobbyActivity : ComponentActivity()  {
                     )
                     if(MyStomp.playerId == playerObj.getString("id") && isActivityReallyActive())
                     {
+                        players.forEach { player ->
+                            if (player.id == MyStomp.playerId) {
+                                Player.localPlayer = Player(player.id, player.name, player.color)
+                            }
+                        }
+
                         if(RoomStatus.valueOf(obj.getString("status")) == RoomStatus.FINISHED)
                         {
                             MyStomp.leaveRoom(roomId = joinedRoomId.toString())
