@@ -1,15 +1,11 @@
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContentProviderCompat.requireContext
 import at.aau.serg.websocketbrokerdemo.GameEndingActivity
 import at.aau.serg.websocketbrokerdemo.core.model.lobby.PlayerListDAO
 import at.aau.serg.websocketbrokerdemo.core.model.player.PlayerScoreDTO
@@ -86,21 +82,6 @@ object MyStomp {
             Handler(Looper.getMainLooper()).post {
                 onConnected?.invoke()
             }
-        }
-    }
-
-
-    fun sendHello() {
-        Log.d("MyStomp", "Sende Hello Nachricht an Server")
-        scope.launch {
-            session.sendText("/app/hello", "message from client")
-        }
-    }
-
-    fun send(Subject: String, message: String) {
-        Log.d("MyStomp", "send an Server.")
-        scope.launch {
-            session.sendText(Subject, message)
         }
     }
 

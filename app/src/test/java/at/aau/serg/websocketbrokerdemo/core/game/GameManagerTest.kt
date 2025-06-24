@@ -1,7 +1,6 @@
 package at.aau.serg.websocketbrokerdemo.core.game
 
 import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
-import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainType
 import at.aau.serg.websocketbrokerdemo.core.model.player.Player
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
@@ -9,7 +8,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito.*
-import kotlin.test.assertFailsWith
 
 class GameManagerTest {
 

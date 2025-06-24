@@ -1,10 +1,6 @@
 package at.aau.serg.websocketbrokerdemo.core.game
 
-import android.app.GameState
-import android.os.Build
-import androidx.annotation.RequiresApi
 import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
-import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainType
 import at.aau.serg.websocketbrokerdemo.core.model.cards.TerrainCard
 import at.aau.serg.websocketbrokerdemo.core.model.player.Player
 

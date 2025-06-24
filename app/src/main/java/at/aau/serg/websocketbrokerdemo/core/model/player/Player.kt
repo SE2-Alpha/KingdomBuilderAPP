@@ -1,10 +1,6 @@
 package at.aau.serg.websocketbrokerdemo.core.model.player
 
-import androidx.compose.ui.text.rememberTextMeasurer
-import at.aau.serg.websocketbrokerdemo.core.model.board.GameBoard
-import at.aau.serg.websocketbrokerdemo.core.model.board.TerrainField
 import at.aau.serg.websocketbrokerdemo.core.model.cards.Card
-import at.aau.serg.websocketbrokerdemo.core.model.cards.TerrainCard
 
 /**
  * Repräsentiert einen Spieler mit Königreich und Ressourcen.

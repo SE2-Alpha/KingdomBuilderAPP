@@ -5,9 +5,6 @@ import at.aau.serg.websocketbrokerdemo.core.model.board.quadrants.QuadrantFields
 import at.aau.serg.websocketbrokerdemo.core.model.board.quadrants.QuadrantOasis
 import at.aau.serg.websocketbrokerdemo.core.model.board.quadrants.QuadrantTavern
 import at.aau.serg.websocketbrokerdemo.core.model.board.quadrants.QuadrantTower
-import kotlin.math.abs
-
-import androidx.collection.emptyObjectList
 import at.aau.serg.websocketbrokerdemo.core.model.player.Kingdom
 import at.aau.serg.websocketbrokerdemo.core.model.player.Player
 import at.aau.serg.websocketbrokerdemo.core.model.player.PlayerDAO
