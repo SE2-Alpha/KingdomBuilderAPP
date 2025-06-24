@@ -621,7 +621,7 @@ class GameActivity : ComponentActivity(), SensorEventListener {
                                 score = playerObj.getInt("score")
                             )
                         )
-                        if(playerObj.getString("id").equals(Player.localPlayer.id)){
+                        if(playerObj.getString("id")==(Player.localPlayer.id)){
                             Player.localPlayer.let{
                                 it.remainingSettlements = playerObj.getInt("remainingSettlements")
                                 it.score = playerObj.getInt("score")
@@ -655,7 +655,7 @@ class GameActivity : ComponentActivity(), SensorEventListener {
             }
         }
         MyStomp.connect(context = this) {
-            roomId?.let { validRoomId ->
+            roomId?.let { _ ->
                 MyStomp.getGameUpdate(roomId)
                 MyStomp.subscribeToScoreUpdates(roomId, context = this)
             }
@@ -718,15 +718,13 @@ class GameActivity : ComponentActivity(), SensorEventListener {
             val delta = currentAcceleration - lastAcceleration
             acceleration = acceleration * 0.9f + delta
 
-            if (acceleration > shakeThreshold) {
+            if (acceleration > shakeThreshold && activePlayer?.id == MyStomp.playerId) {
                 // Prüfe, ob der aktuelle Spieler am Zug ist
-                if (activePlayer?.id == MyStomp.playerId) {
-                    val roomId = intent.getStringExtra("ROOM_ID")
-                    if (roomId != null) {
-                        runOnUiThread {
-                            Toast.makeText(this, "Zug wird rückgängig gemacht!", Toast.LENGTH_SHORT).show()
-                            MyStomp.undoLastMove(roomId)
-                        }
+                val roomId = intent.getStringExtra("ROOM_ID")
+                if (roomId != null) {
+                    runOnUiThread {
+                        Toast.makeText(this, "Zug wird rückgängig gemacht!", Toast.LENGTH_SHORT).show()
+                        MyStomp.undoLastMove(roomId)
                     }
                 }
             }

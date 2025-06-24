@@ -208,8 +208,11 @@ class LobbyActivity : ComponentActivity()  {
                                             disabledContentColor = colorResource(id = R.color.button_disabled_text)
                                         ),) {
                                         Text(
-                                            text = if (room.status == RoomStatus.STARTED) "gestartet"
-                                            else if (room.status == RoomStatus.FINISHED) "beendet" else if (room.status == RoomStatus.WAITING && room.currentUsers < room.size) "Beitreten" else "Voll",
+                                            text = when (room.status) {
+                                                RoomStatus.WAITING -> if(room.currentUsers < room.size) "Beitreten" else "Voll"
+                                                RoomStatus.STARTED  -> "Gestartet"
+                                                RoomStatus.FINISHED -> "Beendet"
+                                            },
                                             color = if (room.status == RoomStatus.WAITING && room.currentUsers < room.size) colorResource(R.color.Green_Dark) else colorResource(R.color.Red_Dark),
                                         )
                                     }
@@ -403,7 +406,6 @@ class LobbyActivity : ComponentActivity()  {
     private fun startGameActivity() {
         val intent = Intent(this, GameActivity::class.java)
         intent.putExtra("ROOM_ID", joinedRoomId)
-        //intent.putStringArrayListExtra("PLAYER_LIST", ArrayList(playersInRoom))
         startActivity(intent)
     }
 
