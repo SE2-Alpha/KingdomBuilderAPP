@@ -142,7 +142,7 @@ class GameBoard() {
             if (playerdao == null) {
                 player = null
             } else {
-                player = Player(playerdao, this)
+                player = Player(playerdao)
                 System.out.println("Updating field with player: "+field);
             }
             setField(
