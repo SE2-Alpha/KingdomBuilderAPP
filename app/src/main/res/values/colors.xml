@@ -29,4 +29,11 @@
     <color name="terrain_city">#D3D3D3</color>
 
 
+    <color name="button_disabled">#FF999999</color>
+    <color name="button_disabled_text">#90474444</color>
+
+    <color name="Green_Dark">#043E04</color>
+    <color name="Red_Dark">#7C0202</color>
+
+
 </resources>
