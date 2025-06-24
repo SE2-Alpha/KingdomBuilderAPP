@@ -420,7 +420,7 @@ fun HexagonBoardScreen(
             }
         }
 
-        if (playerIsActive) {
+        if (playerIsActive && !isReportWindowActive) {
             Box(modifier = Modifier.align(Alignment.BottomStart)) {
                 Column(
                     modifier = Modifier
