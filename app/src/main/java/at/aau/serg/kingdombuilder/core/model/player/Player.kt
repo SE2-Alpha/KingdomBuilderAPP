@@ -9,7 +9,6 @@ import at.aau.serg.kingdombuilder.core.model.cards.Card
 class Player(val id: String, val name: String, var color: Int) {
 
     var score: Int = 0
-    var currentCard: Card? = null
     var remainingSettlements: Int = 40
         set(value){
             field = value.coerceAtLeast(0)

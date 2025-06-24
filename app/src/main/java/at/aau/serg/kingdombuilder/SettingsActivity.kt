@@ -46,6 +46,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
+import androidx.core.content.edit
 
 class SettingsActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,14 +63,8 @@ class SettingsActivity: ComponentActivity() {
         val context = LocalContext.current
         val prefs = context.getSharedPreferences("app_settings", MODE_PRIVATE)
         val userName = prefs.getString("user_name", "") ?: ""
-        val musicVolume = prefs.getInt("music_volume", 100)
-        val soundVolume = prefs.getInt("sound_volume", 100)
-        val darkMode = prefs.getBoolean("dark_mode", false)
 
         var userNameState by remember {mutableStateOf(userName)}
-        var musicVolumeState by remember { mutableStateOf(musicVolume.toFloat()) }
-        var soundVolumeState by remember { mutableStateOf(soundVolume.toFloat()) }
-        var darkModeEnabled by remember { mutableStateOf(darkMode) }
 
         val scrollState = rememberScrollState()
 
@@ -83,12 +78,9 @@ class SettingsActivity: ComponentActivity() {
                     },
                     title = "Settings",
                     onSave = {
-                        val editor = prefs.edit()
-                        editor.putString("user_name", userNameState)
-                        editor.putInt("music_volume", musicVolumeState.toInt())
-                        editor.putInt("sound_volume", soundVolumeState.toInt())
-                        editor.putBoolean("dark_mode", darkModeEnabled)
-                        editor.apply()
+                        prefs.edit {
+                            putString("user_name", userNameState)
+                        }
                         onSave()
                     }
 
@@ -118,15 +110,6 @@ class SettingsActivity: ComponentActivity() {
                         .padding(vertical = 8.dp),
                     singleLine = true
                 )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(text = "Preferences:", color = colorResource(id = R.color.light_blue_900), fontSize = 25.sp)
-                Spacer(modifier = Modifier.height(12.dp))
-
-                VolumeSlider("Music Volume", musicVolumeState){musicVolumeState = it}
-                VolumeSlider("Sound Volume", soundVolumeState){soundVolumeState = it}
-                SettingToggle("Dark Mode (Test Button)", darkModeEnabled){darkModeEnabled = it}
-
-                Spacer(modifier = Modifier.height(8.dp))
             }
 
         }
@@ -149,22 +132,7 @@ class SettingsActivity: ComponentActivity() {
             )
         }
     }
-    @Composable
-    fun SettingToggle(title: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = title, color = colorResource(id = R.color.light_blue_900), fontSize = 15.sp)
-            Switch(
-                checked = checked,
-                onCheckedChange = onCheckedChange
-            )
-        }
-    }
+
     @Composable
     fun SettingsBar(
         title: String,
@@ -236,7 +204,7 @@ class SettingsActivity: ComponentActivity() {
             }
         }
     }
-    @Preview (showBackground = true)
+    @Preview (showBackground = true, device = "spec:parent=pixel_5,orientation=landscape")
     @Composable
     fun SettingsScreenPreview(){
         SettingsScreen(onSave = {})

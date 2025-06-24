@@ -1,6 +1,7 @@
 package at.aau.serg.kingdombuilder.core.model.board
 
 import junit.framework.TestCase.assertFalse
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -37,8 +38,8 @@ class GameBoardTest {
         field3 = TerrainField(TerrainType.FLOWERS,41)
         field4 = TerrainField(TerrainType.FLOWERS,62)
 
-        assertFalse(gameBoardTest.areFieldsAdjacent(field1,field2))
-        assertFalse(gameBoardTest.areFieldsAdjacent(field3, field4))
+        Assertions.assertFalse(gameBoardTest.areFieldsAdjacent(field1,field2))
+        Assertions.assertFalse(gameBoardTest.areFieldsAdjacent(field3, field4))
     }
 
 //Test Field Placements using getFieldByRowAndCol() - Upper Left, Upper Right, Lower Left, Lower Right
@@ -86,7 +87,7 @@ class GameBoardTest {
     fun testNonAdjacentFields() {
         val field1 = gameBoardTest.getFieldByRowAndCol(0,0)
         val field2 = gameBoardTest.getFieldByRowAndCol(2,2)
-        assertFalse(gameBoardTest.areFieldsAdjacent(field1,field2))
+        Assertions.assertFalse(gameBoardTest.areFieldsAdjacent(field1,field2))
     }
 
     @Test
@@ -131,7 +132,7 @@ class GameBoardTest {
         // Nicht Nachbarn
         val field7 = gameBoardTest.getFieldByRowAndCol(0, 0)
         val field8 = gameBoardTest.getFieldByRowAndCol(5, 5)
-        assertFalse(gameBoardTest.areFieldsAdjacent(field7, field8))
+        Assertions.assertFalse(gameBoardTest.areFieldsAdjacent(field7, field8))
     }
 
     @Test

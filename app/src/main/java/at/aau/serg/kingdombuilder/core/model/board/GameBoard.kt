@@ -103,16 +103,6 @@ class GameBoard() {
         if (fields.isEmpty()) throw IllegalStateException("GameBoard is not initialized!")
         return fields[row * 20 + col]
     }
-    fun getAdjacentFields(field: TerrainField): List<TerrainField> {
-        val adjacent = mutableListOf<TerrainField>()
-        val position = field.id
-        //Hex-Nachbarschaftslogik
-        val offsets = listOf(-10, -9, 1, 11, 10, 9)
-        offsets.forEach { offset ->
-            fields.getOrNull(position + offset)?.let { adjacent.add(it)}
-        }
-        return adjacent
-    }
 
     fun updateGameBoardFromJson(boardFields: org.json.JSONArray, players: List<PlayerDAO>) {
         if(fields.isEmpty()) {
