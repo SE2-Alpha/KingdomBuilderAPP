@@ -82,12 +82,17 @@ data class Hexagon(
     val field: TerrainField
 )
 
+const val quadrant_1 = "Quadrant 1"
+const val quadrant_2 = "Quadrant 2"
+const val quadrant_3 = "Quadrant 3"
+const val quadrant_4 = "Quadrant 4"
+
 // Bestimmt das Quartil anhand von Zeile und Spalte im 20x20-Gitter
 fun getQuadrant(row: Int, col: Int): String = when {
-    row < 10 && col < 10 -> "Quadrant 1" // oben links
-    row < 10 && col >= 10 -> "Quadrant 2" // oben rechts
-    row >= 10 && col < 10 -> "Quadrant 3" // unten links
-    else -> "Quadrant 4"                 // unten rechts
+    row < 10 && col < 10 -> quadrant_1 // oben links
+    row < 10 && col >= 10 -> quadrant_2 // oben rechts
+    row >= 10 && col < 10 -> quadrant_3 // unten links
+    else -> quadrant_4                 // unten rechts
 }
 
 // Erzeugt einen Pfad für ein pointy-top Hexagon anhand des Mittelpunkts und der Seitenlänge
@@ -167,10 +172,10 @@ fun HexagonBoardScreen(
         } else {
             // Zoommodus: 10x10-Gitter des ausgewählten Quartils
             val (rowOffset, colOffset) = when (selectedQuadrant) {
-                "Quadrant 1" -> 0 to 0
-                "Quadrant 2" -> 0 to 10
-                "Quadrant 3" -> 10 to 0
-                "Quadrant 4" -> 10 to 10
+                quadrant_1 -> 0 to 0
+                quadrant_2 -> 0 to 10
+                quadrant_3 -> 10 to 0
+                quadrant_4 -> 10 to 10
                 else -> 0 to 0
             }
             List(quadrantRows * quadrantCols) { index ->
@@ -244,10 +249,10 @@ fun HexagonBoardScreen(
                             // Im Zoommodus: Bestimme den rowOffset/colOffset
                             val (_, _) = if (selectedQuadrant != null) {
                                 when (selectedQuadrant) {
-                                    "Quadrant 1" -> 0 to 0
-                                    "Quadrant 2" -> 0 to 10
-                                    "Quadrant 3" -> 10 to 0
-                                    "Quadrant 4" -> 10 to 10
+                                    quadrant_1 -> 0 to 0
+                                    quadrant_2 -> 0 to 10
+                                    quadrant_3 -> 10 to 0
+                                    quadrant_4 -> 10 to 10
                                     else -> 0 to 0
                                 }
                             } else 0 to 0
@@ -287,10 +292,10 @@ fun HexagonBoardScreen(
                         // Im Übersichtsmodus: Einheitliche Füllfarbe, im Zoommodus abhängig vom Markierungsstatus
 
                         val (_, _) = when (hex.quadrant) {
-                            "Quadrant 1" -> 0 to 0
-                            "Quadrant 2" -> 0 to 10
-                            "Quadrant 3" -> 10 to 0
-                            "Quadrant 4" -> 10 to 10
+                            quadrant_1 -> 0 to 0
+                            quadrant_2 -> 0 to 10
+                            quadrant_3 -> 10 to 0
+                            quadrant_4 -> 10 to 10
                             else -> 0 to 0
                         }
                         val fillColor = gameBoard.getFieldByRowAndCol(hex.row,hex.col).getColor(context) // Hexagon-Farbe
