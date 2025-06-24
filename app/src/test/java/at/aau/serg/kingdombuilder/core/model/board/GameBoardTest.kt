@@ -1,6 +1,5 @@
 package at.aau.serg.kingdombuilder.core.model.board
 
-import junit.framework.TestCase.assertFalse
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

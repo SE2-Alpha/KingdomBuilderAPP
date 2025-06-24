@@ -8,9 +8,11 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.content.edit
 import at.aau.serg.kingdombuilder.core.model.lobby.PlayerListDAO
 import at.aau.serg.kingdombuilder.core.model.player.PlayerScoreDTO
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -20,8 +22,6 @@ import org.hildan.krossbow.stomp.sendText
 import org.hildan.krossbow.stomp.subscribeText
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import java.util.UUID
-import androidx.core.content.edit
-import com.google.gson.reflect.TypeToken
 
 const val URI_Emulator = "ws://10.0.2.2:8080/ws-kingdombuilder-broker"
 const val URI_Server = "ws://se2-demo.aau.at:53213/ws-kingdombuilder-broker"

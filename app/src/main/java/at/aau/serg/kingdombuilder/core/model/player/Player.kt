@@ -1,7 +1,5 @@
 package at.aau.serg.kingdombuilder.core.model.player
 
-import at.aau.serg.kingdombuilder.core.model.cards.Card
-
 /**
  * Repräsentiert einen Spieler mit Königreich und Ressourcen.
  */
