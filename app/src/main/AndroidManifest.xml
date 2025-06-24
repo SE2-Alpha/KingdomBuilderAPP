@@ -16,41 +16,41 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name="at.aau.serg.websocketbrokerdemo.GameEndingActivity"
+            android:name="at.aau.serg.kingdombuilder.GameEndingActivity"
             android:exported="false"
             android:label="@string/title_activity_game_ending"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.MyApplication" />
         <activity
-            android:name="at.aau.serg.websocketbrokerdemo.LobbyActivity"
+            android:name="at.aau.serg.kingdombuilder.LobbyActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
             android:exported="false"
             android:label="@string/title_activity_lobby"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.MyApplication" />
         <activity
-            android:name="at.aau.serg.websocketbrokerdemo.GameActivity"
+            android:name="at.aau.serg.kingdombuilder.GameActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
             android:exported="false"
             android:label="@string/title_activity_game"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.MyApplication" />
         <activity
-            android:name="at.aau.serg.websocketbrokerdemo.SettingsActivity"
+            android:name="at.aau.serg.kingdombuilder.SettingsActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
             android:exported="false"
             android:label="@string/title_activity_settings"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.MyApplication" />
         <activity
-            android:name="at.aau.serg.websocketbrokerdemo.RulesActivity"
+            android:name="at.aau.serg.kingdombuilder.RulesActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
             android:exported="false"
             android:label="@string/title_activity_rules"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.MyApplication" />
         <activity
-            android:name="at.aau.serg.websocketbrokerdemo.StartMenuActivity"
+            android:name="at.aau.serg.kingdombuilder.StartMenuActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
             android:exported="true"
             android:label="@string/title_activity_lobby"
