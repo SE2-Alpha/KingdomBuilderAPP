@@ -443,9 +443,9 @@ fun HexagonBoardScreen(
                     var str = terrainCardType ?: ""
                     if(me.id == activePlayer?.id) {
                         Row {
+                            if (drawCardIsClicked && terrainCardType != null) {
                             Text("Card: $str")
 
-                            if (drawCardIsClicked && terrainCardType != null) {
                                 Spacer(modifier = Modifier.width(8.dp)) // Abstand zum Text
 
                                 val terrainColor = when (str) {
