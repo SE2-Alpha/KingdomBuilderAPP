@@ -100,7 +100,7 @@ class GameBoard() {
 
     }
     fun getFieldByRowAndCol(row: Int, col: Int): TerrainField {
-        if (fields.isEmpty()) throw IllegalStateException("GameBoard is not initialized!")
+        check(!fields.isEmpty()) { "GameBoard is not initialized!"}
         return fields[row * 20 + col]
     }
 
@@ -112,7 +112,7 @@ class GameBoard() {
             val field = boardFields.getJSONObject(j)
 
             var playerdao = players.firstOrNull { it.id == field.getString("owner") }
-            var player: Player? = null
+            var player: Player?
             if (playerdao == null) {
                 player = null
             } else {
