@@ -79,6 +79,10 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import androidx.activity.compose.setContent;
 import androidx.activity.viewModels;
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import java.util.Objects;
 
 // Datenklasse für ein Hexagon-Feld
@@ -425,7 +429,7 @@ fun HexagonBoardScreen(
                 Text("Mein Name: ${me.name}")
                 Spacer(modifier = Modifier.height(4.dp))
                 Text("Verbleibende Häuser: ${me.remainingSettlements}")
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 Text("Aktiver Spieler: ${activePlayer?.name ?: ""}")
             }
         }
@@ -438,8 +442,32 @@ fun HexagonBoardScreen(
                 ) {
                     var str = terrainCardType ?: ""
                     if(me.id == activePlayer?.id) {
-                        Text("Card: $str")
+                        Row {
+                            Text("Card: $str")
+
+                            if (drawCardIsClicked && terrainCardType != null) {
+                                Spacer(modifier = Modifier.width(8.dp)) // Abstand zum Text
+
+                                val terrainColor = when (str) {
+                                    "\"FOREST\"" -> colorResource(id = com.example.myapplication.R.color.terrain_forest)
+                                    "\"GRASS\"" -> colorResource(id = com.example.myapplication.R.color.terrain_grass)
+                                    "\"CANYON\"" -> colorResource(id = com.example.myapplication.R.color.terrain_canyon)
+                                    "\"DESERT\"" -> colorResource(id = com.example.myapplication.R.color.terrain_desert)
+                                    "\"FLOWERS\"" -> colorResource(id = com.example.myapplication.R.color.terrain_flowers)
+                                    else -> Color.Transparent
+                                }
+
+                                Box(
+                                    modifier = Modifier
+                                        .size(16.dp)
+                                        .background(color = terrainColor, shape = RoundedCornerShape(4.dp))
+                                        .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
+                                )
+                            }
+                        }
+
                     }
+
                     Button(
                         onClick = {
                             onDrawCard(roomId)
@@ -461,7 +489,8 @@ fun HexagonBoardScreen(
                         modifier = Modifier.padding(4.dp),
                         colors = ButtonDefaults.buttonColors(
                             // Farbe ändert sich, wenn der Modus aktiv ist
-                            containerColor = if (isCheatModeActive) Color.Red else MaterialTheme.colorScheme.primary
+                            containerColor = if (isCheatModeActive) Color.Red else colorResource(id = com.example.myapplication.R.color.beige_lobby_background),
+                            contentColor = if (isCheatModeActive) Color.White else colorResource(id = com.example.myapplication.R.color.light_blue_900)
                         )
                     ) {
                         Text(if (isCheatModeActive) "Cheat Mode: ON" else "Cheat Mode: OFF")
