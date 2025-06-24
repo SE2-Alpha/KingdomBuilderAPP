@@ -51,17 +51,6 @@ class GameEndingActivity : ComponentActivity() {
 
         setContent {
             GameEndingScreen(scores,roomid)
-
-            /*Beispielhafte Testdaten
-            val testScores = listOf(
-                PlayerScoreDTO(playerId = "Alice", points = 85),
-                PlayerScoreDTO(playerId = "Bob", points = 65),
-                PlayerScoreDTO(playerId = "Charlie", points = 95),
-                PlayerScoreDTO(playerId = "Dana", points = 40)
-            )
-            GameEndingScreen(testScores)
-
-             */
         }
     }
 }
@@ -92,7 +81,7 @@ fun GameEndingScreen(scores: List<PlayerScoreDTO>, roomId: String? = null) {
         }
         Button(onClick = {
             MyStomp.connect(context = context) {
-                roomId?.let { validRoomId ->
+                roomId?.let { _ ->
                     MyStomp.leaveRoom(roomId)
                 }
             }
