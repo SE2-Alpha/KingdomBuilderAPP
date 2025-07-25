@@ -130,7 +130,8 @@ fun HexagonBoardScreen(
     isCheatModeActive: Boolean,
     toggleCheatMode: () -> Unit,
     isReportWindowActive: Boolean,
-    onReportPlayer: () -> Unit
+    onReportPlayer: () -> Unit,
+    players: List<PlayerDAO>
 ) {
     val context = LocalContext.current
     // Zustand: Wenn kein Quartil ausgewählt, ist der Übersichtsmodus aktiv,
@@ -402,6 +403,37 @@ fun HexagonBoardScreen(
                 }
             }
         }
+
+        Box(modifier = Modifier
+            .align(Alignment.CenterEnd)
+            .border(1.dp, Color.DarkGray, shape = RoundedCornerShape(12.dp))
+        ){
+            Column(modifier = Modifier
+                .background(Color(0xFFE0E0E0), shape = RoundedCornerShape(12.dp))
+                .padding(12.dp)){
+                Text("Spieler:", color = Color.Black)
+                Spacer(modifier = Modifier.height(8.dp))
+                players.forEach { player ->
+                    val color = Color(player.color)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    ){
+                        Box(
+                            modifier = Modifier
+                                .size(16.dp)
+                                .background(color, shape = RoundedCornerShape(4.dp))
+                                .border(1.dp, Color.Black, shape = RoundedCornerShape(4.dp))
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = player.name
+                        )
+                    }
+                }
+            }
+        }
+
         val me = Player.localPlayer
 
         Box(modifier = Modifier.align(Alignment.BottomEnd)) {
@@ -689,7 +721,8 @@ class GameActivity : ComponentActivity(), SensorEventListener {
                     } else {
                         Log.d("CHEAT_DEBUG", "Bedingung NICHT erfüllt. lastActivePlayerId war null. Meldung wird nicht gesendet.")
                     }
-                }
+                },
+                players = viewModel.players
             )
         }
     }
