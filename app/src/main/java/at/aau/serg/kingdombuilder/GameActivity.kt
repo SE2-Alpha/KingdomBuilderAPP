@@ -15,23 +15,29 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -55,6 +61,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import at.aau.serg.kingdombuilder.core.model.board.GameBoard
@@ -71,6 +78,7 @@ import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
+import com.example.myapplication.R
 
 // Datenklasse für ein Hexagon-Feld
 data class Hexagon(
@@ -405,31 +413,46 @@ fun HexagonBoardScreen(
         }
 
         Box(modifier = Modifier
+            .wrapContentHeight()
             .align(Alignment.CenterEnd)
             .border(1.dp, Color.DarkGray, shape = RoundedCornerShape(12.dp))
         ){
-            Column(modifier = Modifier
-                .background(Color(0xFFE0E0E0), shape = RoundedCornerShape(12.dp))
-                .padding(12.dp)){
-                Text("Spieler:", color = Color.Black)
-                Spacer(modifier = Modifier.height(8.dp))
-                players.forEach { player ->
-                    val color = Color(player.color)
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(vertical = 4.dp)
-                    ){
-                        Box(
-                            modifier = Modifier
-                                .size(16.dp)
-                                .background(color, shape = RoundedCornerShape(4.dp))
-                                .border(1.dp, Color.Black, shape = RoundedCornerShape(4.dp))
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = player.name
-                        )
+            Column {
+                Column(modifier = Modifier
+                    .background(Color(0xFFE0E0E0), shape = RoundedCornerShape(12.dp))
+                    .padding(24.dp)
+                    .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.SpaceBetween) {
+                    Text("Spieler:", color = Color.Black)
+                    players.forEach { player ->
+                        val color = Color(player.color)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        ) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .size(16.dp)
+                                    .background(color, shape = RoundedCornerShape(4.dp))
+                                    .border(1.dp, Color.Black, shape = RoundedCornerShape(4.dp))
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = player.name
+                            )
+                        }
                     }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                IconButton(
+                    onClick = {}
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.emoji),
+                        contentDescription = "Emote",
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
             }
         }
