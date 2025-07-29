@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -62,6 +63,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import at.aau.serg.kingdombuilder.core.model.board.GameBoard
@@ -430,6 +432,11 @@ fun HexagonBoardScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(vertical = 4.dp)
                         ) {
+                            Text(
+                                text = player.emote ?: "",
+                                fontStyle = FontStyle.Italic,
+                                modifier = Modifier.widthIn(min = 40.dp)
+                            )
                             Spacer(modifier = Modifier.width(8.dp))
                             Box(
                                 modifier = Modifier
@@ -660,7 +667,8 @@ class GameActivity : ComponentActivity(), SensorEventListener {
                         name = gameManager.getJSONObject("activePlayer").getString("name"),
                         color = gameManager.getJSONObject("activePlayer").getInt("color"),
                         remainingSettlements = gameManager.getJSONObject("activePlayer").getInt("remainingSettlements"),
-                        score = gameManager.getJSONObject("activePlayer").getInt("score")
+                        score = gameManager.getJSONObject("activePlayer").getInt("score"),
+                        emote = ""
                     )
                     val boardFields = gameManager.getJSONObject("gameBoard").getJSONArray("fields")
                     val playersJson = obj.getJSONArray("players")
@@ -673,7 +681,8 @@ class GameActivity : ComponentActivity(), SensorEventListener {
                                 name = (if (!playerObj.isNull("name")) playerObj.getString("name") else null).toString(),
                                 color = playerObj.getInt("color"),
                                 remainingSettlements = playerObj.getInt("remainingSettlements"),
-                                score = playerObj.getInt("score")
+                                score = playerObj.getInt("score"),
+                                emote = ""
                             )
                         )
                         if(playerObj.getString("id")==(Player.localPlayer.id)){

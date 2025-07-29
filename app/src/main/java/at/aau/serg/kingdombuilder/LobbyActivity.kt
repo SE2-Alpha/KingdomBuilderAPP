@@ -356,7 +356,8 @@ class LobbyActivity : ComponentActivity()  {
                             name = (if (!playerObj.isNull("name")) playerObj.getString("name") else null).toString(),
                             color = playerObj.getInt("color"),
                             remainingSettlements = playerObj.getInt("remainingSettlements"),
-                            score = playerObj.getInt("score")
+                            score = playerObj.getInt("score"),
+                            emote = ""
                         )
                     )
                     if(MyStomp.playerId == playerObj.getString("id") && isActivityReallyActive())
