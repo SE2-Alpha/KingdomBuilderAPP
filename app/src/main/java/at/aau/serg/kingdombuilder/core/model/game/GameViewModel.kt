@@ -1,5 +1,6 @@
 package at.aau.serg.kingdombuilder.core.model.game
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -34,6 +35,12 @@ class GameViewModel : ViewModel() {
 
     fun updatePlayers(newPlayers: List<PlayerDAO>) {
         players = newPlayers
+    }
+    fun updatePlayerEmote(playerId: String, emote: String) {
+        Log.d("EMOTE_DEBUG", "Updating player $playerId to emote=$emote")
+        players = players.map {
+            if (it.id == playerId) it.copy(emote = emote) else it
+        }
     }
 }
 

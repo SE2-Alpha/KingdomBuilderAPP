@@ -433,7 +433,7 @@ fun HexagonBoardScreen(
                             modifier = Modifier.padding(vertical = 4.dp)
                         ) {
                             Text(
-                                text = player.emote ?: "",
+                                player.emote ?: "",
                                 fontStyle = FontStyle.Italic,
                                 modifier = Modifier.widthIn(min = 40.dp)
                             )
@@ -453,7 +453,9 @@ fun HexagonBoardScreen(
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 IconButton(
-                    onClick = {}
+                    onClick = {
+                        MyStomp.sendEmote(roomId, emote = "1")
+                    }
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.emoji),
@@ -725,7 +727,22 @@ class GameActivity : ComponentActivity(), SensorEventListener {
             }
         }
 
+        MyStomp.connect(context = this){
+            roomId?.let{ validRoomId ->
+                MyStomp.subscribeToEmoteUpdates (validRoomId) { update ->
+                    Log.d("EMOTE_DEBUG", "Received update for playerId=${update.player.id}, emote=${update.emote}")
+                    val emote = update.emote
+
+                    val playerId = update.player.id
+
+                    viewModel.updatePlayerEmote(playerId,emote)
+
+                }
+            }
+        }
+
         setContent {
+            val players = viewModel.players
             HexagonBoardScreen(
                 roomId = roomId.orEmpty(),
                 onDrawCard = onDrawCard,
@@ -754,7 +771,7 @@ class GameActivity : ComponentActivity(), SensorEventListener {
                         Log.d("CHEAT_DEBUG", "Bedingung NICHT erfüllt. lastActivePlayerId war null. Meldung wird nicht gesendet.")
                     }
                 },
-                players = viewModel.players
+                players = players
             )
         }
     }
