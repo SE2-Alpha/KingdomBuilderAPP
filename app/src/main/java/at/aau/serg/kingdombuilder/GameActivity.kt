@@ -14,11 +14,13 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -452,16 +454,22 @@ fun HexagonBoardScreen(
                     }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
-                IconButton(
-                    onClick = {
-                        MyStomp.sendEmote(roomId, emote = "1")
-                    }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier.padding(vertical = 4.dp)
                 ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.emoji),
-                        contentDescription = "Emote",
-                        modifier = Modifier.size(20.dp)
-                    )
+                    val emoteIcons = listOf("1", "2", "3", "4", "5")
+                    emoteIcons.forEach { emote ->
+                        Icon(
+                            painter = painterResource(id = R.drawable.emoji),
+                            contentDescription = "Emote",
+                            modifier = Modifier.size(25.dp)
+                                .clickable(onClick = {
+                                    MyStomp.sendEmote(roomId, emote)
+                                })
+                        )
+                    }
                 }
             }
         }
