@@ -692,7 +692,7 @@ class GameActivity : ComponentActivity(), SensorEventListener {
                                 color = playerObj.getInt("color"),
                                 remainingSettlements = playerObj.getInt("remainingSettlements"),
                                 score = playerObj.getInt("score"),
-                                emote = ""
+                                emote = viewModel.players.find { it.id == playerObj.getString("id") }?.emote ?: ""
                             )
                         )
                         if(playerObj.getString("id")==(Player.localPlayer.id)){
