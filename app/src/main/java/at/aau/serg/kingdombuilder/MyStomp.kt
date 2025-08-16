@@ -328,6 +328,18 @@ object MyStomp {
         }
     }
 
+    data class EmoteTimeoutUpdate(val player: PlayerDAO)
+    fun subscribeToEmoteTimeoutUpdate(gameId: String, callback: (EmoteTimeoutUpdate) -> Unit){
+        subscribeToTopic("/topic/game/emoteTimeout/$gameId"){message ->
+            try{
+                val update = Gson().fromJson(message, EmoteTimeoutUpdate::class.java)
+                callback(update)
+            }catch(e: Exception){
+                Log.e("MyStomp", "Fehler beim Parson von EmoteTimeout-Updates: ${e.message}")
+            }
+        }
+    }
+
 
 
 }

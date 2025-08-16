@@ -749,6 +749,17 @@ class GameActivity : ComponentActivity(), SensorEventListener {
             }
         }
 
+        MyStomp.connect(context = this){
+            roomId?.let{ validRoomId ->
+                MyStomp.subscribeToEmoteTimeoutUpdate(validRoomId){ message ->
+                    val playerId = message.player.id
+                    if(Player.localPlayer.id == playerId){
+                        Toast.makeText(this,"Zu viele Emotes, 5 Sekunden Timeout!",Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+
         setContent {
             val players = viewModel.players
             HexagonBoardScreen(
