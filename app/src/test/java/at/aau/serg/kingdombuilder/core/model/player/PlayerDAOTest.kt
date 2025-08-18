@@ -9,7 +9,7 @@ class PlayerDAOTest {
 
     @BeforeEach
     fun setUp(){
-        playerDAO = PlayerDAO("1", "Player1", 1, 5, 0)
+        playerDAO = PlayerDAO("1", "Player1", 1, 5, 0,"")
     }
 
     @Test
@@ -19,5 +19,6 @@ class PlayerDAOTest {
         assertEquals(1, playerDAO.color)
         assertEquals(5, playerDAO.remainingSettlements)
         assertEquals(0, playerDAO.score)
+        assertEquals("",playerDAO.emote)
     }
 }

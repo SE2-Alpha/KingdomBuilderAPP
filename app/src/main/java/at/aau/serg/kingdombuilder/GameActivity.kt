@@ -14,7 +14,9 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -25,7 +27,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.rounded.Home
@@ -55,6 +61,8 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import at.aau.serg.kingdombuilder.core.model.board.GameBoard
@@ -71,6 +79,7 @@ import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
+import com.example.myapplication.R
 
 // Datenklasse für ein Hexagon-Feld
 data class Hexagon(
@@ -130,7 +139,8 @@ fun HexagonBoardScreen(
     isCheatModeActive: Boolean,
     toggleCheatMode: () -> Unit,
     isReportWindowActive: Boolean,
-    onReportPlayer: () -> Unit
+    onReportPlayer: () -> Unit,
+    players: List<PlayerDAO>
 ) {
     val context = LocalContext.current
     // Zustand: Wenn kein Quartil ausgewählt, ist der Übersichtsmodus aktiv,
@@ -402,6 +412,65 @@ fun HexagonBoardScreen(
                 }
             }
         }
+
+        Box(modifier = Modifier
+            .wrapContentHeight()
+            .align(Alignment.CenterEnd)
+            .border(1.dp, Color.DarkGray, shape = RoundedCornerShape(12.dp))
+        ){
+            Column {
+                Column(modifier = Modifier
+                    .background(Color(0xFFE0E0E0), shape = RoundedCornerShape(12.dp))
+                    .padding(24.dp)
+                    .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.SpaceBetween) {
+                    Text("Spieler:", color = Color.Black)
+                    players.forEach { player ->
+                        val color = Color(player.color)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        ) {
+                            Text(
+                                player.emote,
+                                fontStyle = FontStyle.Italic,
+                                modifier = Modifier.widthIn(min = 50.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .size(16.dp)
+                                    .background(color, shape = RoundedCornerShape(4.dp))
+                                    .border(1.dp, Color.Black, shape = RoundedCornerShape(4.dp))
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = player.name
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier.padding(vertical = 4.dp)
+                ) {
+                    val emoteIcons = listOf("1", "2", "3", "4", "5")
+                    emoteIcons.forEach { emote ->
+                        Icon(
+                            painter = painterResource(id = R.drawable.emoji),
+                            contentDescription = "Emote",
+                            modifier = Modifier.size(25.dp)
+                                .clickable(onClick = {
+                                    MyStomp.sendEmote(roomId, emote)
+                                })
+                        )
+                    }
+                }
+            }
+        }
+
         val me = Player.localPlayer
 
         Box(modifier = Modifier.align(Alignment.BottomEnd)) {
@@ -605,7 +674,8 @@ class GameActivity : ComponentActivity(), SensorEventListener {
                         name = gameManager.getJSONObject("activePlayer").getString("name"),
                         color = gameManager.getJSONObject("activePlayer").getInt("color"),
                         remainingSettlements = gameManager.getJSONObject("activePlayer").getInt("remainingSettlements"),
-                        score = gameManager.getJSONObject("activePlayer").getInt("score")
+                        score = gameManager.getJSONObject("activePlayer").getInt("score"),
+                        emote = ""
                     )
                     val boardFields = gameManager.getJSONObject("gameBoard").getJSONArray("fields")
                     val playersJson = obj.getJSONArray("players")
@@ -618,7 +688,8 @@ class GameActivity : ComponentActivity(), SensorEventListener {
                                 name = (if (!playerObj.isNull("name")) playerObj.getString("name") else null).toString(),
                                 color = playerObj.getInt("color"),
                                 remainingSettlements = playerObj.getInt("remainingSettlements"),
-                                score = playerObj.getInt("score")
+                                score = playerObj.getInt("score"),
+                                emote = viewModel.players.find { it.id == playerObj.getString("id") }?.emote ?: ""
                             )
                         )
                         if(playerObj.getString("id")==(Player.localPlayer.id)){
@@ -661,7 +732,33 @@ class GameActivity : ComponentActivity(), SensorEventListener {
             }
         }
 
+        MyStomp.connect(context = this){
+            roomId?.let{ validRoomId ->
+                MyStomp.subscribeToEmoteUpdates (validRoomId) { update ->
+                    Log.d("EMOTE_DEBUG", "Received update for playerId=${update.player.id}, emote=${update.emote}")
+                    val emote = update.emote
+
+                    val playerId = update.player.id
+
+                    viewModel.updatePlayerEmote(playerId,emote)
+
+                }
+            }
+        }
+
+        MyStomp.connect(context = this){
+            roomId?.let{ validRoomId ->
+                MyStomp.subscribeToEmoteTimeoutUpdate(validRoomId){ message ->
+                    val playerId = message.player.id
+                    if(Player.localPlayer.id == playerId){
+                        Toast.makeText(this,"Zu viele Emotes, 5 Sekunden Timeout!",Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+
         setContent {
+            val players = viewModel.players
             HexagonBoardScreen(
                 roomId = roomId.orEmpty(),
                 onDrawCard = onDrawCard,
@@ -689,7 +786,8 @@ class GameActivity : ComponentActivity(), SensorEventListener {
                     } else {
                         Log.d("CHEAT_DEBUG", "Bedingung NICHT erfüllt. lastActivePlayerId war null. Meldung wird nicht gesendet.")
                     }
-                }
+                },
+                players = players
             )
         }
     }

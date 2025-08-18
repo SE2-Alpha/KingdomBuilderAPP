@@ -12,9 +12,9 @@ class PlayerListDAOTest {
 
     @Test
     fun testPlayerListDAO(){
-        playerDAO1 = PlayerDAO("1", "Player1", 1, 5, 0)
-        playerDAO2 = PlayerDAO("2", "Player2", 2, 5, 0)
-        playerDAO3 = PlayerDAO("3", "Player3", 3, 5, 0)
+        playerDAO1 = PlayerDAO("1", "Player1", 1, 5, 0, "")
+        playerDAO2 = PlayerDAO("2", "Player2", 2, 5, 0, "")
+        playerDAO3 = PlayerDAO("3", "Player3", 3, 5, 0, "")
 
         playerListDAO = PlayerListDAO("1234567", listOf(playerDAO1, playerDAO2, playerDAO3))
 

@@ -11,6 +11,7 @@ class Player(val id: String, val name: String, var color: Int) {
         set(value){
             field = value.coerceAtLeast(0)
         }
+    var emote: String = ""
 
 
     companion object LocalPlayer{
@@ -25,5 +26,6 @@ class Player(val id: String, val name: String, var color: Int) {
     ) {
         this.remainingSettlements = playerDAO.remainingSettlements
         this.score = playerDAO.score
+        this.emote = playerDAO.emote
     }
 }

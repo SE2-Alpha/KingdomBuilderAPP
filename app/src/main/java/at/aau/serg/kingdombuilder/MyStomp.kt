@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.edit
 import at.aau.serg.kingdombuilder.core.model.lobby.PlayerListDAO
+import at.aau.serg.kingdombuilder.core.model.player.PlayerDAO
 import at.aau.serg.kingdombuilder.core.model.player.PlayerScoreDTO
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -264,6 +265,20 @@ object MyStomp {
 
     data class CheatwindowUpdate(val isWindowActive: Boolean, val reportedPlayerId: String)
 
+    fun sendEmote(gameId: String, emote: String){
+        val payload = """
+            {
+                "gameId": "$gameId",
+                "playerId": "$playerId",
+                "emote": "$emote"
+            }    
+        """.trimIndent()
+
+        scope.launch{
+            session.sendText("/app/game/sendEmote", payload)
+        }
+    }
+
     fun subscribeToCheatReportWindow(roomId: String, callback: (CheatwindowUpdate) -> Unit) {
         subscribeToTopic("/topic/game/cheatWindow/$roomId") { message ->
             Log.d("CHEAT_DEBUG", "Nachricht für Cheat-Fenster erhalten: $message")
@@ -298,5 +313,33 @@ object MyStomp {
             }
         }
     }
+
+    data class EmoteWindowUpdate(val player: PlayerDAO, val emote: String)
+    fun subscribeToEmoteUpdates(gameId: String, callback: (EmoteWindowUpdate) -> Unit){
+        subscribeToTopic("/topic/game/emote/$gameId") { message ->
+            try {
+                val update = Gson().fromJson(message, EmoteWindowUpdate::class.java)
+                Log.d("EMOTE_DEBUG", "Geparstes Update: player=${update.player}, emote=${update.emote}")
+                callback(update)
+            } catch (e: Exception) {
+                Log.e("MyStomp", "Fehler beim Parsen des CheatWindow-Updates: ${e.message}")
+            }
+
+        }
+    }
+
+    data class EmoteTimeoutUpdate(val player: PlayerDAO)
+    fun subscribeToEmoteTimeoutUpdate(gameId: String, callback: (EmoteTimeoutUpdate) -> Unit){
+        subscribeToTopic("/topic/game/emoteTimeout/$gameId"){message ->
+            try{
+                val update = Gson().fromJson(message, EmoteTimeoutUpdate::class.java)
+                callback(update)
+            }catch(e: Exception){
+                Log.e("MyStomp", "Fehler beim Parson von EmoteTimeout-Updates: ${e.message}")
+            }
+        }
+    }
+
+
 
 }
