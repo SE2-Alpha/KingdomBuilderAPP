@@ -432,7 +432,7 @@ fun HexagonBoardScreen(
                             modifier = Modifier.padding(vertical = 4.dp)
                         ) {
                             Text(
-                                player.emote ?: "",
+                                player.emote,
                                 fontStyle = FontStyle.Italic,
                                 modifier = Modifier.widthIn(min = 50.dp)
                             )
