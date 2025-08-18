@@ -434,7 +434,7 @@ fun HexagonBoardScreen(
                             Text(
                                 player.emote ?: "",
                                 fontStyle = FontStyle.Italic,
-                                modifier = Modifier.widthIn(min = 40.dp)
+                                modifier = Modifier.widthIn(min = 50.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Box(
